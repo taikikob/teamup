@@ -1,0 +1,12 @@
+/* Reset margin and set box model */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Set base font and full height layout */
+html, body, #root {
+  height: 100%;
+  font-family: system-ui, sans-serif;
+}
