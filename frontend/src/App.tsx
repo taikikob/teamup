@@ -5,6 +5,7 @@ import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Landingpage from './pages/Landingpage';
+import Inbox from './pages/Inbox';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path='/login' element={<Login />}/>
           <Route path='/signup' element={<Signup />}/>
           <Route path='/home' element={<Home />}/>
+          <Route path='/inbox' element={<Inbox />}/>
         </Routes>
       </div>
     </>

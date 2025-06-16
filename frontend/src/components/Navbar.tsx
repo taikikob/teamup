@@ -11,11 +11,11 @@ function Navbar() {
         email: string;
     };
     
-    // const user = null;
-    const user: User = {
-        name: "John Doe",
-        email: "johndoe@gmail.com"
-    }
+    const user = null;
+    // const user: User = {
+    //     name: "John Doe",
+    //     email: "johndoe@gmail.com"
+    // }
 
   return (
     <>
@@ -33,7 +33,8 @@ function Navbar() {
             </div>
             {user ? (
                 <div className="navbar-links">
-                    <Link to="/" className="nav-link">Home</Link>
+                    <Link to="/home" className="nav-link">Home</Link>
+                    <Link to="/inbox" className="nav-link">Inbox</Link>
                     <Link to="/profile" className="navlink">Profile</Link>
                 </div>
             ) : (

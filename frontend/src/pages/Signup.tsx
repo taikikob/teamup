@@ -12,9 +12,29 @@ function Signup() {
     setPassword(e.target.value);
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Add sign-up logic here
+    try {
+      const body = {
+        email: email,
+        password: password
+      }
+      const response = await fetch("http://localhost:5001/signup",{
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Signup failed:", errorData.error);
+        // optionally set error state here to show in UI
+        return;
+      }
+    } catch (error) {
+      
+    }
   };
 
   const handleGoogleSignup = () => {
