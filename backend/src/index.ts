@@ -1,15 +1,16 @@
 import express from 'express';
 import cors from 'cors';
-import authRoutes from './routes/auth';
+import authRouter from './routes/auth';
 
 const app = express();
+const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/api', authRoutes);
+// first argument is the path prefix for the routes in auth.ts
+app.use('/api/auth', authRouter);
 
-const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on Port ${PORT}`);
 });
