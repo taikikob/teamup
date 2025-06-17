@@ -3,6 +3,8 @@ import React, { useState } from "react";
 function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -12,6 +14,14 @@ function Signup() {
     setPassword(e.target.value);
   };
 
+  const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFirstName(e.target.value);
+  };
+
+  const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLastName(e.target.value);
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Add sign-up logic here
@@ -19,10 +29,13 @@ function Signup() {
     try {
       const body = {
         email: email,
-        password: password
+        password: password,
+        firstName: firstName,
+        lastName: lastName
       }
       const response = await fetch("http://localhost:3000/api/auth/signup",{
         method: "POST",
+        credentials: "include", // Include cookies for session management
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(body)
       });
@@ -33,8 +46,10 @@ function Signup() {
         // optionally set error state here to show in UI
         return;
       }
+      const data = await response.json();
+      console.log("Signup successful:", data);
     } catch (error) {
-      
+      console.error("Error during signup:", error);
     }
   };
 
@@ -59,6 +74,22 @@ function Signup() {
           placeholder="Password"
           value={password}
           onChange={handlePasswordChange}
+          style={styles.input}
+          required
+        />
+        <input
+          type="text"
+          placeholder="First Name"
+          value={firstName}
+          onChange={handleFirstNameChange}
+          style={styles.input}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Last Name"
+          value={lastName}
+          onChange={handleLastNameChange}
           style={styles.input}
           required
         />

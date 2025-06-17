@@ -6,6 +6,7 @@ export async function postSignup (request: Request<{},{}, SignupDto>, response: 
     // TODO: Implement signup logic
     const { firstName, lastName, email, password } = request.body;
     console.log(request.body);
+    response.json({message:"Signup successful"});
 }
 
 export async function postLogin (request: Request, response: Response) {
