@@ -4,6 +4,9 @@ import authRouter from './routes/auth';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import pool from './db';
+import * as crypto from "crypto";
+// importing passport strategy
+import passport from './passport';
 
 const app = express();
 const PORT = 3000;
@@ -17,6 +20,8 @@ app.use(cors({
 
 app.use(express.json());
 // express-session middleware configuration
+
+// using postgreSQL database to store session
 app.use(
   session({
     store: new PgSession({
@@ -38,3 +43,5 @@ app.use('/api/auth', authRouter);
 app.listen(PORT, () => {
   console.log(`Server is running on Port ${PORT}`);
 });
+
+// ERROR HANDLER SHOULD GO HERE FOR PRODUCTION
