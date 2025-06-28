@@ -1,11 +1,12 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import pool from './db';
+import { validPassword } from './lib/passwordUtils';
 
 // name of field that I want passport to look for username and password in request
 const customFields = {
     usernameField: 'email',
-    passwordField: 'pw'
+    passwordField: 'password'
 }
 
 
@@ -40,6 +41,38 @@ const strategy = new LocalStrategy(customFields, verifyCallback);
 
 passport.use(strategy);
 
-passport.serializeUser((user: any, done) => done(null, user.id))
+passport.serializeUser((user: any, done) => {
+  console.log("Serializing user:", user);
+  done(null, user.user_id); // will throw if user.id is undefined
+});
+
+interface DeserializedUser {
+  user_id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+}
+
+passport.deserializeUser(async (userId:number, done) => {
+    try {
+
+    const id = Number(userId);
+    if (isNaN(id)) return done(new Error("Invalid user ID type"));
+
+    const result = await pool.query(
+      'SELECT user_id, email, first_name, last_name FROM users WHERE user_id = $1',
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return done(new Error("User not found"));
+    }
+
+    const user:DeserializedUser = result.rows[0];
+    return done(null, user); // attaches user to req.user
+  } catch (err) {
+    return done(err);
+  }
+})
 
 export default passport;

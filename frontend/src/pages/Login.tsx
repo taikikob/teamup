@@ -12,9 +12,30 @@ function Login() {
         setPassword(e.target.value);
     };
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         // TODO: Add login logic here
+        try {
+          const body = {
+            email: email,
+            password: password
+          }
+          const response = await fetch("http://localhost:3000/api/auth/login",{
+            method: "POST",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(body)
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Login failed:", errorData.error);
+            // optionally set error state here to show in UI
+            return;
+          }
+          window.location.href = "/home";
+        } catch (error) {
+          console.error("Error duing login: ", error);
+        }
     };
 
     const handleGoogleLogin = () => {

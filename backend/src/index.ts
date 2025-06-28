@@ -1,12 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth';
+import profileRouter from './routes/profile';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import pool from './db';
-import * as crypto from "crypto";
-// importing passport strategy
-import passport from './passport';
+import passport from 'passport';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = 3000;
@@ -28,7 +30,7 @@ app.use(
       pool: pool, // Connection pool
       tableName: 'sessions', 
     }),
-    secret: 'your-secret-key', // Replace with your own secret key, usually an environment variable
+    secret: process.env.SESSION_SECRET!, // Replace with your own secret key, usually an environment variable
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -37,8 +39,24 @@ app.use(
   })
 );
 
+// Need to require the entire Passport config module so app.js knows about it
+import "./passport";
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// custom middleware to see how passport works
+// session is created by express session
+// user is created by passport
+app.use((req, res, next) => {
+  console.log(req.session);
+  console.log(req.user);
+  next();
+}) ;
+
 // first argument is the path prefix for the routes in auth.ts
 app.use('/api/auth', authRouter);
+app.use('/api/profile', profileRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on Port ${PORT}`);

@@ -6,13 +6,15 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Landingpage from './pages/Landingpage';
 import Inbox from './pages/Inbox';
+import { UserProvider } from './contexts/UserContext';
 
 
 function App() {
   return (
     <>
-      <Navbar></Navbar>
-      <div className='main-content'>
+    <UserProvider>
+    <Navbar></Navbar>
+        <div className='main-content'>
         <Routes>
           <Route path='/' element={<Landingpage />}/>
           <Route path='/profile' element={<Profile />}/>
@@ -22,6 +24,7 @@ function App() {
           <Route path='/inbox' element={<Inbox />}/>
         </Routes>
       </div>
+    </UserProvider>
     </>
   )
 }
