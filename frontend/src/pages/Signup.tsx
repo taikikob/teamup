@@ -48,6 +48,7 @@ function Signup() {
       }
       const data = await response.json();
       console.log("Signup successful:", data);
+      window.location.href = "/login";
     } catch (error) {
       console.error("Error during signup:", error);
     }

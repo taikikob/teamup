@@ -25,7 +25,7 @@ router.post('/login', (req, res, next) => {
 });
 
 router.get('/me', isAuth, (req, res) => {
-  res.json(req.user); // Already available if using Passport
+  res.json(req.user); 
 });
 
 router.get('/logout', (req, res, next) => {
