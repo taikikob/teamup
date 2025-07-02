@@ -18,10 +18,16 @@ CREATE TABLE IF NOT EXISTS teams (
 
 CREATE TABLE IF NOT EXISTS team_memberships (
   team_id integer REFERENCES teams(team_id) ON DELETE CASCADE,
-  user_id integer REFERENCES user(user_id) ON DELETE CASCADE,
+  user_id integer REFERENCES users(user_id) ON DELETE CASCADE,
   role varchar CHECK (role IN ('player', 'coach')) NOT NULL,
-  PRIMARY KEY
-)
+  PRIMARY KEY (team_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS access_codes (
+  team_id integer REFERENCES teams(team_id) ON DELETE CASCADE,
+  code varchar PRIMARY KEY,
+  expires_at TIMESTAMP
+);
 
 
 
