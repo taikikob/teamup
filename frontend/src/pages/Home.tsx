@@ -36,11 +36,15 @@ function Home() {
     },[location.state]);
 
     useEffect(() => {
-        // display team creation success message if available
         if (location.state?.message) {
-            toast.success(location.state?.message, { position: 'top-center' });
+            toast.success(location.state.message, { position: 'top-center' });
+
+            // only navigate after showing the message
+            navigate(location.pathname, {
+                replace: true,
+                state: { ...location.state, message: undefined }
+            });
         }
-        navigate(location.pathname, { replace: true });
     }, [location, navigate]);
 
     return (
