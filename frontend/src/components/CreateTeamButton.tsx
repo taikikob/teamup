@@ -4,12 +4,14 @@ import { useNavigate } from 'react-router-dom';
 function CreateTeamButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [teamName, setTeamName] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleCreate = async () => {
     try {
       // send post request to my backend
+      setLoading(true);
       const res = await fetch('http://localhost:3000/api/team/create', {
         method: 'POST',
         headers: {
@@ -21,20 +23,39 @@ function CreateTeamButton() {
 
       // check if response was valid
       if (!res.ok) throw new Error('Failed to create team');
-
+      // retrieve message
+      const data = await res.json();
       // close modal
       setIsOpen(false);
 
       // resend user to home page with the state so home page refreshes for user
-      navigate('/home', {state: {refresh: true}});
+      navigate('/home', {state: {
+        refresh: true,
+        message: data.msg
+      }
+      });
     } catch (error) {
       console.error('Error creating team:', error);
+    } finally {
+      setLoading(false);
     }
   }
 
+  const handleOpen = () => {
+    setTeamName('');
+    setLoading(false);
+    setIsOpen(true);
+  };
+
+  const handleClose = () => {
+    setTeamName('');
+    setLoading(false);
+    setIsOpen(false);
+  };
+
   return (
     <div>
-      <button onClick={() => setIsOpen(true)}>Create Team</button>
+      <button onClick={handleOpen}>Create Team</button>
 
       {isOpen && (
         <div style={overlayStyles}>
@@ -47,9 +68,11 @@ function CreateTeamButton() {
               onChange={(e) => setTeamName(e.target.value)}
             />
             <p>By creating the team, you will be the <strong>coach</strong> of the team</p>
-            <button onClick={handleCreate}>Create Team</button>
+            <button onClick={handleCreate} disabled={loading || teamName.trim() === ''}>
+              {loading ? 'Creating...' : 'Create Team'}
+            </button>
             <br/>
-            <button onClick={() => setIsOpen(false)}>Close</button>
+            <button onClick={handleClose}>Close</button>
           </div>
         </div>
       )}

@@ -7,6 +7,8 @@ import Signup from './pages/Signup';
 import Landingpage from './pages/Landingpage';
 import Inbox from './pages/Inbox';
 import { UserProvider } from './contexts/UserContext';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 function App() {
@@ -23,6 +25,7 @@ function App() {
           <Route path='/home' element={<Home />}/>
           <Route path='/inbox' element={<Inbox />}/>
         </Routes>
+        <ToastContainer />
       </div>
     </UserProvider>
     </>

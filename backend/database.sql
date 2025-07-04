@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS team_memberships (
 CREATE TABLE IF NOT EXISTS access_codes (
   team_id integer REFERENCES teams(team_id) ON DELETE CASCADE,
   code varchar PRIMARY KEY,
+  role VARCHAR CHECK (role IN ('player', 'coach')) NOT NULL,
   expires_at TIMESTAMP
 );
 
