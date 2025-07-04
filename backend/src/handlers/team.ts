@@ -3,6 +3,31 @@ import pool from '../db';
 import { genAccCode } from "../lib/accessCodeUtils";
 import { User } from "../types/User";
 
+export async function getTeams(request: Request, response: Response) {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    try {
+        const result = await pool.query(
+            `SELECT tm.team_id, t.team_name, tm.role
+            FROM team_memberships tm
+            JOIN teams t ON tm.team_id = t.team_id
+            WHERE tm.user_id = $1`,
+            [user.user_id]
+        );
+        console.log(result.rows);
+        response.status(200).json(result.rows);
+        return;
+    } catch (error) {
+        console.error('Error fetching teams that user is a part of:', error);
+        response.status(500).json({ error: 'Failed to fetch teams user is a part of please try again.' });
+    }
+}
+
+
+
 interface CreateTeamDto {
     team_name: string;
 }
