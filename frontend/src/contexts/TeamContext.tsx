@@ -51,13 +51,6 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
     const [teamError, setTeamError] = useState<string | null>(null);
 
     const fetchTeamData = async () => {
-        if (isNaN(team_id) || !user?.user_id) { // Ensure IDs are valid before fetching
-            if (isNaN(team_id)) setTeamError("Invalid Team ID in URL.");
-            else setTeamError("User not authenticated.");
-            setIsLoadingTeam(false);
-            return;
-        }
-
         try {
             setIsLoadingTeam(true);
             setTeamError(null);
