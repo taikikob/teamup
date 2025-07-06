@@ -3,7 +3,7 @@ import pool from '../db';
 import { genAccCode } from "../lib/accessCodeUtils";
 import { User } from "../types/User";
 
-export async function getTeams(request: Request, response: Response) {
+export async function getTeams(request: Request, response: Response): Promise<void> {
     const user = request.user as User;
     if (!user) {
         response.status(401).json({ error: 'User not authenticated' });
@@ -26,7 +26,7 @@ export async function getTeams(request: Request, response: Response) {
     }
 }
 
-export async function getTeamInfo(request:Request, response:Response) {
+export async function getTeamInfo(request:Request, response:Response): Promise<void> {
     const user = request.user as User;
     if (!user) {
         response.status(401).json({ error: 'User not authenticated' });
@@ -34,8 +34,8 @@ export async function getTeamInfo(request:Request, response:Response) {
     }
     try {
         const team_id = request.params.team_id;
-        const result = await pool.query (
-            `SELECT t.team_name, t.team_description, 
+        const result = await pool.query(
+            `SELECT t.team_id, t.team_name, t.team_description, 
                 EXISTS(
                     SELECT 1 FROM team_memberships tm 
                         WHERE tm.team_id = $1
@@ -73,10 +73,10 @@ export async function getTeamInfo(request:Request, response:Response) {
                 ) AS team_access_codes
             FROM teams t
             WHERE t.team_id = $1`,
-            [team_id, user.user_id]);
-            console.log(result.rows[0]);
-            response.status(200).json(result.rows[0]);
-            return;
+        [team_id, user.user_id]);
+        console.log(result.rows[0]);
+        response.status(200).json(result.rows[0]);
+        return;
     } catch (error) {
         console.error('Error fetching team information:', error);
         response.status(500).json({ error: 'Failed to fetch the information for this team.' });
@@ -158,3 +158,40 @@ export async function postCreate(request: Request<{},{}, CreateTeamDto>, respons
        client.release(); 
     }
 }
+
+interface CreateTeamDto {
+    team_id: number;
+    team_description: string;
+}
+
+export async function editDescription(request: Request, response: Response): Promise<void> {
+    const { team_description } = request.body; // Destructure directly from req.body
+    // validate team_description
+    if (typeof team_description === 'undefined' || team_description === null) {
+        // Decide if null is allowed. If not, make it a 400.
+        // If it can be set to null, then only check for undefined.
+        response.status(400).json({ message: 'Team description is required in the request body.' });
+        return;
+    }
+    if (typeof team_description !== 'string') {
+        response.status(400).json({ message: 'Team description must be a string.' });
+        return;
+    }
+    // TODO: Limit number of characters for description in frontend
+    try {
+        // already validated teamId
+        const teamId = parseInt(request.params.team_id || '', 10);
+        pool.query(
+            `UPDATE teams 
+             SET team_description = $1
+             WHERE team_id = $2`,
+            [team_description, teamId]
+        );
+        response.status(200).json({ message: 'Team description updated successfully.' });
+        return;
+    } catch (error) {
+        console.error('Database update error for team description:', error);
+        response.status(500).json({ message: 'Internal server error updating team description.' });
+        return;
+    }
+};

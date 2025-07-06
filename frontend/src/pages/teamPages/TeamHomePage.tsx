@@ -1,3 +1,4 @@
+import EditDescriptionButton from "../../components/EditDescriptionButton";
 import { useTeam } from "../../contexts/TeamContext";
 
 function TeamHomePage() {
@@ -26,8 +27,12 @@ function TeamHomePage() {
             <h1>{teamInfo.team_name}</h1>
             <div>
                 <strong>Team Description:</strong> {teamInfo.team_description || 'No description provided.'}
+                {/* TODO: Add description if no description, edit description if one exists */}
+                {teamInfo.is_user_coach && (
+                    <EditDescriptionButton/>
+                )}
             </div>
-
+            {/* TODO: Coach if only 1 coach, coaches if more than 1 coach */}
             <h2>Coaches:</h2>
             {teamInfo.coaches_info && teamInfo.coaches_info.length > 0 ? (
                 <div>
