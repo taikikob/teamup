@@ -12,7 +12,7 @@ function CreateTeamButton() {
     try {
       // send post request to my backend
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/team/create', {
+      const res = await fetch('http://localhost:3000/api/teams/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

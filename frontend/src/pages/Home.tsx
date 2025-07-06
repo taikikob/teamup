@@ -5,6 +5,7 @@ import CreateTeamButton from "../components/CreateTeamButton";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import type { Team } from "../types/team";
+import { Link } from "react-router-dom";
 
 function Home() {
     
@@ -17,8 +18,7 @@ function Home() {
 
     useEffect(() => {
         const fetchTeams = async () => {
-            // IMPLEMENT
-            const res = await fetch('http://localhost:3000/api/team/get', {
+            const res = await fetch('http://localhost:3000/api/teams', {
                 credentials: 'include',
             });
             const data: Team[] = await res.json();
@@ -57,7 +57,9 @@ function Home() {
                 </>
             ) : (
                 teams.map((team) => (
-                    <TeamCard key={team.team_id} team={team} />
+                    <Link to={`/teams/${team.team_id}`} key={team.team_id}>
+                        <TeamCard team={team} />
+                    </Link>
                 ))
             )}
             <button>Find a group via a code from your coach</button>

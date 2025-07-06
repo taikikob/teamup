@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth';
 import profileRouter from './routes/profile';
-import teamRouter from './routes/team'
+import teamsRouter from './routes/teams'
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import pool from './db';
@@ -58,7 +58,7 @@ app.use((req, res, next) => {
 // first argument is the path prefix for the routes in auth.ts
 app.use('/api/auth', authRouter);
 app.use('/api/profile', profileRouter);
-app.use('/api/team', teamRouter);
+app.use('/api/teams', teamsRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on Port ${PORT}`);

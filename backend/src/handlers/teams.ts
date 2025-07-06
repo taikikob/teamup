@@ -26,6 +26,63 @@ export async function getTeams(request: Request, response: Response) {
     }
 }
 
+export async function getTeamInfo(request:Request, response:Response) {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    try {
+        const team_id = request.params.team_id;
+        const result = await pool.query (
+            `SELECT t.team_name, t.team_description, 
+                EXISTS(
+                    SELECT 1 FROM team_memberships tm 
+                        WHERE tm.team_id = $1
+                        AND tm.user_id = $2
+                        AND tm.role = 'Coach'
+                ) AS is_user_coach,
+                (
+                    SELECT
+                        COALESCE(
+                            json_agg(
+                                json_build_object(
+                                    'user_id', u_coach.user_id,
+                                    'first_name', u_coach.first_name,
+                                    'last_name', u_coach.last_name,
+                                    'email', u_coach.email
+                                )
+                            ) FILTER (WHERE u_coach.user_id IS NOT NULL),
+                            '[]'::json -- Keep this COALESCE for coaches, as a team might genuinely have no coaches
+                        )
+                    FROM team_memberships tm_coach
+                    JOIN users u_coach ON tm_coach.user_id = u_coach.user_id
+                    WHERE tm_coach.team_id = t.team_id AND tm_coach.role = 'Coach'
+                ) AS coaches_info,
+                (
+                    SELECT 
+                        json_agg(
+                            json_build_object (
+                                'code', ac.code,
+                                'role', ac.role,
+                                'expires_at', ac.expires_at
+                            )
+                        )
+                    FROM access_codes ac
+                    WHERE ac.team_id = $1
+                ) AS team_access_codes
+            FROM teams t
+            WHERE t.team_id = $1`,
+            [team_id, user.user_id]);
+            console.log(result.rows[0]);
+            response.status(200).json(result.rows[0]);
+            return;
+    } catch (error) {
+        console.error('Error fetching team information:', error);
+        response.status(500).json({ error: 'Failed to fetch the information for this team.' });
+    }
+}
+
 
 
 interface CreateTeamDto {
@@ -61,7 +118,7 @@ export async function postCreate(request: Request<{},{}, CreateTeamDto>, respons
         const team_id = result.rows[0].team_id;
         // Create new membership, the user that sent this request is the coach
         await client.query("INSERT INTO team_memberships (team_id, user_id, role) VALUES ($1, $2, $3)",
-            [team_id, user.user_id, 'coach']
+            [team_id, user.user_id, 'Coach']
         );
 
         // Create new coach access code for team to be able to add more coaches
@@ -85,8 +142,8 @@ export async function postCreate(request: Request<{},{}, CreateTeamDto>, respons
         await client.query(
             `INSERT INTO access_codes (team_id, code, role, expires_at)
             VALUES 
-                ($1, $2, 'coach', $3),
-                ($1, $4, 'player', $3)`,
+                ($1, $2, 'Coach', $3),
+                ($1, $4, 'Player', $3)`,
             [team_id, coachCode, expires_at, playerCode]
         );
         await client.query('COMMIT');

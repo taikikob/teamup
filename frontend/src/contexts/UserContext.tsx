@@ -9,7 +9,7 @@ type User = {
 };
 
 type UserContextType = {
-  user: User | null; // TODO: Replace this with user type once we have everything we need
+  user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
 };
 

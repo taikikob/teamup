@@ -13,20 +13,21 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS teams (
   team_id SERIAL PRIMARY KEY,
-  team_name varchar NOT NULL
+  team_name varchar NOT NULL,
+  team_description varchar
 );
 
 CREATE TABLE IF NOT EXISTS team_memberships (
   team_id integer REFERENCES teams(team_id) ON DELETE CASCADE,
   user_id integer REFERENCES users(user_id) ON DELETE CASCADE,
-  role varchar CHECK (role IN ('player', 'coach')) NOT NULL,
+  role varchar CHECK (role IN ('Player', 'Coach')) NOT NULL,
   PRIMARY KEY (team_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS access_codes (
   team_id integer REFERENCES teams(team_id) ON DELETE CASCADE,
   code varchar PRIMARY KEY,
-  role VARCHAR CHECK (role IN ('player', 'coach')) NOT NULL,
+  role VARCHAR CHECK (role IN ('Player', 'Coach')) NOT NULL,
   expires_at TIMESTAMP
 );
 
