@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTeam } from "../contexts/TeamContext";
+import { toast } from 'react-toastify';
 
 function EditDescriptionButton() {
-  const { teamInfo, isLoadingTeam, teamError, refreshTeamInfo } = useTeam(); // Consume the context
+  const { teamInfo, refreshTeamInfo } = useTeam(); // Consume the context
 
   const [isOpen, setIsOpen] = useState(false);
   const [description, setDescription] = useState(teamInfo?.team_description ?? '');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Update description state when teamInfo is loaded or changes
@@ -43,10 +42,11 @@ function EditDescriptionButton() {
       if (!res.ok) throw new Error('Failed to edit team');
       // retrieve message
       const data = await res.json();
+      // TODO: Do something with the message. Show on screen
+      toast.success(data.message, { position: 'top-center' }); // <-- Show toast directly
       // close modal
       setIsOpen(false);
       refreshTeamInfo();
-      navigate(`/teams/${teamInfo.team_id}`);
     } catch (error) {
       console.error('Error creating team:', error);
     } finally {

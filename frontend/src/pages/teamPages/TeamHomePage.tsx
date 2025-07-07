@@ -3,8 +3,7 @@ import { useTeam } from "../../contexts/TeamContext";
 
 function TeamHomePage() {
     // coach should be able to view the access codes
-    const { teamInfo, isLoadingTeam, teamError, refreshTeamInfo } = useTeam(); // Consume the context
-
+    const { teamInfo, isLoadingTeam, teamError} = useTeam(); // Consume the context
     // conditional rendering
 
     if (isLoadingTeam) {

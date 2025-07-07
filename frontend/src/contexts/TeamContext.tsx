@@ -72,7 +72,6 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
                 }
             } else {
                 const data: TeamInfo = await res.json();
-                console.log(data);
                 setTeamInfo(data);
             }
         } catch (err: any) {
