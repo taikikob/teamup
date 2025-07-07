@@ -69,7 +69,7 @@ function CreateTeamButton() {
             />
             <p>By creating the team, you will be the <strong>coach</strong> of the team</p>
             <button onClick={handleCreate} disabled={loading || teamName.trim() === ''}>
-              {loading ? 'Creating...' : 'Create Team'}
+              {loading ? 'Loading...' : 'Create Team'}
             </button>
             <br/>
             <button onClick={handleClose}>Close</button>

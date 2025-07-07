@@ -1,6 +1,7 @@
 import { useUser } from "../contexts/UserContext";
 import { useState, useEffect } from "react";
 import TeamCard from "../components/TeamCard";
+import JoinTeamButton from "../components/JoinTeamButton";
 import CreateTeamButton from "../components/CreateTeamButton";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -62,7 +63,7 @@ function Home() {
                     </Link>
                 ))
             )}
-            <button>Find a group via a code from your coach</button>
+            <JoinTeamButton />
             <CreateTeamButton/>
         </>
     )

@@ -34,7 +34,6 @@ CREATE TABLE IF NOT EXISTS access_codes (
 
 
 
-
 -- Creates a table named `"sessions"` **only if it doesn't already exist**.
 -- The quotes around `"session"` are necessary because `session` is a **reserved keyword** in SQL.
 -- This table will store **user session data** for myt app.

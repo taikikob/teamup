@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getTeams, getTeamInfo, postCreate, editDescription } from '../handlers/teams';
+import { getTeams, getTeamInfo, postCreate, postJoin, editDescription } from '../handlers/teams';
 import { isAuth, isCoach } from '../lib/authMiddleware';
 
 const router = Router();
@@ -8,6 +8,7 @@ const router = Router();
 router.get('/', isAuth, getTeams);
 router.get('/:team_id', isAuth, getTeamInfo);
 router.post('/create', isAuth, postCreate);
+router.post('/join', isAuth, postJoin);
 router.patch('/:team_id/editDescription', isAuth, isCoach, editDescription);
 
 export default router;

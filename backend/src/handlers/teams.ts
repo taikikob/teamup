@@ -83,8 +83,6 @@ export async function getTeamInfo(request:Request, response:Response): Promise<v
     }
 }
 
-
-
 interface CreateTeamDto {
     team_name: string;
 }
@@ -159,9 +157,57 @@ export async function postCreate(request: Request<{},{}, CreateTeamDto>, respons
     }
 }
 
-interface CreateTeamDto {
-    team_id: number;
-    team_description: string;
+export async function postJoin(request: Request, response:Response): Promise<void> {
+    const { input_code } = request.body;
+    // validate input_code
+    if (typeof input_code === 'undefined' || input_code === null) {
+        // Decide if null is allowed. If not, make it a 400.
+        // If it can be set to null, then only check for undefined.
+        response.status(400).json({ message: 'Input code is required in the request body.' });
+        return;
+    }
+    if (typeof input_code !== 'string') {
+        response.status(400).json({ message: 'Input code must be a string.' });
+        return;
+    }
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    try {
+        const response1 = await pool.query(
+            `SELECT ac.code, ac.role, ac.expires_at, ac.team_id
+             FROM access_codes ac
+             WHERE ac.code = $1`,
+            [input_code]
+        )
+        
+        if (response1.rows.length > 0) {
+            // user provided valid code
+            // add to membership table
+            const accessCodeData = response1.rows[0];
+            const expiryDate = new Date(accessCodeData.expires_at);
+            const now = new Date(); // current time
+            if (now > expiryDate) {
+                response.status(400).json({message: 'Your code is expired, ask your coach to generate a new code'});
+                return;
+            }
+            await pool.query(
+                `INSERT INTO team_memberships (team_id, user_id, role)
+                 VALUES ($1, $2, $3)`,
+                [accessCodeData.team_id, user.user_id, accessCodeData.role]
+            )
+            response.status(201).json({ message: 'You successfully joined a team' });
+        } else {
+            // send error message saying code is invalid
+            response.status(400).json({message: 'Invalid code, make sure it is correct'});
+        }
+    } catch (error) {
+        console.error('Database query error to look for code:', error);
+        response.status(500).json({ message: 'Internal server error when joining team.' });
+        return;
+    }
 }
 
 export async function editDescription(request: Request, response: Response): Promise<void> {
@@ -179,7 +225,7 @@ export async function editDescription(request: Request, response: Response): Pro
     }
     // TODO: Limit number of characters for description in frontend
     try {
-        // already validated teamId
+        // already validated teamId, and that the user that sent this request is a coach
         const teamId = parseInt(request.params.team_id || '', 10);
         pool.query(
             `UPDATE teams 
