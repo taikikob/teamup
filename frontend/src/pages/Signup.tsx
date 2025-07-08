@@ -52,7 +52,7 @@ function Signup() {
       if (response.status === 201) {
         // resend user to home page with the state so home page refreshes for user
         navigate('/login', {state: {
-          message: data.message
+          signupSuccessMessage: data.message
         }})
       }
     } catch (error) {

@@ -4,7 +4,6 @@ import { SignupDto } from "../dtos/Signup.dto";
 import { genPassword } from "../lib/passwordUtils";
 
 export async function postSignup(request: Request<{},{}, SignupDto>, response: Response): Promise<void>{
-    // TODO: Implement signup logic
     try {
         const { firstName, lastName, email, password } = request.body;
         if (!firstName || !lastName || !email || !password) {
@@ -17,7 +16,7 @@ export async function postSignup(request: Request<{},{}, SignupDto>, response: R
         await pool.query("INSERT INTO users (email, password_hash, salt, first_name, last_name) VALUES ($1, $2, $3, $4, $5)",
             [email, hash, salt, firstName, lastName]
         );
-        response.status(201).json({ message: "Signup successful"});
+        response.status(201).json({ message: "Signup successful. Please log in now."});
         return;
     } catch (error:any) {
         // Postgres unique_violation error code is 23505
