@@ -1,8 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useUser } from "../contexts/UserContext";
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { refreshUser } = useUser();
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
@@ -11,6 +17,19 @@ function Login() {
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(e.target.value);
     };
+
+    // display sign up toast
+    useEffect(() => {
+      if (location.state?.message) {
+        toast.success(location.state.message, { position: 'top-center' });
+
+        // only navigate after showing the message
+        navigate(location.pathname, {
+            replace: true,
+            state: { ...location.state, message: undefined }
+        });
+      }
+    }, [location, navigate]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,7 +51,9 @@ function Login() {
             // optionally set error state here to show in UI
             return;
           }
-          window.location.href = "/home";
+          // **Crucial**: After successful login, tell the UserContext to re-fetch user data
+          await refreshUser();
+          navigate("/home");
         } catch (error) {
           console.error("Error duing login: ", error);
         }

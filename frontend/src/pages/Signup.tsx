@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 function Signup() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -47,8 +49,12 @@ function Signup() {
         return;
       }
       const data = await response.json();
-      console.log("Signup successful:", data);
-      window.location.href = "/login";
+      if (response.status === 201) {
+        // resend user to home page with the state so home page refreshes for user
+        navigate('/login', {state: {
+          message: data.message
+        }})
+      }
     } catch (error) {
       console.error("Error during signup:", error);
     }
