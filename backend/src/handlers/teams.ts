@@ -210,6 +210,56 @@ export async function postJoin(request: Request, response:Response): Promise<voi
     }
 }
 
+export async function newAC(request: Request, response: Response): Promise<void> {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const client = await pool.connect();
+    try {
+        const team_id = request.params.team_id;
+        await client.query('BEGIN');
+        // delete old access code for this team
+        // if no old access codes exist, this query will have no effect
+        await client.query(`DELETE FROM access_codes WHERE team_id = $1`, [team_id]);
+        // create new access codes for this team
+        let coachCode;
+        let exists = true;
+        while (exists) {
+            coachCode = genAccCode();
+            const res = await client.query('SELECT 1 FROM access_codes WHERE code = $1', [coachCode]);
+            exists = res.rowCount! > 0;
+        }
+        let playerCode;
+        exists = true;
+        while (exists) {
+            playerCode = genAccCode();
+            const res = await client.query('SELECT 1 FROM access_codes WHERE code = $1', [playerCode]);
+            exists = res.rowCount! > 0 || playerCode === coachCode;
+        }
+        // insert both codes into table
+        const expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days later
+        await client.query(
+            `INSERT INTO access_codes (team_id, code, role, expires_at)
+            VALUES 
+                ($1, $2, 'Coach', $3),
+                ($1, $4, 'Player', $3)`,
+            [team_id, coachCode, expires_at, playerCode]
+        );
+        await client.query('COMMIT');
+        response.status(201).json({
+            message: "New Access Codes Created"
+        })
+    } catch (error) {
+        console.error('Failed to generate new access codes:', error);
+        response.status(500).json({ error: 'Failed to generate new access codes. Please try again.' });
+        return;
+    } finally {
+       client.release(); 
+    }
+}
+
 export async function editDescription(request: Request, response: Response): Promise<void> {
     const { team_description } = request.body; // Destructure directly from req.body
     // validate team_description
@@ -241,3 +291,21 @@ export async function editDescription(request: Request, response: Response): Pro
         return;
     }
 };
+
+export async function deleteAC(request: Request, response: Response): Promise<void> {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    try {
+        const team_id = request.params.team_id;
+        // if no old access codes exist, this query will have no effect
+        await pool.query(`DELETE FROM access_codes WHERE team_id = $1`, [team_id]);
+        response.status(204).send();
+    } catch (error) {
+        console.error('Failed to delete access codes:', error);
+        response.status(500).json({ error: 'Failed to delete existing access codes. Please try again.' });
+        return;
+    }
+}

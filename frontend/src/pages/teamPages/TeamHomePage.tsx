@@ -1,9 +1,13 @@
+import { useState } from "react";
 import EditDescriptionButton from "../../components/EditDescriptionButton";
 import { useTeam } from "../../contexts/TeamContext";
+import { toast } from 'react-toastify';
 
 function TeamHomePage() {
     // coach should be able to view the access codes
-    const { teamInfo, isLoadingTeam, teamError} = useTeam(); // Consume the context
+    const { teamInfo, isLoadingTeam, teamError, refreshTeamInfo} = useTeam(); // Consume the context
+
+    const [loadingButton, setLoadingButton] = useState(false);
     // conditional rendering
 
     if (isLoadingTeam) {
@@ -18,8 +22,50 @@ function TeamHomePage() {
         return <div className="team-not-found">Team not found or no information available.</div>;
     }
 
-    const coachAccessCode = teamInfo.team_access_codes.find(code => code.role === 'Coach');
-    const playerAccessCode = teamInfo.team_access_codes.find(code => code.role === 'Player');
+    const coachAccessCode = (teamInfo.team_access_codes ?? []).find(code => code.role === 'Coach');
+    const playerAccessCode = (teamInfo.team_access_codes ?? []).find(code => code.role === 'Player');
+
+    const generateNewAccessCodes = async () => {
+        setLoadingButton(true);
+        try {
+            const res = await fetch(`http://localhost:3000/api/teams/${teamInfo.team_id}/newAccessCode`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (res.status === 201) {
+                refreshTeamInfo();
+                toast.success(data.message, { position: 'top-center' });
+            } else {
+                toast.error(data.message, { position: 'top-center' });
+            }
+        } catch (error) {
+            console.error('Error creating new access code', error);
+        } finally {
+            setLoadingButton(false);
+        }
+    }
+
+    const disableAccessCodes = async () => {
+        setLoadingButton(true);
+        try {
+            const res = await fetch(`http://localhost:3000/api/teams/${teamInfo.team_id}/delAccessCode`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            if (res.status === 204) {
+                refreshTeamInfo();
+                toast.success('Successfully removed access codes, no coach/player can join your team', { position: 'top-center' });
+            } else {
+                const data = await res.json();
+                toast.error(data.message, { position: 'top-center' });
+            }
+        } catch (error) {
+            console.error('Error deleting existing access code', error);
+        } finally {
+            setLoadingButton(false);
+        }
+    }
 
     return (
         <div className="team-home-page">
@@ -68,6 +114,8 @@ function TeamHomePage() {
                             "N/A"
                         )}
                     </p>
+                    {loadingButton ? (<button>Loading...</button>):(<button onClick={generateNewAccessCodes}>Generate New Access Codes</button>)}
+                    {loadingButton ? (<button>Loading...</button>):(<button onClick={disableAccessCodes}>Disable Access Codes</button>)}
                 </div>
             )}
         </div>

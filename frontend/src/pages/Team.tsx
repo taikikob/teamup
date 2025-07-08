@@ -18,7 +18,6 @@ function Team() {
                     <Routes>
                         <Route path="/" element={<TeamHomePage />} />
                         <Route path="mastery" element={<MasteryPage />} />
-                        <Route path="dailyTasks" element={<DailyTasksPage />} />
                         <Route path="announcements" element={<AnnouncementsPage />} />
                         <Route path="teammates" element={<TeammatesPage />} />
                         <Route path="settings" element={<TeamSettingsPage />} />
