@@ -158,14 +158,17 @@ export async function postCreate(request: Request<{},{}, CreateTeamDto>, respons
 }
 
 export async function postJoin(request: Request, response:Response): Promise<void> {
-    const { input_code } = request.body;
-    // validate input_code
-    if (typeof input_code === 'undefined' || input_code === null) {
-        // Decide if null is allowed. If not, make it a 400.
-        // If it can be set to null, then only check for undefined.
-        response.status(400).json({ message: 'Input code is required in the request body.' });
+    const { input_code_raw } = request.body;
+
+    if (typeof input_code_raw !== 'string' || input_code_raw.trim() === '') {
+        // Send an error response back to the client
+        response.status(400).json({ message: 'input_code_raw is required and must be a non-empty string.' });
         return;
     }
+
+    const input_code_trimmed = input_code_raw.trim();
+    const input_code = input_code_trimmed.toUpperCase();
+
     if (typeof input_code !== 'string') {
         response.status(400).json({ message: 'Input code must be a string.' });
         return;
@@ -185,6 +188,21 @@ export async function postJoin(request: Request, response:Response): Promise<voi
         
         if (response1.rows.length > 0) {
             // user provided valid code
+            // check if user already in team
+            const response2 = await pool.query(
+                `SELECT 
+                 EXISTS(
+                    SELECT 1 FROM team_memberships tm
+                    WHERE tm.team_id = $1
+                    AND tm.user_id = $2
+                 ) AS user_in_team`,
+                [response1.rows[0].team_id, user.user_id]
+            );
+            if (response2.rows[0].user_in_team) {
+                // user already exists in the team so send error message
+                response.status(409).json({message: 'You are already a part of the team you attempted to join.'});
+                return;
+            }
             // add to membership table
             const accessCodeData = response1.rows[0];
             const expiryDate = new Date(accessCodeData.expires_at);

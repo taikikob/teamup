@@ -18,7 +18,7 @@ function JoinTeamButton() {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({input_code: inputCode}),
+        body: JSON.stringify({input_code_raw: inputCode}),
       });
 
       // TEST WITH THIS CODE: Coach Access Code: QQBVYE
