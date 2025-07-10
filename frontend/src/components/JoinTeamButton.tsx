@@ -20,8 +20,7 @@ function JoinTeamButton() {
         credentials: 'include',
         body: JSON.stringify({input_code_raw: inputCode}),
       });
-
-      // TEST WITH THIS CODE: Coach Access Code: QQBVYE
+      
       // retrieve message
       const data = await res.json();
       if (res.status === 201) {
