@@ -1,8 +1,10 @@
 // filepath: /Users/taikik/src/virtrain/frontend/src/pages/teamPages/CustomNode.tsx
 import React, { useState } from "react";
 import { Handle, Position, type NodeProps } from "reactflow";
+//import { useTeam } from "../contexts/TeamContext";
 
-const CustomNode: React.FC<NodeProps> = ({ data }) => {
+const CustomNode: React.FC<NodeProps> = ({ data, selected }) => {
+    //const { teamInfo } = useTeam(); // Consume the context
     const [editing, setEditing] = useState(false);
     const [label, setLabel] = useState(data.label);
 
@@ -19,12 +21,16 @@ const CustomNode: React.FC<NodeProps> = ({ data }) => {
         setEditing(false);
     };
 
-
   return (
         <div
-            style={{ padding: 10, border: "2px solid #007bff", borderRadius: 8, background: "#e9f5ff" }}
+            style={{
+                padding: 10,
+                border: selected ? "2px dotted #007bff" : "2px solid #007bff",
+                borderRadius: 8,
+                background: "#e9f5ff"
+            }}
             onDoubleClick={handleDoubleClick}
-            >
+        >
         {editing ? (
             <>
                 <input

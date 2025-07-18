@@ -3,9 +3,9 @@ import { getBezierPath } from "reactflow";
 import type { EdgeProps } from "reactflow";
 
 const CustomEdge: React.FC<EdgeProps> = ({
-  id, sourceX, sourceY, targetX, targetY, label
+  id, sourceX, sourceY, targetX, targetY
 }) => {
-  const [edgePath, labelX, labelY] = getBezierPath({ sourceX, sourceY, targetX, targetY });
+  const [edgePath] = getBezierPath({ sourceX, sourceY, targetX, targetY });
   const markerId = `arrowhead-${id}`;
 
   return (
@@ -14,15 +14,14 @@ const CustomEdge: React.FC<EdgeProps> = ({
         <defs>
           <marker
             id={markerId}
-            markerWidth="8"
-            markerHeight="8"
-            refX="8"         // tip of the triangle at the end of the path
-            refY="4"
+            markerWidth="4"
+            markerHeight="4"
+            refX="4"
+            refY="2"
             orient="auto"
             markerUnits="strokeWidth"
           >
-            {/* Right-pointing triangle */}
-            <path d="M0,0 L8,4 L0,8 Z" fill="#222" />
+            <path d="M0,0 L4,2 L0,4 Z" fill="#222" />
           </marker>
         </defs>
         <path
