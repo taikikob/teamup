@@ -130,6 +130,29 @@ export async function getTeamFlow(request: Request, response: Response): Promise
     }
 }
 
+export async function getNodeTasks(request: Request, response: Response): Promise<void> {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const { team_id, node_id } = request.params;
+    const client = await pool.connect();
+    try {
+        const result = await client.query(`
+            SELECT task_id, title, task_order
+            FROM mastery_tasks
+            WHERE team_id = $1 AND node_id = $2
+        `, [team_id, node_id]);
+        response.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching node tasks:', error);
+        response.status(500).json({ error: 'Failed to fetch node tasks. Please try again.' });
+    } finally {
+        client.release();
+    }
+}
+
 interface CreateTeamDto {
     team_name: string;
 }
@@ -340,39 +363,96 @@ export async function postFlow(request: Request, response: Response): Promise<vo
     const client = await pool.connect();
     try {
         // keep database queries as a transaction so if anything fails the database is not modified
-        await client.query('BEGIN');    
-        // Delete existing nodes and edges for the team
-        await client.query('DELETE FROM mastery_edges WHERE team_id = $1', [team_id]);
-        await client.query('DELETE FROM mastery_nodes WHERE team_id = $1', [team_id]);
-        // Insert new nodes
-        const nodeInsertPromises = nodes.map(node => {
+        await client.query('BEGIN');
+        
+        // 1. Fetch existing node IDs for the team
+        const existingNodesRes = await client.query('SELECT node_id FROM mastery_nodes WHERE team_id = $1', [team_id]);
+        const existingNodeIds = existingNodesRes.rows.map(row => row.node_id);
+
+        // 2. Get new node IDs from the request
+        const newNodeIds = nodes.map(node => String(node.id));
+
+        // 3. Find nodes to delete
+        const nodesToDelete = existingNodeIds.filter(id => !newNodeIds.includes(id));
+
+        // 4. Delete only those nodes (and their edges/tasks)
+        for (const nodeId of nodesToDelete) {
+            await client.query('DELETE FROM mastery_nodes WHERE team_id = $1 AND node_id = $2', [team_id, nodeId]);
+            // Edges and tasks will cascade delete if foreign keys are set up
+        }
+
+        // 5. Upsert nodes
+        for (const node of nodes) {
             const node_id = String(node.id);
             const label = node.data.label;
             const pos_x = node.position.x;
             const pos_y = node.position.y;
-            return client.query(
-                'INSERT INTO mastery_nodes (team_id, node_id, label, pos_x, pos_y) VALUES ($1, $2, $3, $4, $5)',
-                [team_id, node_id, label, pos_x, pos_y]
+
+            // Try to update first
+            const updateRes = await client.query(
+                'UPDATE mastery_nodes SET label = $1, pos_x = $2, pos_y = $3 WHERE team_id = $4 AND node_id = $5',
+                [label, pos_x, pos_y, team_id, node_id]
             );
-        });
-        await Promise.all(nodeInsertPromises);
+
+            // If no rows were updated, insert
+            if (updateRes.rowCount === 0) {
+                await client.query(
+                    'INSERT INTO mastery_nodes (team_id, node_id, label, pos_x, pos_y) VALUES ($1, $2, $3, $4, $5)',
+                    [team_id, node_id, label, pos_x, pos_y]
+                );
+            }
+        }
+
+        // Delete all edges for the team (edges are not linked to tasks, so safe to delete all)
+        await client.query('DELETE FROM mastery_edges WHERE team_id = $1', [team_id]);
+
         // Insert new edges
-        const edgeInsertPromises = edges.map(edge => {
+        for (const edge of edges) {
             const edge_id = String(edge.id);
             const source = String(edge.source);
             const target = String(edge.target);
-            return client.query(
+            await client.query(
                 'INSERT INTO mastery_edges (team_id, edge_id, source_node_id, target_node_id) VALUES ($1, $2, $3, $4)',
                 [team_id, edge_id, source, target]
             );
-        });
-        await Promise.all(edgeInsertPromises);
+        }
+
         await client.query('COMMIT');
         response.status(200).json({ message: 'Flow data saved successfully.' });
     } catch (error) {
         console.error('Error saving flow data:', error);
         response.status(500).json({ error: 'Failed to save flow data. Please try again.' });
         return;
+    } finally {
+        client.release();
+    }
+}
+
+export async function postCreateTask(req: Request, res: Response): Promise<void> {
+    const user = req.user as User;
+    if (!user) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const { team_id, node_id } = req.params;
+    const { input_title, task_order } = req.body;
+
+    if (!input_title || typeof task_order !== 'number') {
+        res.status(400).json({ message: 'Missing required fields.' });
+        return;
+    }
+
+    const client = await pool.connect();
+    try {
+        await client.query(
+            `INSERT INTO mastery_tasks (node_id, team_id, title, task_order)
+             VALUES ($1, $2, $3, $4)`,
+            [node_id, team_id, input_title, task_order]
+        );
+        res.status(201).json({ message: 'Task created successfully.' });
+    } catch (error) {
+        console.error('Error creating task:', error);
+        res.status(500).json({ message: 'Failed to create task.' });
     } finally {
         client.release();
     }

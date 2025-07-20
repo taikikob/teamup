@@ -60,6 +60,28 @@ CREATE TABLE IF NOT EXISTS mastery_edges (
 -- Index for faster lookup by team
 CREATE INDEX IF NOT EXISTS idx_react_flow_edges_team_id ON mastery_edges (team_id);
 
+CREATE TABLE IF NOT EXISTS mastery_tasks (
+    task_id SERIAL PRIMARY KEY, -- Unique ID for each individual task
+    node_id VARCHAR NOT NULL,
+    team_id INTEGER NOT NULL,
+    title VARCHAR(255) NOT NULL, -- Title of the specific task
+    task_order INTEGER NOT NULL,       -- The order of this task within its node (e.g., 1, 2, 3)
+    description TEXT,                   -- Optional: A detailed description of the level
+
+    -- Constraints
+    -- Ensures that a specific node within a team can only have one level at a given order
+    UNIQUE (node_id, team_id, task_order),
+
+    -- Foreign Key to the mastery_nodes table to ensure levels are linked to existing nodes within the same team
+    FOREIGN KEY (node_id, team_id) REFERENCES mastery_nodes(node_id, team_id) ON DELETE CASCADE
+);
+
+-- Index for faster lookup of tasks by node and team
+CREATE INDEX IF NOT EXISTS idx_mastery_tasks_node_team ON mastery_tasks (node_id, team_id);
+
+-- Index for faster lookup of tasks by team (e.g., to get all tasks for a team)
+CREATE INDEX IF NOT EXISTS idx_mastery_tasks_team_id ON mastery_tasks (team_id);
+
 -- Creates a table named `"sessions"` **only if it doesn't already exist**.
 -- The quotes around `"session"` are necessary because `session` is a **reserved keyword** in SQL.
 -- This table will store **user session data** for myt app.
