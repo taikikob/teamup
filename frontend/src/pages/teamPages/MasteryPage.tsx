@@ -235,8 +235,9 @@ function MasteryPage() {
         data: {
             ...node.data,
             updateNodeLabel,
-            id: node.id, // pass id for CustomNode
-            editing
+            id: node.id,
+            editing,
+            isCoach: teamInfo.is_user_coach
         }
     }));
 

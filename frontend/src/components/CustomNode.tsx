@@ -1,10 +1,8 @@
 // filepath: /Users/taikik/src/virtrain/frontend/src/pages/teamPages/CustomNode.tsx
 import React, { useState } from "react";
 import { Handle, Position, type NodeProps } from "reactflow";
-import { useTeam } from "../contexts/TeamContext";
 
 const CustomNode: React.FC<NodeProps> = ({ data, selected }) => {
-    const { teamInfo } = useTeam(); // Consume the context
     const [editingLabel, setEditingLabel] = useState(false);
     const [label, setLabel] = useState(data.label);
 
@@ -59,9 +57,25 @@ const CustomNode: React.FC<NodeProps> = ({ data, selected }) => {
         {/* Add more custom content here */}
         <>
             {/* Target handle (top) */}
-            <Handle type="target" position={Position.Top} />
+            <Handle
+                type="target"
+                position={Position.Top}
+                isConnectable={data.editing && data.isCoach}
+                style={{
+                    opacity: data.editing && data.isCoach ? 1 : 0, // Invisible when not editing as coach
+                    pointerEvents: data.editing && data.isCoach ? 'auto' : 'none' // Prevent interaction when invisible
+                }}
+            />
             {/* Source handle (bottom) */}
-            <Handle type="source" position={Position.Bottom} />  
+            <Handle
+                type="source"
+                position={Position.Bottom}
+                isConnectable={data.editing && data.isCoach}
+                style={{
+                    opacity: data.editing && data.isCoach ? 1 : 0,
+                    pointerEvents: data.editing && data.isCoach ? 'auto' : 'none'
+                }}
+            />  
         </>
     </div>
   );
