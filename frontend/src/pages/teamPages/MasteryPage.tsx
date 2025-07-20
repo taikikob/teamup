@@ -115,12 +115,12 @@ function MasteryPage() {
     const onEdgesChange = useCallback(
         (changes: EdgeChange[]) => {
             const removeChange = changes.find(change => change.type === 'remove');
-            if (removeChange && !editing) {
-                return; // If not editing, do not allow edge removal
+            if (removeChange && (!editing || !teamInfo?.is_user_coach)) {
+                return; // Only allow edge removal when coach is editing
             }
             setEdges((eds) => applyEdgeChanges(changes, eds));
         },
-        []
+        [editing, teamInfo?.is_user_coach]
     );
 
     const onConnect = useCallback(

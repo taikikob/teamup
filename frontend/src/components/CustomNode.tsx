@@ -57,15 +57,12 @@ const CustomNode: React.FC<NodeProps> = ({ data, selected }) => {
         )}
 
         {/* Add more custom content here */}
-        {/* Only show if the user is a coach */}
-        {teamInfo?.is_user_coach && data.editing && (
-            <>
-                {/* Target handle (top) */}
-                <Handle type="target" position={Position.Top} />
-                {/* Source handle (bottom) */}
-                <Handle type="source" position={Position.Bottom} />  
-            </>
-        )}
+        <>
+            {/* Target handle (top) */}
+            <Handle type="target" position={Position.Top} />
+            {/* Source handle (bottom) */}
+            <Handle type="source" position={Position.Bottom} />  
+        </>
     </div>
   );
 };

@@ -3,14 +3,14 @@ import { getBezierPath } from "reactflow";
 import type { EdgeProps } from "reactflow";
 
 const CustomEdge: React.FC<EdgeProps> = ({
-  id, sourceX, sourceY, targetX, targetY
+  id, sourceX, sourceY, targetX, targetY, selected
 }) => {
   const [edgePath] = getBezierPath({ sourceX, sourceY, targetX, targetY });
   const markerId = `arrowhead-${id}`;
 
   return (
     <>
-      <svg style={{ position: 'absolute', overflow: 'visible', pointerEvents: 'none' }}>
+      <svg style={{ position: 'absolute', overflow: 'visible' }}>
         <defs>
           <marker
             id={markerId}
@@ -30,9 +30,10 @@ const CustomEdge: React.FC<EdgeProps> = ({
           strokeWidth={2}
           fill="none"
           markerEnd={`url(#${markerId})`}
+          strokeDasharray={selected ? "6,4" : undefined}
+          style={{ pointerEvents: 'all' }} // <-- Enable pointer events for selection
         />
       </svg>
-
     </>
   );
 };
