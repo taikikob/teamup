@@ -83,6 +83,53 @@ export async function getTeamInfo(request:Request, response:Response): Promise<v
     }
 }
 
+export async function getTeamFlow(request: Request, response: Response): Promise<void> {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const team_id = request.params.team_id;
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Fetch nodes from the team
+        const nodesRes = await client.query("SELECT node_id, label, pos_x, pos_y FROM mastery_nodes WHERE team_id = $1", [team_id]);
+        // Transform nodes to React Flow format
+        const nodes = nodesRes.rows.map(n => ({
+            id: n.node_id,
+            position: { x: n.pos_x, y: n.pos_y },
+            data: { label: n.label },
+            type: 'custom'
+        }));
+
+        // Fetch edges from the team
+        const edgesRes = await client.query("SELECT edge_id, source_node_id, target_node_id FROM mastery_edges WHERE team_id = $1", [team_id]);
+        // Transform edges to React Flow format
+        const edges = edgesRes.rows.map(e => ({
+            id: e.edge_id,
+            source: e.source_node_id,
+            target: e.target_node_id,
+            type: 'custom'
+        }));
+
+        await client.query('COMMIT');
+        response.status(200).json({
+            msg: "Flow data fetched successfully",
+            nodes,
+            edges
+        });
+        console.log(nodes, edges);
+    } catch (error) {
+        console.error('Error fetching flow data:', error);
+        response.status(500).json({ error: 'Failed to fetch flow data. Please try again.' });
+        return;
+    } finally {
+       client.release(); 
+    }
+}
+
 interface CreateTeamDto {
     team_name: string;
 }
@@ -275,6 +322,87 @@ export async function newAC(request: Request, response: Response): Promise<void>
         return;
     } finally {
        client.release(); 
+    }
+}
+
+export async function postFlow(request: Request, response: Response): Promise<void> {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const { nodes, edges } = request.body;
+    if (!Array.isArray(nodes) || !Array.isArray(edges)) {
+        response.status(400).json({ error: 'Invalid data format. Nodes and edges must be arrays.' });
+        return;
+    }
+    const team_id = request.params.team_id;
+    const client = await pool.connect();
+    try {
+        // keep database queries as a transaction so if anything fails the database is not modified
+        await client.query('BEGIN');    
+        // Delete existing nodes and edges for the team
+        await client.query('DELETE FROM mastery_edges WHERE team_id = $1', [team_id]);
+        await client.query('DELETE FROM mastery_nodes WHERE team_id = $1', [team_id]);
+        // Insert new nodes
+        const nodeInsertPromises = nodes.map(node => {
+            const node_id = String(node.id);
+            const label = node.data.label;
+            const pos_x = node.position.x;
+            const pos_y = node.position.y;
+            return client.query(
+                'INSERT INTO mastery_nodes (team_id, node_id, label, pos_x, pos_y) VALUES ($1, $2, $3, $4, $5)',
+                [team_id, node_id, label, pos_x, pos_y]
+            );
+        });
+        await Promise.all(nodeInsertPromises);
+        // Insert new edges
+        const edgeInsertPromises = edges.map(edge => {
+            const edge_id = String(edge.id);
+            const source = String(edge.source);
+            const target = String(edge.target);
+            return client.query(
+                'INSERT INTO mastery_edges (team_id, edge_id, source_node_id, target_node_id) VALUES ($1, $2, $3, $4)',
+                [team_id, edge_id, source, target]
+            );
+        });
+        await Promise.all(edgeInsertPromises);
+        await client.query('COMMIT');
+        response.status(200).json({ message: 'Flow data saved successfully.' });
+    } catch (error) {
+        console.error('Error saving flow data:', error);
+        response.status(500).json({ error: 'Failed to save flow data. Please try again.' });
+        return;
+    } finally {
+        client.release();
+    }
+}
+
+export async function updateNodeLabel(request: Request, response: Response): Promise<void> {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const { node_id, label } = request.body;
+    console.log('Updating node label:', { node_id, label });
+    const team_id = request.params.team_id;
+    if (!node_id || typeof label !== 'string') {
+        response.status(400).json({ error: 'Missing node_id or label.' });
+        return;
+    }
+    const client = await pool.connect();
+    try {
+        await client.query(
+            'UPDATE mastery_nodes SET label = $1 WHERE team_id = $2 AND node_id = $3',
+            [label, team_id, node_id]
+        );
+        response.status(200).json({ message: 'Node label updated successfully.' });
+    } catch (error) {
+        console.error('Error updating node label:', error);
+        response.status(500).json({ error: 'Failed to update node label.' });
+    } finally {
+        client.release();
     }
 }
 

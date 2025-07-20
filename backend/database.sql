@@ -31,8 +31,34 @@ CREATE TABLE IF NOT EXISTS access_codes (
   expires_at TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS mastery_nodes (
+    node_id VARCHAR NOT NULL,
+    team_id INTEGER NOT NULL,
+    label VARCHAR(255) NOT NULL,
+    pos_x FLOAT NOT NULL,
+    pos_y FLOAT NOT NULL,
+    -- Add other fields as needed (e.g., type, metadata)
+    PRIMARY KEY (node_id, team_id),
+    FOREIGN KEY (team_id) REFERENCES teams(team_id) ON DELETE CASCADE
+);
 
+-- Index for faster lookup by team
+CREATE INDEX IF NOT EXISTS idx_react_flow_nodes_team_id ON mastery_nodes (team_id);
 
+CREATE TABLE IF NOT EXISTS mastery_edges (
+    edge_id VARCHAR NOT NULL,
+    team_id INTEGER NOT NULL,
+    source_node_id VARCHAR NOT NULL,
+    target_node_id VARCHAR NOT NULL,
+    -- Add other fields as needed (e.g., type, label)
+    PRIMARY KEY (team_id, edge_id),
+    FOREIGN KEY (team_id) REFERENCES teams(team_id) ON DELETE CASCADE,
+    FOREIGN KEY (team_id, source_node_id) REFERENCES mastery_nodes(team_id, node_id) ON DELETE CASCADE,
+    FOREIGN KEY (team_id, target_node_id) REFERENCES mastery_nodes(team_id, node_id) ON DELETE CASCADE
+);
+
+-- Index for faster lookup by team
+CREATE INDEX IF NOT EXISTS idx_react_flow_edges_team_id ON mastery_edges (team_id);
 
 -- Creates a table named `"sessions"` **only if it doesn't already exist**.
 -- The quotes around `"session"` are necessary because `session` is a **reserved keyword** in SQL.

@@ -1,24 +1,29 @@
 // filepath: /Users/taikik/src/virtrain/frontend/src/pages/teamPages/CustomNode.tsx
 import React, { useState } from "react";
 import { Handle, Position, type NodeProps } from "reactflow";
-//import { useTeam } from "../contexts/TeamContext";
+import { useTeam } from "../contexts/TeamContext";
 
 const CustomNode: React.FC<NodeProps> = ({ data, selected }) => {
-    //const { teamInfo } = useTeam(); // Consume the context
-    const [editing, setEditing] = useState(false);
+    const { teamInfo } = useTeam(); // Consume the context
+    const [editingLabel, setEditingLabel] = useState(false);
     const [label, setLabel] = useState(data.label);
 
     const handleDoubleClick = (event: React.MouseEvent) => {
         event.stopPropagation();
-        setEditing(true);
+        setEditingLabel(true);
+        console.log("Double click detected, entering edit mode");
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLabel(e.target.value);
     };
 
-    const handleBlur = () => {
-        setEditing(false);
+    const handleSave = () => {
+        console.log("Saving label for node:", data.id, label);
+        if (data.updateNodeLabel) {
+            data.updateNodeLabel(data.id, label);
+        }
+        setEditingLabel(false);
     };
 
   return (
@@ -31,32 +36,36 @@ const CustomNode: React.FC<NodeProps> = ({ data, selected }) => {
             }}
             onDoubleClick={handleDoubleClick}
         >
-        {editing ? (
+        {editingLabel ? (
             <>
                 <input
                     type="text"
                     value={label}
                     onChange={handleChange}
-                    onBlur={handleBlur}
                     autoFocus
                     style={{ fontWeight: "bold", width: "100%" }}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
-                            handleBlur();
+                            handleSave();
                         }
                     }}
                 />
-                <button onClick={handleBlur}>Save</button>
+                <button onClick={handleSave}>Save</button>
             </>
         ) : (
             <strong>{label}</strong>
         )}
 
         {/* Add more custom content here */}
-        {/* Target handle (top) */}
-        <Handle type="target" position={Position.Top} />
-        {/* Source handle (bottom) */}
-        <Handle type="source" position={Position.Bottom} />
+        {/* Only show if the user is a coach */}
+        {teamInfo?.is_user_coach && data.editing && (
+            <>
+                {/* Target handle (top) */}
+                <Handle type="target" position={Position.Top} />
+                {/* Source handle (bottom) */}
+                <Handle type="source" position={Position.Bottom} />  
+            </>
+        )}
     </div>
   );
 };
