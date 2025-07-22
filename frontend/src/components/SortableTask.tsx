@@ -1,6 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Task } from '../types/task'; // Assuming you have a Task type defined in types/task.ts
+import DeleteNewTaskButton from './DeleteNewTaskButton';
 
 function SortableTask({ task, id, onDelete, onSelect }: {
   task: Task;
@@ -49,24 +50,16 @@ function SortableTask({ task, id, onDelete, onSelect }: {
       >
         &#9776;
       </span>
-      <h3 style={{ margin: 0 }}>{task.title}</h3>
-      <button
-        style={{
-          marginLeft: "16px",
-          background: "#e74c3c",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          padding: "6px 12px",
-          cursor: "pointer"
-        }}
-        onClick={e => {
-          e.stopPropagation();
-          onDelete();
-        }}
-      >
-        Delete
-      </button>
+      <h3 
+        style={
+            { 
+                marginLeft: 10, 
+                marginRight: 10,
+            }}>{task.title}</h3>
+      <DeleteNewTaskButton
+        task={task}
+        handleDelete={onDelete}
+      />
     </div>
   );
 }

@@ -42,23 +42,29 @@ function DeleteNewTaskButton({ task, handleDelete }: { task: Task; handleDelete:
             <p>Are you sure you want to delete this task: <br></br><strong>{task.title}</strong>?</p>
             <p>Deleting this task will remove all data (media submitted from players, player progress, etc.) associated with it.</p>
             <button 
-                onClick={handleDelete} 
-                disabled={loading}
-                style={{
-                    background: "#e74c3c",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "6px",
-                    padding: "8px 16px",
-                    cursor: loading ? "not-allowed" : "pointer",
-                    fontWeight: 500,
-                    marginTop: "12px"
-                }}
+              onClick={e => {
+                e.stopPropagation();
+                handleDelete();
+              }} 
+              disabled={loading}
+              style={{
+                background: "#e74c3c",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                padding: "8px 16px",
+                cursor: loading ? "not-allowed" : "pointer",
+                fontWeight: 500,
+                marginTop: "12px"
+              }}
             >
               {loading ? 'Loading...' : 'Delete Task'}
             </button>
             <br/>
-            <button onClick={handleClose}>Close</button>
+            <button onClick={e => {
+              e.stopPropagation();
+              handleClose();
+            }}>Close</button>
           </div>
         </div>
       )}
