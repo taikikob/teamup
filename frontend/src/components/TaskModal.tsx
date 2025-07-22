@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import AddNewTaskButton from './AddNewTaskButton';
 import SortableTask from './SortableTask';
 import type { Task } from '../types/task'; // Assuming you have a Task type defined in types/task.ts
+import TaskSidebar from './TaskSidebar';
 
 import {
   DndContext,
@@ -44,6 +45,7 @@ function TaskModal({node, onClose}: {node: Node; onClose: () => void;}) {
     const { teamInfo, isLoadingTeam, teamError } = useTeam();
     const [loadingTasks, setLoadingTasks] = useState(false);
     const [tasks, setTasks] = useState<any[]>([]);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     // Always sort tasks after fetching
     const fetchTasks = async () => {
@@ -86,8 +88,6 @@ function TaskModal({node, onClose}: {node: Node; onClose: () => void;}) {
             });
             if (res.ok) {
                 console.log('Task order saved successfully');
-                // Refetch to sync with backend
-                fetchTasks();
             } else {
                 console.error('Failed to save task order:', await res.text());
             }
@@ -196,7 +196,8 @@ function TaskModal({node, onClose}: {node: Node; onClose: () => void;}) {
                                         key={task.task_id} 
                                         task={task} 
                                         id={task.task_id} 
-                                        onDelete={() => handleDeleteTask(task.task_id)} // <-- Pass a function with no argument
+                                        onDelete={() => handleDeleteTask(task.task_id)}
+                                        onSelect={() => setSelectedTask(task)}
                                     />
                                 ))
                             }
@@ -234,6 +235,10 @@ function TaskModal({node, onClose}: {node: Node; onClose: () => void;}) {
                 )}
                 <button onClick={onClose}>Close</button>
             </div>
+            {/* Sidebar for selected task */}
+            {selectedTask && (
+                <TaskSidebar task={selectedTask} onClose={() => setSelectedTask(null)} />
+            )}
         </>,
         portalRoot
     )

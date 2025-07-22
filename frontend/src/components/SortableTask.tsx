@@ -1,12 +1,14 @@
-import { useTeam } from "../contexts/TeamContext";
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import DeleteNewTaskButton from "./DeleteNewTaskButton";
 import type { Task } from '../types/task'; // Assuming you have a Task type defined in types/task.ts
 
-function SortableTask({task, id, onDelete}: {task: Task, id: string, onDelete: () => void}) {
-  const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({id});
-  const { teamInfo } = useTeam(); // Moved here to access teamInfo
+function SortableTask({ task, id, onDelete, onSelect }: {
+  task: Task;
+  id: string;
+  onDelete: () => void;
+  onSelect: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
   return (
     <div
@@ -23,23 +25,48 @@ function SortableTask({task, id, onDelete}: {task: Task, id: string, onDelete: (
         alignItems: "center",
         justifyContent: "space-between",
         boxSizing: "border-box",
-        cursor: "grab",
+        cursor: "pointer",
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1
       }}
+      onClick={e => {
+        e.stopPropagation();
+        onSelect();
+      }}
     >
-      <h3
+      <span
         {...attributes}
         {...listeners}
-        style={{ margin: 0, fontSize: "1.1rem", fontWeight: 500, cursor: "grab" }}
+        style={{
+          cursor: "grab",
+          marginRight: "12px",
+          fontSize: "1.5rem",
+          userSelect: "none"
+        }}
+        title="Drag to reorder"
+        onClick={e => e.stopPropagation()} // Prevent sidebar open when dragging
       >
-        {task.title}
-      </h3>
-      {/* Only show delete button for coach */}
-      {teamInfo?.is_user_coach ? (
-        <DeleteNewTaskButton task={task} handleDelete={onDelete} />
-      ) :  <input type="checkbox" style={{ marginLeft: "16px" }} />}
+        &#9776;
+      </span>
+      <h3 style={{ margin: 0 }}>{task.title}</h3>
+      <button
+        style={{
+          marginLeft: "16px",
+          background: "#e74c3c",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          padding: "6px 12px",
+          cursor: "pointer"
+        }}
+        onClick={e => {
+          e.stopPropagation();
+          onDelete();
+        }}
+      >
+        Delete
+      </button>
     </div>
   );
 }
