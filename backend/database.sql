@@ -68,10 +68,6 @@ CREATE TABLE IF NOT EXISTS mastery_tasks (
     task_order INTEGER NOT NULL,       -- The order of this task within its node (e.g., 1, 2, 3)
     description TEXT,                   -- Optional: A detailed description of the level
 
-    -- Constraints
-    -- Ensures that a specific node within a team can only have one level at a given order
-    UNIQUE (node_id, team_id, task_order),
-
     -- Foreign Key to the mastery_nodes table to ensure levels are linked to existing nodes within the same team
     FOREIGN KEY (node_id, team_id) REFERENCES mastery_nodes(node_id, team_id) ON DELETE CASCADE
 );

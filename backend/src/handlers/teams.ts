@@ -486,6 +486,35 @@ export async function updateNodeLabel(request: Request, response: Response): Pro
     }
 }
 
+export async function updateTaskOrder(request: Request, response: Response): Promise<void> {
+    const { team_id, node_id } = request.params;
+    const { tasks } = request.body; // [{task_id, task_order}, ...]
+    const client = await pool.connect();
+
+    if (!Array.isArray(tasks) || tasks.length === 0) {
+        response.status(400).json({ error: 'No tasks provided.' });
+        return;
+    }
+
+    try {
+        await client.query('BEGIN');
+        for (const { task_id, task_order } of tasks) {
+            await client.query(
+                'UPDATE mastery_tasks SET task_order = $1 WHERE team_id = $2 AND node_id = $3 AND task_id = $4',
+                [task_order, team_id, node_id, task_id]
+            );
+        }
+        await client.query('COMMIT');
+        response.status(200).json({ message: 'Task order updated.' });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error('Error in updateTaskOrder:', err);
+        response.status(500).json({ error: 'Failed to update task order.' });
+    } finally {
+        client.release();
+    }
+}
+
 export async function editDescription(request: Request, response: Response): Promise<void> {
     const { team_description } = request.body; // Destructure directly from req.body
     // validate team_description
@@ -533,5 +562,27 @@ export async function deleteAC(request: Request, response: Response): Promise<vo
         console.error('Failed to delete access codes:', error);
         response.status(500).json({ error: 'Failed to delete existing access codes. Please try again.' });
         return;
+    }
+}
+
+export async function deleteTask(request: Request, response: Response): Promise<void> {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const { team_id, node_id, task_id } = request.params;
+    const client = await pool.connect();
+    try {
+        await client.query(
+            'DELETE FROM mastery_tasks WHERE team_id = $1 AND node_id = $2 AND task_id = $3',
+            [team_id, node_id, task_id]
+        );
+        response.status(204).send();
+    } catch (error) {
+        console.error('Error deleting task:', error);
+        response.status(500).json({ error: 'Failed to delete task. Please try again.' });
+    } finally {
+        client.release();
     }
 }

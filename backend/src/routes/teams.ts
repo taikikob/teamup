@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getTeams, getTeamInfo, getTeamFlow, getNodeTasks, postCreate, postJoin, newAC, postFlow, editDescription, deleteAC, updateNodeLabel, postCreateTask } from '../handlers/teams';
+import { getTeams, getTeamInfo, getTeamFlow, getNodeTasks, postCreate, postJoin, newAC, postFlow, editDescription, deleteAC, updateNodeLabel, postCreateTask, updateTaskOrder, deleteTask } from '../handlers/teams';
 import { isAuth, isCoach } from '../lib/authMiddleware';
 
 const router = Router();
@@ -15,7 +15,9 @@ router.post('/:team_id/newAccessCode', isAuth, isCoach, newAC);
 router.post('/:team_id/flow', isAuth, isCoach, postFlow);
 router.post('/:team_id/node-label', isAuth, isCoach, isCoach, updateNodeLabel);
 router.post('/:team_id/:node_id/tasks', isAuth, isCoach, postCreateTask);
+router.put('/:team_id/:node_id/tasks/order', isAuth, isCoach, updateTaskOrder);
 router.patch('/:team_id/editDescription', isAuth, isCoach, editDescription);
 router.delete('/:team_id/delAccessCode', isAuth, isCoach, deleteAC);
+router.delete('/:team_id/:node_id/tasks/:task_id', isAuth, isCoach, deleteTask);
 
 export default router;
