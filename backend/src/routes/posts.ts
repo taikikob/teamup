@@ -7,7 +7,9 @@ const router = Router();
 
 //router.get('/', isAuth, handleGetPosts);
 
-router.post('/coach', isAuth, isCoach, upload.single('image'), handlePostCoachResource);
+// if I want to use isCoach, I make sure team_id is in the url
+
+router.post('/coach', isAuth, upload.single('image'), handlePostCoachResource);
 
 router.post('/player', isAuth, upload.single('image'), handlePostPlayerSubmission);
 

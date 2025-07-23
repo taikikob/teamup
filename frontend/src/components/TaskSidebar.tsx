@@ -23,22 +23,28 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
   const [playerFile, setPlayerFile] = useState<File | null>(null);
 
   const coachSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
+    if (!teamInfo) return;
 
     const formData = new FormData();
     if (coachFile) {
       formData.append("image", coachFile);
     }
     formData.append("caption", caption);
-    await fetch(`http://localhost:3000/api/posts/`, {
+    formData.append("taskId", String(task.task_id));
+    const res = await fetch(`http://localhost:3000/api/posts/coach`, {
       method: 'POST',
-      headers: { 'Content-Type': 'multipart/form-data' },
       body: formData,
       credentials: 'include'
     });
-    setCoachFile(null); // Reset after submission
-    setCaption(""); // Reset caption after submission
-  }
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Failed to submit coach post:", errorData.error); 
+      return;
+    }
+    setCoachFile(null);
+    setCaption("");
+  };
 
   const playerSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -54,15 +60,14 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
       body: formData,
       credentials: 'include'
     });
-    setPlayerFile(null); // Reset after submission
-  }
-  
+    setPlayerFile(null);
+  };
+
   if (!task) return null;
   return (
     <div style={SIDEBAR_STYLES}>
       <h2>{task.title}</h2>
       <p>{task.description}</p>
-      {/* Example for resources: */}
       { teamInfo?.is_user_coach && (
         <>
           <div>Coaches, upload any resources for this task here:</div>
