@@ -1,4 +1,4 @@
-CREATE DATABASE virtrain;
+CREATE DATABASE teamup;
 
 -- Create schema down below
 CREATE TABLE IF NOT EXISTS users (

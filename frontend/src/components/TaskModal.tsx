@@ -210,6 +210,7 @@ function TaskModal({node, onClose}: {node: Node; onClose: () => void;}) {
                         .map(task => (
                             <div
                                 key={task.task_id}
+                                onClick={() => setSelectedTask(task)}
                                 style={{
                                     background: "#f5f5f5",
                                     borderRadius: "6px",
@@ -222,7 +223,7 @@ function TaskModal({node, onClose}: {node: Node; onClose: () => void;}) {
                                     alignItems: "center",
                                     justifyContent: "space-between",
                                     boxSizing: "border-box",
-                                    cursor: "default"
+                                    cursor: "pointer"
                                 }}
                             >
                                 <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 500 }}>{task.title}</h3>
