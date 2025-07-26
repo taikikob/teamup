@@ -1,16 +1,18 @@
 import { Router } from 'express';
 import { isAuth, isCoach } from '../lib/authMiddleware';
 import upload from '../lib/multerMiddlware';
-import { handlePostCoachResource, handlePostPlayerSubmission } from '../handlers/posts';
+import { postCoachResource, postPlayerSubmission, getCoachResources, getPlayerSubmissions, getMySubmissions, deletePost } from '../handlers/posts';
 
 const router = Router();
 
-//router.get('/', isAuth, handleGetPosts);
-
+router.get('/coachResources/:taskId', isAuth, getCoachResources);
+router.get('/playerSubmissions/:taskId', isAuth, getPlayerSubmissions);
+router.get('/mySubmissions/:taskId', isAuth, getMySubmissions);
 // if I want to use isCoach, I make sure team_id is in the url
 
-router.post('/coach', isAuth, upload.single('image'), handlePostCoachResource);
+router.post('/coach', isAuth, upload.single('media'), postCoachResource);
+router.post('/player', isAuth, upload.single('media'), postPlayerSubmission);
 
-router.post('/player', isAuth, upload.single('image'), handlePostPlayerSubmission);
+router.delete('/', isAuth, deletePost);
 
 export default router;

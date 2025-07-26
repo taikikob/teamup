@@ -78,6 +78,19 @@ CREATE INDEX IF NOT EXISTS idx_mastery_tasks_node_team ON mastery_tasks (node_id
 -- Index for faster lookup of tasks by team (e.g., to get all tasks for a team)
 CREATE INDEX IF NOT EXISTS idx_mastery_tasks_team_id ON mastery_tasks (team_id);
 
+CREATE TABLE IF NOT EXISTS posts (
+    post_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    task_id INTEGER NOT NULL,
+    caption TEXT,
+    media_name VARCHAR(255) NOT NULL, -- Name of the media file
+    media_type VARCHAR(50) NOT NULL, -- e.g., 'coach_resource', 'player_submission', 'profile_picture
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    media_format VARCHAR(20) NOT NULL, -- 'image', 'video', 'other'
+    FOREIGN KEY (task_id) REFERENCES mastery_tasks(task_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
 -- Creates a table named `"sessions"` **only if it doesn't already exist**.
 -- The quotes around `"session"` are necessary because `session` is a **reserved keyword** in SQL.
 -- This table will store **user session data** for myt app.
