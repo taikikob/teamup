@@ -22,5 +22,8 @@ yarn-error.log*
 # Other system files
 Thumbs.db
 
+# private and public keys
+**/private_key.pem
+**/public_key.pem
 # Optional: Database files (uncomment if you don’t want to track SQL files)
 # **/*.sql
