@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { Task } from "../types/task";
 import { useTeam } from "../contexts/TeamContext";
 import type { CoachResource } from "../types/coachResource";
@@ -34,6 +34,10 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
   // State to hold each player's own submissions, only player sees this
   const [mySubmissions, setMySubmissions] = useState<PlayerSubmission | null>(null);
   const [loadingMySubmissions, setLoadingMySubmissions] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const coachFileInputRef = useRef<HTMLInputElement>(null); 
+  const playerFileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchCoachResources = async () => {
     setLoadingCoachResources(true);
@@ -109,6 +113,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
   }, [teamInfo, task]);
 
   const coachSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    setSubmitting(true);
     event.preventDefault();
     if (!teamInfo) return;
 
@@ -135,10 +140,15 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
     }
     setCoachFile(null);
     setCaption("");
+    if (coachFileInputRef.current) {
+      coachFileInputRef.current.value = ""; // <-- Reset the file input
+    }
     fetchCoachResources();
+    setSubmitting(false);
   };
 
   const playerSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    setSubmitting(true);
     event.preventDefault();
 
     const formData = new FormData();
@@ -162,7 +172,11 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
       toast.success(data.message, { position: 'top-center' });
     }
     setPlayerFile(null);
+    if (playerFileInputRef.current) {
+      playerFileInputRef.current.value = ""; // <-- Reset the file input
+    }
     fetchMySubmissions();
+    setSubmitting(false);
   };
 
   if (!task) return null;
@@ -176,6 +190,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
           <div>Coaches, upload any resources for this task here:</div>
           <form onSubmit={coachSubmit}>
             <input 
+              ref={coachFileInputRef}
               onChange={e => {
                 const file = e.target.files && e.target.files[0];
                 if (file) setCoachFile(file);
@@ -184,7 +199,9 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
               accept="image/*, video/*"
             />
             <input value={caption} onChange={e => setCaption(e.target.value)} type="text" placeholder='Caption'></input>
-            <button type="submit">Submit</button>
+            <button type="submit" disabled={submitting}>
+              {submitting ? "Submitting..." : "Submit"}
+            </button>
           </form>
         </>
       )}
@@ -202,6 +219,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
           <div>Submit your work to be reviewed:</div>
           <form onSubmit={playerSubmit}>
             <input
+              ref={playerFileInputRef}
               onChange={e => {
                 const file = e.target.files && e.target.files[0];
                 if (file) setPlayerFile(file);
@@ -209,7 +227,9 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
               type="file"
               accept="image/*, video/*"
             />
-            <button type="submit">Submit</button>
+            <button type="submit" disabled={submitting}>
+              {submitting ? "Submitting..." : "Submit"}
+            </button>
           </form>
         </>
       )}
