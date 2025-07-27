@@ -2,12 +2,20 @@ import { Request, Response } from "express-serve-static-core";
 import pool from '../db';
 import { User } from "../types/User";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import sharp from 'sharp';
 import crypto from 'crypto';
+import {getSignedUrl} from "@aws-sdk/cloudfront-signer"
+import { CloudFrontClient, CreateInvalidationCommand } from "@aws-sdk/client-cloudfront";
 
 const s3 = new S3Client({
     region: process.env.BUCKET_REGION,
+    credentials: {
+        accessKeyId: process.env.BUCKET_ACCESS_KEY!,
+        secretAccessKey: process.env.BUCKET_SECRET_KEY!
+    }
+});
+
+const cloudFront = new CloudFrontClient({
     credentials: {
         accessKeyId: process.env.BUCKET_ACCESS_KEY!,
         secretAccessKey: process.env.BUCKET_SECRET_KEY!
@@ -29,12 +37,17 @@ export const getCoachResources = async (req: Request, res: Response) => {
             'SELECT * FROM posts WHERE task_id = $1 AND media_type = $2 ORDER BY created_at DESC',
             [taskId, 'coach_resource']
         );
-        // Attach the S3 URL to each post, LOOK INTO THIS, DON'T KNOW IF THIS IS CORRECT
+        
+        // Attaching signed cdn url to each post
+        // Calculate expiration time in seconds (Unix timestamp)
+        const expirationDate = new Date(Date.now() + 3600 * 1000); // 1 hour from now
         const posts = await Promise.all(result.rows.map(async (post) => {
-            const url = await getSignedUrl(s3, new GetObjectCommand({
-                Bucket: process.env.BUCKET_NAME,
-                Key: post.media_name
-            }), { expiresIn: 3600 }); // URL valid for 1 hour
+            const url = getSignedUrl({
+                url: `https://${process.env.CLOUDFRONT_DOMAIN}/${post.media_name}`,
+                keyPairId: process.env.CLOUDFRONT_KEY_PAIR_ID!,
+                privateKey: process.env.CLOUDFRONT_PRIVATE_KEY!,
+                dateLessThan: expirationDate
+            }); // URL valid for 1 hour
             return { ...post, media_url: url };
         }));
         res.json(posts);
@@ -61,12 +74,17 @@ export const getPlayerSubmissions = async (req: Request, res: Response) => {
             ORDER BY p.created_at DESC`,
             [taskId, 'player_submission']
         );
-        // Attach the S3 URL to each post
+        // Attach the signed cdn URL to each post
+        const expirationDate = new Date(Date.now() + 3600 * 1000); // 1 hour from now
         const submissions = await Promise.all(result.rows.map(async (submission) => {
-            const url = await getSignedUrl(s3, new GetObjectCommand({
-                Bucket: process.env.BUCKET_NAME,
-                Key: submission.media_name
-            }), { expiresIn: 3600 }); // URL valid for 1 hour
+            const url = await getSignedUrl(
+                {
+                    url: `https://${process.env.CLOUDFRONT_DOMAIN}/${submission.media_name}`,
+                    keyPairId: process.env.CLOUDFRONT_KEY_PAIR_ID!,
+                    privateKey: process.env.CLOUDFRONT_PRIVATE_KEY!,
+                    dateLessThan: expirationDate
+                }
+            ); // URL valid for 1 hour
             return { ...submission, media_url: url };
         }));
         const grouped: { [userId: number]: {
@@ -124,17 +142,19 @@ export const getMySubmissions = async (req: Request, res: Response) => {
             [taskId, 'player_submission', user.user_id]
         );
         // Attach the S3 URL to each post
+        const expirationDate = new Date(Date.now() + 3600 * 1000); // 1 hour from now
         const submissions = await Promise.all(result.rows.map(async (submission) => {
-            const url = await getSignedUrl(s3, new GetObjectCommand({
-                Bucket: process.env.BUCKET_NAME,
-                Key: submission.media_name
-            }), { expiresIn: 3600 });
-            return {
+            const url = getSignedUrl({
+                url: `https://${process.env.CLOUDFRONT_DOMAIN}/${submission.media_name}`,
+                keyPairId: process.env.CLOUDFRONT_KEY_PAIR_ID!,
+                privateKey: process.env.CLOUDFRONT_PRIVATE_KEY!,
+                dateLessThan: expirationDate
+            }); // URL valid for 1 hour
+            return { 
                 media_url: url,
                 created_at: submission.created_at,
                 media_format: submission.media_format,
-                post_id: submission.post_id
-            };
+                post_id: submission.post_id };
         }));
 
         // Compose the PlayerSubmission object
@@ -307,6 +327,20 @@ export const deletePost = async (req: Request, res: Response) => {
         const command = new DeleteObjectCommand(deleteParams);
         // Delete the file from S3
         await s3.send(command);
+
+        // Invalidate the cloudfront chache for this image
+        const invalidationParams = {
+            DistributionId: process.env.DISTRIBUTION_ID!,
+            InvalidationBatch: {
+                CallerReference: mediaName,
+                Paths: {
+                    Quantity: 1,
+                    Items: [`/${mediaName}`]
+                }
+            }
+        }
+        const invalidationCommand = new CreateInvalidationCommand(invalidationParams);
+        await cloudFront.send(invalidationCommand);
         // Delete the post from the database
         await pool.query('DELETE FROM posts WHERE post_id = $1', [postId]);
 
