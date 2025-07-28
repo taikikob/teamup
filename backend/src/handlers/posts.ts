@@ -64,9 +64,48 @@ export const getPlayerSubmissions = async (req: Request, res: Response) => {
         res.status(401).json({ error: 'User not authenticated' });
         return;
     }
+    const team_id = req.params.team_id;
     const taskId = req.params.taskId;
-    // find all player submissions for this task
+    // find all player submissions for this task, 
+    // return an object for each user that is a part of the team
+
     try {
+        const allPlayers = await pool.query(
+            `SELECT u.user_id, u.first_name, u.last_name
+            FROM users u
+            JOIN team_memberships tm ON u.user_id = tm.user_id
+            WHERE tm.team_id = $1 AND tm.role = $2;`,
+            [team_id, 'Player']
+        );
+
+        // For all players, check if they have submitted or is completed
+        const players = await Promise.all(
+            allPlayers.rows.map(async (player) => {
+                // Check if the player has submitted
+                const submitted = await pool.query(
+                `SELECT submitted_at FROM task_submissions WHERE task_id = $1 AND player_id = $2`,
+                [taskId, player.user_id]
+                );
+                // Check if the player has completed
+                const completed = await pool.query(
+                `SELECT completed_at FROM task_completions WHERE task_id = $1 AND player_id = $2`,
+                [taskId, player.user_id]
+                );
+                // If submitted, get the submission timestamp
+                const submittedAt = submitted.rows[0]?.submitted_at || null;
+                // If completed, get the completion timestamp
+                const completedAt = completed.rows[0]?.completed_at || null;
+                return {
+                    ...player,
+                    isSubmitted: Boolean(submitted && typeof submitted.rowCount === "number" && submitted.rowCount > 0),
+                    isComplete: Boolean(completed && typeof completed.rowCount === "number" && completed.rowCount > 0),
+                    submitted_at: submittedAt,
+                    completed_at: completedAt
+                };
+            })
+        );
+
+        // Get all submissions for this task    
         const result = await pool.query(
             `SELECT p.user_id, u.first_name, u.last_name, p.media_name, p.created_at, p.media_format
             FROM posts p JOIN users u ON p.user_id = u.user_id 
@@ -74,10 +113,11 @@ export const getPlayerSubmissions = async (req: Request, res: Response) => {
             ORDER BY p.created_at DESC`,
             [taskId, 'player_submission']
         );
+
         // Attach the signed cdn URL to each post
         const expirationDate = new Date(Date.now() + 3600 * 1000); // 1 hour from now
         const submissions = await Promise.all(result.rows.map(async (submission) => {
-            const url = await getSignedUrl(
+            const url = getSignedUrl(
                 {
                     url: `https://${process.env.CLOUDFRONT_DOMAIN}/${submission.media_name}`,
                     keyPairId: process.env.CLOUDFRONT_KEY_PAIR_ID!,
@@ -87,52 +127,16 @@ export const getPlayerSubmissions = async (req: Request, res: Response) => {
             ); // URL valid for 1 hour
             return { ...submission, media_url: url };
         }));
-        const grouped: { [userId: number]: {
-            user_id: number;
-            first_name: string;
-            last_name: string;
-            task_id: string;
-            isComplete: boolean;
-            isSubmitted: boolean;
-            submissions: {
-                post_id: number; 
-                media_url: string;
-                created_at: string;
-                media_format: string;
-            }[];
-        }} = {};
-        for (const sub of submissions) {
-            // if user hasn't been seen yet
-            if (!grouped[sub.user_id]) {
-                // check if this submission has been markeed as complete
-                const isComplete = await pool.query(
-                    `SELECT 1 FROM task_completions WHERE task_id = $1 AND player_id = $2`,
-                    [taskId, sub.user_id]
-                );
-                const isSubmitted = await pool.query(
-                    `SELECT 1 FROM task_submissions WHERE task_id = $1 AND player_id = $2`,
-                    [taskId, sub.user_id]
-                )
-                grouped[sub.user_id] = {
-                    user_id: sub.user_id,
-                    first_name: sub.first_name,
-                    last_name: sub.last_name,
-                    task_id: taskId,
-                    isComplete: Boolean(isComplete?.rowCount && isComplete.rowCount > 0),
-                    isSubmitted: Boolean(isSubmitted?.rowCount && isSubmitted.rowCount > 0),
-                    submissions: []
-                };
-            }
-            // push the submission to the user's submissions
-            grouped[sub.user_id].submissions.push({
-                post_id: sub.post_id, 
-                media_url: sub.media_url,
-                created_at: sub.created_at,
-                media_format: sub.media_format
-            });
-        }
-        const groupedArray = Object.values(grouped);
-        res.json(groupedArray);
+        // Attach submissions to each player
+        const playersWithSubmissions = players.map(player => {
+            const playerSubmissions = submissions.filter(sub => sub.user_id === player.user_id);
+            return {
+                ...player,
+                submissions: playerSubmissions
+            };
+        });
+        console.log("Players with submissions:", playersWithSubmissions);
+        res.json(playersWithSubmissions);
     } catch (error) {
         console.error("Error fetching player submissions:", error);
         res.status(500).json({ error: 'Internal server error' });

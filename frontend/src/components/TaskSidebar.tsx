@@ -69,7 +69,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
   const fetchPlayerSubmissions = async () => {
     setLoadingPlayerSubmissions(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/posts/playerSubmissions/${task.task_id}`, {
+      const res = await fetch(`http://localhost:3000/api/posts/playerSubmissions/${teamInfo?.team_id}/${task.task_id}`, {
         credentials: 'include'
       });
       if (!res.ok) {
@@ -321,38 +321,42 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
               </form>
             </>
           )}
-          {/* Only show the submit button if user has something to submit, and hasn't submitted yet */}
-          {user && myMedia && myMedia.submissions && myMedia.submissions.length > 0 && !hasSubmitted && (
-            <div>
-              <p>Coach can't see your uploads yet, submit it to be reviewed.</p> 
-              <button onClick={playerSubmit} disabled={submitting}>
-                {submitting ? "Submitting..." : "Submit Task"}
-              </button>
-            </div>
-          )}
-          {user && hasSubmitted && (
+          {!loadingMyMedia && (
             <>
-              <p>Task submitted at {submittedAt ? new Date(submittedAt).toLocaleString() : ""}</p>
-              <p>Waiting for coach to review your submission</p>
-              <button onClick={unsubmitTask} style={{ color: "red", marginTop: "8px" }}>
-                Unsubmit
-              </button>
+              {/* Only show the submit button if user has something to submit, and hasn't submitted yet */}
+              {user && myMedia && myMedia.submissions && myMedia.submissions.length > 0 && !hasSubmitted && (
+                <div>
+                  <p>Submit your media to be reviewed</p> 
+                  <button onClick={playerSubmit} disabled={submitting}>
+                    {submitting ? "Submitting..." : "Submit Task"}
+                  </button>
+                </div>
+              )}
+              {user && hasSubmitted && (
+                <>
+                  <p>Task submitted at {submittedAt ? new Date(submittedAt).toLocaleString() : ""}</p>
+                  <p>Waiting for coach to review your submission</p>
+                  <button onClick={unsubmitTask} style={{ color: "red", marginTop: "8px" }}>
+                    Unsubmit
+                  </button>
+                </>
+              )}
+              {user && (!myMedia || !myMedia.submissions || myMedia.submissions.length === 0) && (
+                <div style={{ color: "orange", marginTop: "8px" }}>
+                  Please upload your media before submitting the task.
+                </div>
+              )}
+              {!user && (
+                <div style={{ color: "red", marginTop: "12px" }}>
+                  Error: User information is not available. Please log in again.
+                </div>
+              )}
+              {completed && (
+                <div style={{ color: "green", marginTop: "12px" }}>
+                  Congrats! Coach has reviewed your submission and approved it as complete.
+                </div>
+              )}
             </>
-          )}
-          {user && (!myMedia || !myMedia.submissions || myMedia.submissions.length === 0) && (
-            <div style={{ color: "orange", marginTop: "8px" }}>
-              Please upload your media before submitting the task.
-            </div>
-          )}
-          {!user && (
-            <div style={{ color: "red", marginTop: "12px" }}>
-              Error: User information is not available. Please log in again.
-            </div>
-          )}
-          {completed && (
-            <div style={{ color: "green", marginTop: "12px" }}>
-              Congrats! Coach has reviewed your submission and approved it as complete.
-            </div>
           )}
         </>
       )}
