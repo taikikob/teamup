@@ -5,8 +5,9 @@ import type { CoachResource } from "../types/coachResource";
 import type { PlayerSubmission } from "../types/playerSubmission";
 import PlayerSubmissions from "./PlayerSubmissions";
 import CoachResources from "./CoachResources";
-import MySubmissions from "./MySubmissions";
+import MyMedias from "./MyMedias";
 import { toast } from 'react-toastify';
+import { useUser } from "../contexts/UserContext";
 
 const SIDEBAR_STYLES: React.CSSProperties = {
   position: "fixed",
@@ -23,6 +24,7 @@ const SIDEBAR_STYLES: React.CSSProperties = {
 
 function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
   const { teamInfo } = useTeam();
+  const { user } = useUser();
   const [coachFile, setCoachFile] = useState<File | null>(null);
   const [caption, setCaption] = useState("");
   const [playerFile, setPlayerFile] = useState<File | null>(null);
@@ -31,10 +33,14 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
   const [loadingPlayerSubmissions, setLoadingPlayerSubmissions] = useState(false);
   // State to hold all player submissions, only coach sees this
   const [playerSubmissions, setPlayerSubmissions] = useState<PlayerSubmission[]>([]);
-  // State to hold each player's own submissions, only player sees this
-  const [mySubmissions, setMySubmissions] = useState<PlayerSubmission | null>(null);
-  const [loadingMySubmissions, setLoadingMySubmissions] = useState(false);
+  // State to hold each player's own media, only player sees this
+  const [myMedia, setMyMedia] = useState<PlayerSubmission | null>(null);
+  const [loadingMyMedia, setLoadingMyMedia] = useState(false);
+  const [addingMedia, setAddingMedia] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const [submittedAt, setSubmittedAt] = useState<string | null>(null);
 
   const coachFileInputRef = useRef<HTMLInputElement>(null); 
   const playerFileInputRef = useRef<HTMLInputElement>(null);
@@ -79,23 +85,47 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
     }
   }
 
-  const fetchMySubmissions = async () => {
-    setLoadingMySubmissions(true);
+  // Used to fetch all the player's own media uploads
+  const fetchMyMedia = async () => {
+    setLoadingMyMedia(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/posts/mySubmissions/${task.task_id}`, {
+      const res = await fetch(`http://localhost:3000/api/posts/myMedia/${task.task_id}`, {
         credentials: 'include'
       });
       if (!res.ok) {
-        console.error("Failed to fetch my submissions");
+        console.error("Failed to fetch my media");
         return;
       }
       const data = await res.json();
-      console.log("Fetched my submissions:", data);
-      setMySubmissions(data);
+      console.log("Fetched my media:", data);
+      setMyMedia(data);
     } catch (error) {
-      console.error("Error fetching my submissions:", error);
+      console.error("Error fetching my media:", error);
     } finally {
-      setLoadingMySubmissions(false);
+      setLoadingMyMedia(false);
+    }
+  }
+
+  // Used to check if the player has submitted the task and whether approved by coach
+  const fetchSubmissionStatus = async () => {
+    if (!teamInfo || !task.task_id) {
+      console.error("Team information or task ID is not available.");
+      return;
+    }
+    try {
+      const res = await fetch(`http://localhost:3000/api/tasks/status/${task.task_id}`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+      if (!res.ok) {
+        console.error("Failed to fetch submission status");
+        return;
+      }
+      const data = await res.json();
+      setHasSubmitted(data.hasSubmitted);
+      setCompleted(data.hasCompleted);
+    } catch (error) {
+      console.error("Error fetching submission status:", error);
     }
   }
 
@@ -108,12 +138,13 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
       fetchPlayerSubmissions();
     } else {
       // Fetch the player's own submissions
-      fetchMySubmissions();
+      fetchSubmissionStatus();
+      fetchMyMedia();
     }
   }, [teamInfo, task]);
 
   const coachSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    setSubmitting(true);
+    setAddingMedia(true);
     event.preventDefault();
     if (!teamInfo) return;
 
@@ -144,11 +175,11 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
       coachFileInputRef.current.value = ""; // <-- Reset the file input
     }
     fetchCoachResources();
-    setSubmitting(false);
+    setAddingMedia(false);
   };
 
-  const playerSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    setSubmitting(true);
+  const playerAddMedia = async (event: React.FormEvent<HTMLFormElement>) => {
+    setAddingMedia(true);
     event.preventDefault();
 
     const formData = new FormData();
@@ -175,9 +206,64 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
     if (playerFileInputRef.current) {
       playerFileInputRef.current.value = ""; // <-- Reset the file input
     }
-    fetchMySubmissions();
-    setSubmitting(false);
+    fetchMyMedia();
+    setAddingMedia(false);
   };
+
+  const playerSubmit = async () => {
+    if (!teamInfo || !task.task_id) {
+      toast.error("Team information or task ID is not available.", { position: "top-center" });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const response = await fetch(`http://localhost:3000/api/tasks/submit/${task.task_id}`, {
+        method: "POST",
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to mark task as complete:", errorData.error);
+        toast.error("Failed to mark task as complete", { position: "top-center" });
+        return;
+      }
+      const data = await response.json();
+      toast.success(data.message, { position: "top-center" });
+      setSubmittedAt(data.submittedAt);
+    } catch (error) {
+      console.error("Error occurred while submitting task:", error);
+    } finally {
+      setSubmitting(false);
+      setHasSubmitted(true); // Refetch submission status after submitting
+    }
+  }
+
+  const unsubmitTask = async () => {
+    if (!teamInfo || !task.task_id) {
+      toast.error("Team information or task ID is not available.", { position: "top-center" });
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:3000/api/tasks/unsubmit/${task.task_id}`, {
+        method: "DELETE",
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to unsubmit task:", errorData.error);
+        toast.error("Failed to unsubmit task", { position: "top-center" });
+        return;
+      }
+      if (response.status === 204) {
+        toast.success("Task unsubmitted successfully.", { position: "top-center" });
+        setHasSubmitted(false);
+      }
+    } catch (error) {
+      console.error("Error occurred while un-submitting task:", error);
+    } finally {
+      setSubmittedAt(null); // Reset submittedAt state
+    }
+  }
 
   if (!task) return null;
   return (
@@ -199,40 +285,78 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
               accept="image/*, video/*"
             />
             <input value={caption} onChange={e => setCaption(e.target.value)} type="text" placeholder='Caption'></input>
-            <button type="submit" disabled={submitting}>
-              {submitting ? "Submitting..." : "Submit"}
+            <button type="submit" disabled={addingMedia}>
+              {addingMedia ? "Posting..." : "Post Media"}
             </button>
           </form>
         </>
       )}
       {teamInfo?.is_user_coach && (
-        <PlayerSubmissions loadingPlayerSubmissions={loadingPlayerSubmissions} playerSubmissions={playerSubmissions} />
+        <PlayerSubmissions fetchPlayerSubmissions={fetchPlayerSubmissions} loadingPlayerSubmissions={loadingPlayerSubmissions} playerSubmissions={playerSubmissions} />
       )}
       {!teamInfo?.is_user_coach && (
         <>
-          <h3>My Submissions</h3>
-          {mySubmissions ? (
-            <MySubmissions loadingMySubmissions={loadingMySubmissions} submission={mySubmissions} refetch={fetchMySubmissions} />
+          <h3>My Media</h3>
+          {myMedia ? (
+            <MyMedias loadingMySubmissions={loadingMyMedia} media={myMedia} refetch={fetchMyMedia} hasSubmitted={hasSubmitted} />
           ) : (
-            <p>No submissions found.</p>
+            <p>No media uploaded yet.</p>
           )}
-          <div>Submit your work to be reviewed:</div>
-          <form onSubmit={playerSubmit}>
-            <input
-              ref={playerFileInputRef}
-              onChange={e => {
-                const file = e.target.files && e.target.files[0];
-                if (file) setPlayerFile(file);
-              }}
-              type="file"
-              accept="image/*, video/*"
-            />
-            <button type="submit" disabled={submitting}>
-              {submitting ? "Submitting..." : "Submit"}
-            </button>
-          </form>
+          {!hasSubmitted && (
+            <>
+              <div>Upload your media:</div>
+              <form onSubmit={playerAddMedia}>
+                <input
+                  ref={playerFileInputRef}
+                  onChange={e => {
+                    const file = e.target.files && e.target.files[0];
+                    if (file) setPlayerFile(file);
+                  }}
+                  type="file"
+                  accept="image/*, video/*"
+                />
+                <button type="submit" disabled={addingMedia}>
+                  {addingMedia ? "Adding..." : "Add Media"}
+                </button>
+              </form>
+            </>
+          )}
+          {/* Only show the submit button if user has something to submit, and hasn't submitted yet */}
+          {user && myMedia && myMedia.submissions && myMedia.submissions.length > 0 && !hasSubmitted && (
+            <div>
+              <p>Coach can't see your uploads yet, submit it to be reviewed.</p> 
+              <button onClick={playerSubmit} disabled={submitting}>
+                {submitting ? "Submitting..." : "Submit Task"}
+              </button>
+            </div>
+          )}
+          {user && hasSubmitted && (
+            <>
+              <p>Task submitted at {submittedAt ? new Date(submittedAt).toLocaleString() : ""}</p>
+              <p>Waiting for coach to review your submission</p>
+              <button onClick={unsubmitTask} style={{ color: "red", marginTop: "8px" }}>
+                Unsubmit
+              </button>
+            </>
+          )}
+          {user && (!myMedia || !myMedia.submissions || myMedia.submissions.length === 0) && (
+            <div style={{ color: "orange", marginTop: "8px" }}>
+              Please upload your media before submitting the task.
+            </div>
+          )}
+          {!user && (
+            <div style={{ color: "red", marginTop: "12px" }}>
+              Error: User information is not available. Please log in again.
+            </div>
+          )}
+          {completed && (
+            <div style={{ color: "green", marginTop: "12px" }}>
+              Congrats! Coach has reviewed your submission and approved it as complete.
+            </div>
+          )}
         </>
       )}
+      <br></br>
       <button
         style={{
           marginTop: "24px",

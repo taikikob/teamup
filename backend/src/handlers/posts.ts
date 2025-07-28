@@ -91,6 +91,9 @@ export const getPlayerSubmissions = async (req: Request, res: Response) => {
             user_id: number;
             first_name: string;
             last_name: string;
+            task_id: string;
+            isComplete: boolean;
+            isSubmitted: boolean;
             submissions: {
                 post_id: number; 
                 media_url: string;
@@ -101,10 +104,22 @@ export const getPlayerSubmissions = async (req: Request, res: Response) => {
         for (const sub of submissions) {
             // if user hasn't been seen yet
             if (!grouped[sub.user_id]) {
+                // check if this submission has been markeed as complete
+                const isComplete = await pool.query(
+                    `SELECT 1 FROM task_completions WHERE task_id = $1 AND player_id = $2`,
+                    [taskId, sub.user_id]
+                );
+                const isSubmitted = await pool.query(
+                    `SELECT 1 FROM task_submissions WHERE task_id = $1 AND player_id = $2`,
+                    [taskId, sub.user_id]
+                )
                 grouped[sub.user_id] = {
                     user_id: sub.user_id,
                     first_name: sub.first_name,
                     last_name: sub.last_name,
+                    task_id: taskId,
+                    isComplete: Boolean(isComplete?.rowCount && isComplete.rowCount > 0),
+                    isSubmitted: Boolean(isSubmitted?.rowCount && isSubmitted.rowCount > 0),
                     submissions: []
                 };
             }

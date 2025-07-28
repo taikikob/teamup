@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   salt varchar NOT NULL,
   first_name varchar NOT NULL,
   last_name varchar NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 );
 
 CREATE TABLE IF NOT EXISTS teams (
@@ -85,11 +85,45 @@ CREATE TABLE IF NOT EXISTS posts (
     caption TEXT,
     media_name VARCHAR(255) NOT NULL, -- Name of the media file
     media_type VARCHAR(50) NOT NULL, -- e.g., 'coach_resource', 'player_submission', 'profile_picture
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     media_format VARCHAR(20) NOT NULL, -- 'image', 'video', 'other'
     FOREIGN KEY (task_id) REFERENCES mastery_tasks(task_id) ON DELETE CASCADE
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS task_submissions (
+  player_id INTEGER NOT NULL,
+  task_id INTEGER NOT NULL,
+  submitted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (player_id, task_id),
+  FOREIGN KEY (player_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (task_id) REFERENCES mastery_tasks(task_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS task_completions (
+  player_id INTEGER NOT NULL,
+  task_id INTEGER NOT NULL,
+  completed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, -- Changed to NOT NULL and default
+  PRIMARY KEY (player_id, task_id),
+  FOREIGN KEY (player_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (task_id) REFERENCES mastery_tasks(task_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+    comment_id SERIAL PRIMARY KEY,
+    player_id INTEGER NOT NULL,
+    sender_id INTEGER NOT NULL,
+    task_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (player_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (task_id) REFERENCES mastery_tasks(task_id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_comments_player_task ON comments (player_id, task_id);
+CREATE INDEX idx_comments_created_at ON comments (created_at DESC);
+
 
 -- Creates a table named `"sessions"` **only if it doesn't already exist**.
 -- The quotes around `"session"` are necessary because `session` is a **reserved keyword** in SQL.
