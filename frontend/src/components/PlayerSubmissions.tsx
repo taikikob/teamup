@@ -2,16 +2,18 @@ import { useState } from "react";
 import type { PlayerSubmission } from "../types/playerSubmission";
 import MarkCompleteButton from "./MarkCompleteButton";
 import ListPlayerSubmissions from "./ListPlayerSubmissions";
+import { usePlayerSubmissions } from "../contexts/PlayerSubmissionsContext";
 
-function PlayerSubmissions({ fetchPlayerSubmissions, loadingPlayerSubmissions, playerSubmissions }: { fetchPlayerSubmissions: () => void; loadingPlayerSubmissions: boolean; playerSubmissions: PlayerSubmission[] }) {
+function PlayerSubmissions() {
     const [selectedSubmission, setSelectedSubmission] = useState<PlayerSubmission | null>(null);
     const [selected, setSelected] = useState(false);
+    const { playerSubmissions, loadingPlayerSubmissions } = usePlayerSubmissions();
 
     // separate submissions into waiting for review and reviewed
     const submitted = playerSubmissions.filter(sub => sub.isSubmitted && !sub.isComplete);
     const completed = playerSubmissions.filter(sub => sub.isComplete);
     const unsubmitted = playerSubmissions.filter(sub => !sub.isSubmitted && !sub.isComplete);
-
+    console.log(submitted)
     return (
         <div>
             <h3>Player Submissions</h3>
@@ -46,12 +48,20 @@ function PlayerSubmissions({ fetchPlayerSubmissions, loadingPlayerSubmissions, p
                                     <div>Submitted at {new Date(sub.created_at).toLocaleString()}</div>
                                 </div>
                             ))}
-                            <MarkCompleteButton player_id={selectedSubmission.user_id} task_id={selectedSubmission.task_id}/>
+                            { selectedSubmission.isSubmitted && (
+                                <div>
+                                    <MarkCompleteButton 
+                                        player_id={selectedSubmission.user_id} 
+                                        task_id={selectedSubmission.task_id}
+                                        setSelectedSubmission={setSelectedSubmission} 
+                                        setSelected={setSelected}
+                                    />
+                                </div>  
+                            )}
+                            
                             <button onClick={() => {
                                 setSelectedSubmission(null);
                                 setSelected(false);
-                                // To make sure the completion changes is reflected
-                                fetchPlayerSubmissions();
                             }}>Back to all submissions</button>
                         </div>
                     ) :(

@@ -97,6 +97,7 @@ export const getPlayerSubmissions = async (req: Request, res: Response) => {
                 const completedAt = completed.rows[0]?.completed_at || null;
                 return {
                     ...player,
+                    task_id: taskId,
                     isSubmitted: Boolean(submitted && typeof submitted.rowCount === "number" && submitted.rowCount > 0),
                     isComplete: Boolean(completed && typeof completed.rowCount === "number" && completed.rowCount > 0),
                     submitted_at: submittedAt,
@@ -139,6 +140,89 @@ export const getPlayerSubmissions = async (req: Request, res: Response) => {
         res.json(playersWithSubmissions);
     } catch (error) {
         console.error("Error fetching player submissions:", error);
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+    }
+}
+
+// get a specific player's submission for a task
+export const getSubmission = async (req: Request, res: Response) => {
+    const user = req.user as User;
+    if (!user) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const taskId = req.params.taskId;
+    const playerId = req.params.player_id;
+    try {
+        // 1. Get player info
+        const userResult = await pool.query(
+            `SELECT user_id, first_name, last_name FROM users WHERE user_id = $1`,
+            [playerId]
+        );
+        if (userResult.rowCount === 0) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+        const user = userResult.rows[0];
+
+        // 2. Get submission status
+        const submissionResult = await pool.query(
+            `SELECT submitted_at FROM task_submissions WHERE player_id = $1 AND task_id = $2`,
+            [playerId, taskId]
+        );
+        const isSubmitted = Boolean(submissionResult && typeof submissionResult.rowCount === "number" && submissionResult.rowCount > 0);
+        const submitted_at = isSubmitted ? submissionResult.rows[0].submitted_at : null;
+
+        // 3. Get completion status
+        const completionResult = await pool.query(
+            `SELECT completed_at FROM task_completions WHERE player_id = $1 AND task_id = $2`,
+            [playerId, taskId]
+        );
+        const isComplete = Boolean(completionResult && typeof completionResult.rowCount === "number" && completionResult.rowCount > 0);
+        const completed_at = isComplete ? completionResult.rows[0].completed_at : null;
+
+        // 4. Get all submissions (media)
+        const postsResult = await pool.query(
+            `SELECT post_id, media_name, created_at, media_format
+            FROM posts
+            WHERE user_id = $1 AND task_id = $2 AND media_type = 'player_submission'
+            ORDER BY created_at ASC`,
+            [playerId, taskId]
+        );
+
+        const expirationDate = new Date(Date.now() + 3600 * 1000); // 1 hour from now
+        const submissions = await Promise.all(postsResult.rows.map(async (post) => {
+            const url = getSignedUrl({
+                url: `https://${process.env.CLOUDFRONT_DOMAIN}/${post.media_name}`,
+                keyPairId: process.env.CLOUDFRONT_KEY_PAIR_ID!,
+                privateKey: process.env.CLOUDFRONT_PRIVATE_KEY!,
+                dateLessThan: expirationDate
+            });
+            return {
+                post_id: post.post_id,
+                media_url: url,
+                created_at: post.created_at,
+                media_format: post.media_format,
+            };
+        }));
+
+        // 5. Build and return the PlayerSubmission object
+        const playerSubmission = {
+            user_id: user.user_id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            task_id: taskId,
+            isComplete,
+            isSubmitted,
+            completed_at,
+            submitted_at,
+            submissions,
+        };
+
+        res.json(playerSubmission);
+    } catch (error) {
+        console.error("Error fetching player submission:", error);
         res.status(500).json({ error: 'Internal server error' });
         return;
     }

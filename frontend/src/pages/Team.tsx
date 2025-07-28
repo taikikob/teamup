@@ -7,6 +7,7 @@ import TeammatesPage from './teamPages/TeammatesPage';
 import TeamSettingsPage from './teamPages/TeamSettingsPage';
 
 import { TeamProvider } from '../contexts/TeamContext'; // Import your TeamProvider
+import { PlayerSubmissionsProvider } from "../contexts/PlayerSubmissionsContext";
 
 function Team() {
     return (
@@ -16,7 +17,14 @@ function Team() {
                 <TeamProvider>
                     <Routes>
                         <Route path="/" element={<TeamHomePage />} />
-                        <Route path="mastery" element={<MasteryPage />} />
+                        <Route
+                            path="mastery"
+                            element={
+                            <PlayerSubmissionsProvider>
+                                <MasteryPage />
+                            </PlayerSubmissionsProvider>
+                            }
+                        />
                         <Route path="announcements" element={<AnnouncementsPage />} />
                         <Route path="teammates" element={<TeammatesPage />} />
                         <Route path="settings" element={<TeamSettingsPage />} />

@@ -8,6 +8,7 @@ import CoachResources from "./CoachResources";
 import MyMedias from "./MyMedias";
 import { toast } from 'react-toastify';
 import { useUser } from "../contexts/UserContext";
+import { usePlayerSubmissions } from "../contexts/PlayerSubmissionsContext";
 
 const SIDEBAR_STYLES: React.CSSProperties = {
   position: "fixed",
@@ -24,15 +25,13 @@ const SIDEBAR_STYLES: React.CSSProperties = {
 
 function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
   const { teamInfo } = useTeam();
+  const { fetchPlayerSubmissions } = usePlayerSubmissions();
   const { user } = useUser();
   const [coachFile, setCoachFile] = useState<File | null>(null);
   const [caption, setCaption] = useState("");
   const [playerFile, setPlayerFile] = useState<File | null>(null);
   const [loadingCoachResources, setLoadingCoachResources] = useState(false);
   const [coachResources, setCoachResources] = useState<CoachResource[]>([]);
-  const [loadingPlayerSubmissions, setLoadingPlayerSubmissions] = useState(false);
-  // State to hold all player submissions, only coach sees this
-  const [playerSubmissions, setPlayerSubmissions] = useState<PlayerSubmission[]>([]);
   // State to hold each player's own media, only player sees this
   const [myMedia, setMyMedia] = useState<PlayerSubmission | null>(null);
   const [loadingMyMedia, setLoadingMyMedia] = useState(false);
@@ -63,25 +62,6 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
       console.error("Error fetching coach resources:", error);
     } finally {
       setLoadingCoachResources(false);
-    }
-  }
-
-  const fetchPlayerSubmissions = async () => {
-    setLoadingPlayerSubmissions(true);
-    try {
-      const res = await fetch(`http://localhost:3000/api/posts/playerSubmissions/${teamInfo?.team_id}/${task.task_id}`, {
-        credentials: 'include'
-      });
-      if (!res.ok) {
-        console.error("Failed to fetch player submissions");
-        return;
-      }
-      const data = await res.json();
-      setPlayerSubmissions(data);
-    } catch (error) {
-      console.error("Error fetching player submissions:", error);
-    } finally {
-      setLoadingPlayerSubmissions(false);
     }
   }
 
@@ -135,7 +115,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
     fetchCoachResources();
     if (teamInfo.is_user_coach) {
       // Fetch player submissions only if the user is a coach
-      fetchPlayerSubmissions();
+      fetchPlayerSubmissions(teamInfo.team_id, task.task_id);
     } else {
       // Fetch the player's own submissions
       fetchSubmissionStatus();
@@ -292,7 +272,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
         </>
       )}
       {teamInfo?.is_user_coach && (
-        <PlayerSubmissions fetchPlayerSubmissions={fetchPlayerSubmissions} loadingPlayerSubmissions={loadingPlayerSubmissions} playerSubmissions={playerSubmissions} />
+        <PlayerSubmissions />
       )}
       {!teamInfo?.is_user_coach && (
         <>
