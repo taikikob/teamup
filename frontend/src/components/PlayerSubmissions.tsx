@@ -48,7 +48,7 @@ function PlayerSubmissions() {
                                     <div>Submitted at {new Date(sub.created_at).toLocaleString()}</div>
                                 </div>
                             ))}
-                            { selectedSubmission.isSubmitted && (
+                            { selectedSubmission.isSubmitted && !selectedSubmission.isComplete && (
                                 <div>
                                     <MarkCompleteButton 
                                         player_id={selectedSubmission.user_id} 
