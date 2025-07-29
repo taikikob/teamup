@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { PlayerSubmission } from "../types/playerSubmission";
 import MarkCompleteButton from "./MarkCompleteButton";
 import ListPlayerSubmissions from "./ListPlayerSubmissions";
 import { usePlayerSubmissions } from "../contexts/PlayerSubmissionsContext";
 
-function PlayerSubmissions() {
+function PlayerSubmissions({ taskId }: { taskId: number }) {
     const [selectedSubmission, setSelectedSubmission] = useState<PlayerSubmission | null>(null);
     const [selected, setSelected] = useState(false);
     const { playerSubmissions, loadingPlayerSubmissions } = usePlayerSubmissions();
+
+    useEffect(() => {
+        setSelectedSubmission(null);
+        setSelected(false);
+    }, [taskId]);
 
     // separate submissions into waiting for review and reviewed
     const submitted = playerSubmissions.filter(sub => sub.isSubmitted && !sub.isComplete);
@@ -66,7 +71,7 @@ function PlayerSubmissions() {
                         </div>
                     ) :(
                     <>
-                        <h4>Waiting for Review:</h4>
+                        <h4>Awaiting Review:</h4>
                         <ListPlayerSubmissions 
                             playerSubmissions={submitted} 
                             setSelectedSubmission={setSelectedSubmission} 
@@ -78,7 +83,7 @@ function PlayerSubmissions() {
                             setSelectedSubmission={setSelectedSubmission} 
                             setSelected={setSelected}
                         />
-                        <h4>Not submitted by player yet:</h4>
+                        <h4>Unsubmitted:</h4>
                         <ListPlayerSubmissions 
                             playerSubmissions={unsubmitted} 
                             setSelectedSubmission={setSelectedSubmission} 

@@ -6,6 +6,7 @@ type PlayerSubmissionsContextType = {
   loadingPlayerSubmissions: boolean;
   fetchPlayerSubmissions: (teamId: number, taskId: number) => Promise<void>;
   updatePlayerSubmission: (updated: PlayerSubmission) => void;
+  clearPlayerSubmissions: () => void;
 };
 
 const PlayerSubmissionsContext = createContext<PlayerSubmissionsContextType | undefined>(undefined);
@@ -16,13 +17,13 @@ export const PlayerSubmissionsProvider: React.FC<{ children: React.ReactNode }> 
 
   const fetchPlayerSubmissions = useCallback(async (teamId: number, taskId: number) => {
     setLoadingPlayerSubmissions(true);
+    setPlayerSubmissions([]); // <-- Clear previous submissions immediately
     try {
       const res = await fetch(`http://localhost:3000/api/posts/playerSubmissions/${teamId}/${taskId}`, {
         credentials: 'include'
       });
       if (!res.ok) {
         console.error("Failed to fetch player submissions");
-        setPlayerSubmissions([]);
         return;
       }
       const data = await res.json();
@@ -45,12 +46,15 @@ export const PlayerSubmissionsProvider: React.FC<{ children: React.ReactNode }> 
     );
   };
 
+  const clearPlayerSubmissions = () => setPlayerSubmissions([]);
+
   return (
     <PlayerSubmissionsContext.Provider value={{
       playerSubmissions,
       loadingPlayerSubmissions,
       fetchPlayerSubmissions,
-      updatePlayerSubmission
+      updatePlayerSubmission,
+      clearPlayerSubmissions
     }}>
       {children}
     </PlayerSubmissionsContext.Provider>

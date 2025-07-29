@@ -25,7 +25,7 @@ const SIDEBAR_STYLES: React.CSSProperties = {
 
 function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
   const { teamInfo } = useTeam();
-  const { fetchPlayerSubmissions } = usePlayerSubmissions();
+  const { fetchPlayerSubmissions, clearPlayerSubmissions } = usePlayerSubmissions();
   const { user } = useUser();
   const [coachFile, setCoachFile] = useState<File | null>(null);
   const [caption, setCaption] = useState("");
@@ -272,7 +272,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
         </>
       )}
       {teamInfo?.is_user_coach && (
-        <PlayerSubmissions />
+        <PlayerSubmissions taskId={task.task_id} />
       )}
       {!teamInfo?.is_user_coach && (
         <>
@@ -352,7 +352,10 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
           cursor: "pointer",
           fontWeight: 500
         }}
-        onClick={onClose}
+        onClick={() => {
+          onClose();
+          clearPlayerSubmissions();
+        }}
       >
         Close
       </button>
