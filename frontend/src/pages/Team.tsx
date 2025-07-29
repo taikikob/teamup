@@ -8,6 +8,7 @@ import TeamSettingsPage from './teamPages/TeamSettingsPage';
 
 import { TeamProvider } from '../contexts/TeamContext'; // Import your TeamProvider
 import { PlayerSubmissionsProvider } from "../contexts/PlayerSubmissionsContext";
+import { CommentsProvider } from '../contexts/CommentsContext';
 
 function Team() {
     return (
@@ -21,7 +22,9 @@ function Team() {
                             path="mastery"
                             element={
                             <PlayerSubmissionsProvider>
-                                <MasteryPage />
+                                <CommentsProvider>
+                                    <MasteryPage />
+                                </CommentsProvider>
                             </PlayerSubmissionsProvider>
                             }
                         />

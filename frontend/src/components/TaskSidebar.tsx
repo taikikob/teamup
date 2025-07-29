@@ -6,9 +6,11 @@ import type { PlayerSubmission } from "../types/playerSubmission";
 import PlayerSubmissions from "./PlayerSubmissions";
 import CoachResources from "./CoachResources";
 import MyMedias from "./MyMedias";
+import CommentSection from "./CommentSection";
 import { toast } from 'react-toastify';
 import { useUser } from "../contexts/UserContext";
 import { usePlayerSubmissions } from "../contexts/PlayerSubmissionsContext";
+import { useComments } from "../contexts/CommentsContext";
 
 const SIDEBAR_STYLES: React.CSSProperties = {
   position: "fixed",
@@ -27,6 +29,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
   const { teamInfo } = useTeam();
   const { fetchPlayerSubmissions, clearPlayerSubmissions } = usePlayerSubmissions();
   const { user } = useUser();
+  const { loadingComments, fetchComments, clearComments } = useComments();
   const [coachFile, setCoachFile] = useState<File | null>(null);
   const [caption, setCaption] = useState("");
   const [playerFile, setPlayerFile] = useState<File | null>(null);
@@ -113,6 +116,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
     if (!teamInfo) return;
     // Fetch any resources that coach has uploaded for this task
     fetchCoachResources();
+    fetchComments(task.task_id);
     if (teamInfo.is_user_coach) {
       // Fetch player submissions only if the user is a coach
       fetchPlayerSubmissions(teamInfo.team_id, task.task_id);
@@ -244,7 +248,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
       setSubmittedAt(null); // Reset submittedAt state
     }
   }
-
+  if (!user) return null;
   if (!task) return null;
   return (
     <div style={SIDEBAR_STYLES}>
@@ -272,7 +276,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
         </>
       )}
       {teamInfo?.is_user_coach && (
-        <PlayerSubmissions taskId={task.task_id} />
+        <PlayerSubmissions taskId={task.task_id} loadingComments={loadingComments} />
       )}
       {!teamInfo?.is_user_coach && (
         <>
@@ -338,6 +342,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
               )}
             </>
           )}
+          <CommentSection loadingComments={loadingComments} player_id={user.user_id} task_id={task.task_id}/>
         </>
       )}
       <br></br>
@@ -355,6 +360,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
         onClick={() => {
           onClose();
           clearPlayerSubmissions();
+          clearComments();
         }}
       >
         Close

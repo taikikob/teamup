@@ -5,6 +5,7 @@ import profileRouter from './routes/profile';
 import teamsRouter from './routes/teams'
 import postsRouter from './routes/posts';
 import tasksRouter from './routes/tasks';
+import commentsRouter from './routes/comments';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import pool from './db';
@@ -63,6 +64,7 @@ app.use('/api/profile', profileRouter);
 app.use('/api/teams', teamsRouter);
 app.use('/api/posts', postsRouter);
 app.use('/api/tasks', tasksRouter);
+app.use('/api/comments', commentsRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on Port ${PORT}`);

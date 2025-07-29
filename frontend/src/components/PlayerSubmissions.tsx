@@ -3,8 +3,9 @@ import type { PlayerSubmission } from "../types/playerSubmission";
 import MarkCompleteButton from "./MarkCompleteButton";
 import ListPlayerSubmissions from "./ListPlayerSubmissions";
 import { usePlayerSubmissions } from "../contexts/PlayerSubmissionsContext";
+import CommentSection from "./CommentSection";
 
-function PlayerSubmissions({ taskId }: { taskId: number }) {
+function PlayerSubmissions({ taskId, loadingComments }: { taskId: number, loadingComments: boolean }) {
     const [selectedSubmission, setSelectedSubmission] = useState<PlayerSubmission | null>(null);
     const [selected, setSelected] = useState(false);
     const { playerSubmissions, loadingPlayerSubmissions } = usePlayerSubmissions();
@@ -24,14 +25,15 @@ function PlayerSubmissions({ taskId }: { taskId: number }) {
             <h3>Player Submissions</h3>
             {loadingPlayerSubmissions ? (
                 <div>Loading player submissions...</div>
-            ) : playerSubmissions.length === 0 ? (
-                <p>No submissions yet.</p>
             ) : (
                 <>
                     { selected && selectedSubmission ? (
                         <div>
                             <h4>{selectedSubmission.first_name} {selectedSubmission.last_name}</h4>
                             {/* Display all submissions for the selected player */}
+                            {selectedSubmission.submissions.length === 0 && (
+                                <div>Player has not uploaded any media.</div>
+                            )}
                             {selectedSubmission.submissions.map((sub, index) => (
                                 <div key={index}>
                                     {sub.media_format === 'image' ? (
@@ -63,7 +65,8 @@ function PlayerSubmissions({ taskId }: { taskId: number }) {
                                     />
                                 </div>  
                             )}
-                            
+                            <CommentSection loadingComments={loadingComments} player_id={selectedSubmission.user_id} task_id={taskId}/>
+                            <br />
                             <button onClick={() => {
                                 setSelectedSubmission(null);
                                 setSelected(false);
