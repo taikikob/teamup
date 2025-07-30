@@ -91,18 +91,9 @@ export async function getTeamFlow(request: Request, response: Response): Promise
     }
     const team_id = request.params.team_id;
     const client = await pool.connect();
+
     try {
         await client.query('BEGIN');
-
-        // Fetch nodes from the team
-        const nodesRes = await client.query("SELECT node_id, label, pos_x, pos_y FROM mastery_nodes WHERE team_id = $1", [team_id]);
-        // Transform nodes to React Flow format
-        const nodes = nodesRes.rows.map(n => ({
-            id: n.node_id,
-            position: { x: n.pos_x, y: n.pos_y },
-            data: { label: n.label },
-            type: 'custom'
-        }));
 
         // Fetch edges from the team
         const edgesRes = await client.query("SELECT edge_id, source_node_id, target_node_id FROM mastery_edges WHERE team_id = $1", [team_id]);
@@ -114,13 +105,62 @@ export async function getTeamFlow(request: Request, response: Response): Promise
             type: 'custom'
         }));
 
-        await client.query('COMMIT');
-        response.status(200).json({
-            msg: "Flow data fetched successfully",
-            nodes,
-            edges
-        });
-        console.log(nodes, edges);
+        const role = request.query.role as 'coach' | 'player';
+        // Fetch nodes from the team
+        const nodesRes = await client.query("SELECT node_id, label, pos_x, pos_y FROM mastery_nodes WHERE team_id = $1", [team_id]);
+        // Transform nodes to React Flow format
+        if (role === 'coach') {
+            const nodes = nodesRes.rows.map(n => ({
+                id: n.node_id,
+                position: { x: n.pos_x, y: n.pos_y },
+                data: { label: n.label },
+                type: 'custom'
+            }));
+            await client.query('COMMIT');
+            response.status(200).json({
+                msg: "Flow data fetched successfully",
+                nodes,
+                edges
+            });
+        } else {
+            // For players, we also need to fetch the number of tasks completed for each node
+            // and the total number of tasks for each node
+            const nodes = [];
+            for (const n of nodesRes.rows) {
+                // Total tasks for this node
+                const totalTasksRes = await client.query(
+                    "SELECT COUNT(*) FROM mastery_tasks WHERE team_id = $1 AND node_id = $2",
+                    [team_id, n.node_id]
+                );
+                const total_tasks = parseInt(totalTasksRes.rows[0].count, 10);
+
+                // Completed tasks for this node for this player
+                const completedTasksRes = await client.query(
+                    `SELECT COUNT(*) FROM task_completions tc
+                    JOIN mastery_tasks mt ON tc.task_id = mt.task_id
+                    WHERE mt.team_id = $1 AND mt.node_id = $2 AND tc.player_id = $3`,
+                    [team_id, n.node_id, user.user_id]
+                );
+                const completed_tasks = parseInt(completedTasksRes.rows[0].count, 10);
+
+                nodes.push({
+                    id: n.node_id,
+                    position: { x: n.pos_x, y: n.pos_y },
+                    data: {
+                        label: n.label,
+                        completed_tasks,
+                        total_tasks
+                    },
+                    type: 'custom'
+                });
+            }
+            await client.query('COMMIT');
+            response.status(200).json({
+                msg: "Flow data fetched successfully",
+                nodes,
+                edges
+            });
+        }
     } catch (error) {
         console.error('Error fetching flow data:', error);
         response.status(500).json({ error: 'Failed to fetch flow data. Please try again.' });

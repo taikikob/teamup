@@ -196,17 +196,31 @@ function MasteryPage() {
             try {
                 setLoading(true);
                 // Make a request to backend to fetch flow data
-                const res = await fetch(`http://localhost:3000/api/teams/${teamInfo.team_id}/flow`, {
-                    method: 'GET',
-                    credentials: 'include'
-                });
-                if (res.status === 200) {
-                    const data = await res.json();
-                    console.log("Fetched flow data:", data);
-                    console.log("First node:", data.nodes[0]);
-                    setNodes(data.nodes);
-                    setEdges(data.edges);
+                if (teamInfo.is_user_coach) {
+                    const res = await fetch(`http://localhost:3000/api/teams/${teamInfo.team_id}/flow?role=coach`, {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+                    if (res.status === 200) {
+                        const data = await res.json();
+                        console.log("Fetched flow data:", data);
+                        setNodes(data.nodes);
+                        setEdges(data.edges);
+                    }
+                } else {
+                    // need to fetch the ratio for progress bar as well
+                    const res = await fetch(`http://localhost:3000/api/teams/${teamInfo.team_id}/flow?role=player`, {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+                    if (res.status === 200) {
+                        const data = await res.json();
+                        console.log("Fetched player flow data:", data);
+                        setNodes(data.nodes);
+                        setEdges(data.edges);
+                    }
                 }
+                
             } catch (error) {
                 console.error('Error fetching team flow data', error);
             } finally {
