@@ -30,7 +30,8 @@ const CustomNode: React.FC<NodeProps> = ({ data, selected }) => {
                 padding: 10,
                 border: selected ? "2px dotted #007bff" : "2px solid #007bff",
                 borderRadius: 8,
-                background: "#e9f5ff"
+                background: "#e9f5ff",
+                minWidth: 100
             }}
             onDoubleClick={handleDoubleClick}
         >
@@ -51,10 +52,28 @@ const CustomNode: React.FC<NodeProps> = ({ data, selected }) => {
                 <button onClick={handleSave}>Save</button>
             </>
         ) : (
-            <strong>{label}</strong>
+            <strong style={{ display: "block", textAlign: "center", width: "100%" }}>{label}</strong>
         )}
 
         {/* Add more custom content here */}
+        {typeof data.completed_tasks === "number" && typeof data.total_tasks === "number" && data.total_tasks > 0 && (
+            <div style={{ marginTop: 8 }}>
+                <div style={{ width: "100%", background: "#eee", borderRadius: 4 }}>
+
+                <div
+                    style={{
+                    width: `${(data.completed_tasks / data.total_tasks) * 100}%`,
+                    background: "#4caf50",
+                    height: 8,
+                    borderRadius: 4,
+                    transition: "width 0.3s"
+                    }}
+                >
+                </div>
+
+                </div>
+            </div>
+        )}
         <>
             {/* Target handle (top) */}
             <Handle

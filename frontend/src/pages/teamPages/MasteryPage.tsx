@@ -6,7 +6,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import CustomNode from "../../components/CustomNode";
 import CustomEdge from "../../components/CustomEdge";
-import LevelModal from "../../components/TaskModal";
+import TaskModal from "../../components/TaskModal";
 
 const nodeTypes = {
     custom: CustomNode
@@ -330,7 +330,7 @@ function MasteryPage() {
                     <Controls />
                 </ReactFlow>
                 {openModalId && modalNode && (
-                    <LevelModal
+                    <TaskModal
                         node={modalNode}
                         onClose={handleCloseModal}
                     />

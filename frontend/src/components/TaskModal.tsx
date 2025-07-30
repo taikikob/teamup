@@ -44,21 +44,26 @@ const OVERLAY_STYLES: React.CSSProperties = {
 function TaskModal({node, onClose}: {node: Node; onClose: () => void;}) {
     const { teamInfo, isLoadingTeam, teamError } = useTeam();
     const [loadingTasks, setLoadingTasks] = useState(false);
-    const [tasks, setTasks] = useState<any[]>([]);
+    const [tasks, setTasks] = useState<Task[]>([]);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     // Always sort tasks after fetching
     const fetchTasks = async () => {
+        if (!teamInfo || !teamInfo.team_id) {
+            console.error('Team information is not available.');
+            return;
+        }
         setLoadingTasks(true);
         try {
-            const res = await fetch(`http://localhost:3000/api/teams/${teamInfo?.team_id}/${node.id}/tasks`, {
+            // For players, make sure that the completed boolean is fetched as well
+            const res = await fetch(`http://localhost:3000/api/teams/${teamInfo.team_id}/${node.id}/tasks`, {
                 method: 'GET',
                 credentials: 'include'
             });
             if (!res.ok) throw new Error('Failed to fetch tasks');
             const data = await res.json();
-            setTasks(data.sort((a: Task, b: Task) => a.task_order - b.task_order));
             console.log('Fetched tasks:', data);
+            setTasks(data);
         } catch (err) {
             console.error('Error fetching tasks:', err);
         } finally {
@@ -212,7 +217,7 @@ function TaskModal({node, onClose}: {node: Node; onClose: () => void;}) {
                                 key={task.task_id}
                                 onClick={() => setSelectedTask(task)}
                                 style={{
-                                    background: "#f5f5f5",
+                                    background: task.completed ? "#d4f8e8" : "#f5f5f5", // green if completed
                                     borderRadius: "6px",
                                     padding: "16px",
                                     marginBottom: "12px",
@@ -227,7 +232,21 @@ function TaskModal({node, onClose}: {node: Node; onClose: () => void;}) {
                                 }}
                             >
                                 <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 500 }}>{task.title}</h3>
-                                <input type="checkbox" style={{ marginLeft: "16px" }} />
+                                <input
+                                    type="checkbox"
+                                    style={{
+                                        marginLeft: "16px",
+                                        width: "20px",
+                                        height: "20px",
+                                        accentColor: "#4caf50",
+                                        border: "2px solid #bbb",
+                                        borderRadius: "4px",
+                                        background: "#fff"
+                                    }}
+                                    checked={!!task.completed}
+                                    readOnly
+                                    onClick={e => e.stopPropagation()} // Prevent opening sidebar
+                                />
                             </div>
                         ))
                 )}
