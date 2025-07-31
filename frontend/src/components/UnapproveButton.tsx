@@ -4,7 +4,7 @@ import type { PlayerSubmission } from "../types/playerSubmission";
 import { useTeam } from "../contexts/TeamContext";
 import { usePlayerSubmissions } from "../contexts/PlayerSubmissionsContext";
 
-function MarkCompleteButton({
+function UnapproveButton({
   player_id,
   task_id,
   setSelectedSubmission,
@@ -22,11 +22,11 @@ function MarkCompleteButton({
         toast.error("Team information is not available.", { position: "top-center" });
         return null;
     }
-    const handleMarkComplete = async () => {
+    const handleUnapproveSubmission = async () => {
         try {
             setLoading(true);
-            console.log("Marking task as complete for player:", player_id, "task:", task_id, "team:", teamInfo.team_id);
-            const response = await fetch(`http://localhost:3000/api/tasks/${teamInfo.team_id}/${task_id}/complete`, {
+            console.log("Unapproving task for player:", player_id, "task:", task_id, "team:", teamInfo.team_id);
+            const response = await fetch(`http://localhost:3000/api/tasks/${teamInfo.team_id}/${task_id}/unapprove`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -38,7 +38,7 @@ function MarkCompleteButton({
                 throw new Error("Failed to mark task as complete");
             }
             const data = await response.json();
-            console.log("Task marked as complete:", data);
+            console.log("Returned submission for player to submit retry:", data);
             toast.success(data.message, { position: "top-center" });
             // Fetch the updated submission from my backend
             const updatedRes = await fetch(`http://localhost:3000/api/posts/playerSubmission/${teamInfo.team_id}/${task_id}/${player_id}`, {
@@ -49,7 +49,7 @@ function MarkCompleteButton({
                 updatePlayerSubmission(updatedSubmission);
             }
         } catch (error) {
-            toast.error("Failed to mark task as complete", { position: "top-center" });
+            toast.error("Failed to return submission for player", { position: "top-center" });
         } finally {
             setLoading(false);
             setSelectedSubmission(null);
@@ -58,10 +58,10 @@ function MarkCompleteButton({
     }
     
     return (
-        <button onClick={handleMarkComplete} disabled={loading}>
-            {loading ? "Approving..." : "Approve Submission"}
+        <button onClick={handleUnapproveSubmission} disabled={loading}>
+            {loading ? "Returning Submission..." : "Send Back for Revision"}
         </button>
     )
 }
 
-export default MarkCompleteButton;
+export default UnapproveButton;

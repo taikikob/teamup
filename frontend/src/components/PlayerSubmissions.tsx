@@ -4,6 +4,7 @@ import MarkCompleteButton from "./MarkCompleteButton";
 import ListPlayerSubmissions from "./ListPlayerSubmissions";
 import { usePlayerSubmissions } from "../contexts/PlayerSubmissionsContext";
 import CommentSection from "./CommentSection";
+import UnapproveButton from "./UnapproveButton";
 
 function PlayerSubmissions({ taskId, loadingComments }: { taskId: number, loadingComments: boolean }) {
     const [selectedSubmission, setSelectedSubmission] = useState<PlayerSubmission | null>(null);
@@ -58,6 +59,12 @@ function PlayerSubmissions({ taskId, loadingComments }: { taskId: number, loadin
                             { selectedSubmission.isSubmitted && !selectedSubmission.isComplete && (
                                 <div>
                                     <MarkCompleteButton 
+                                        player_id={selectedSubmission.user_id} 
+                                        task_id={selectedSubmission.task_id}
+                                        setSelectedSubmission={setSelectedSubmission} 
+                                        setSelected={setSelected}
+                                    />
+                                    <UnapproveButton 
                                         player_id={selectedSubmission.user_id} 
                                         task_id={selectedSubmission.task_id}
                                         setSelectedSubmission={setSelectedSubmission} 

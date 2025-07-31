@@ -384,7 +384,7 @@ export const postPlayerSubmission = async (req: Request, res: Response) => {
 }
 
 export const deletePost = async (req: Request, res: Response) => {
-    if (!process.env.BUCKET_NAME || !process.env.DISTRIBUTION_ID) {
+    if (!process.env.BUCKET_NAME || !process.env.CLOUDFRONT_DISTRIBUTION_ID) {
         res.status(500).json({ error: 'Server configuration error' });
         return;
     }
