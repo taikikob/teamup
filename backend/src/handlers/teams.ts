@@ -2,6 +2,8 @@ import { Request, Response } from "express-serve-static-core";
 import pool from '../db';
 import { genAccCode } from "../lib/accessCodeUtils";
 import { User } from "../types/User";
+import { deleteFile } from "../lib/s3utils";
+import { invalidateCache } from "../lib/cloudFrontUtils";
 
 export async function getTeams(request: Request, response: Response): Promise<void> {
     const user = request.user as User;
@@ -59,6 +61,23 @@ export async function getTeamInfo(request:Request, response:Response): Promise<v
                     JOIN users u_coach ON tm_coach.user_id = u_coach.user_id
                     WHERE tm_coach.team_id = t.team_id AND tm_coach.role = 'Coach'
                 ) AS coaches_info,
+                (
+                    SELECT
+                        COALESCE(
+                            json_agg(
+                                json_build_object(
+                                    'user_id', u_player.user_id,
+                                    'first_name', u_player.first_name,
+                                    'last_name', u_player.last_name,
+                                    'email', u_player.email
+                                )
+                            ) FILTER (WHERE u_player.user_id IS NOT NULL),
+                            '[]'::json -- Keep this COALESCE for players, as a team might genuinely have no players
+                        )
+                    FROM team_memberships tm_player
+                    JOIN users u_player ON tm_player.user_id = u_player.user_id
+                    WHERE tm_player.team_id = t.team_id AND tm_player.role = 'Player'
+                ) AS players_info,
                 (
                     SELECT 
                         json_agg(
@@ -179,35 +198,23 @@ export async function getNodeTasks(request: Request, response: Response): Promis
     const { team_id, node_id } = request.params;
     const client = await pool.connect();
     try {
-        // Check if user is a player
-        const is_player = await client.query(`
+        const result = await client.query(`
+            SELECT task_id, title, task_order
+            FROM mastery_tasks
+            WHERE team_id = $1 AND node_id = $2
+        `, [team_id, node_id]);
+        const is_player =  await client.query(`
             SELECT 1 FROM team_memberships
             WHERE team_id = $1 AND user_id = $2 AND role = 'Player'
         `, [team_id, user.user_id]);
-
         if (is_player.rowCount === 1) {
-            // Fetch tasks and completion status in one query
-            const result = await client.query(`
-                SELECT 
-                    t.task_id, 
-                    t.title, 
-                    t.task_order,
-                    CASE WHEN tc.player_id IS NOT NULL THEN true ELSE false END AS completed
-                FROM mastery_tasks t
-                LEFT JOIN task_completions tc
-                    ON t.task_id = tc.task_id AND tc.player_id = $3
-                WHERE t.team_id = $1 AND t.node_id = $2
-                ORDER BY t.task_order ASC
-            `, [team_id, node_id, user.user_id]);
-            response.status(200).json(result.rows);
+            // attatch the completed boolean to each task
+            const tasks = result.rows.map(task => ({
+                ...task,
+                completed: false // need to fetch this from the database
+            }));
+            response.status(200).json(tasks);
         } else {
-            // Not a player, just return tasks
-            const result = await client.query(`
-                SELECT task_id, title, task_order
-                FROM mastery_tasks
-                WHERE team_id = $1 AND node_id = $2
-                ORDER BY task_order ASC
-            `, [team_id, node_id]);
             response.status(200).json(result.rows);
         }
     } catch (error) {
@@ -647,6 +654,65 @@ export async function deleteTask(request: Request, response: Response): Promise<
     } catch (error) {
         console.error('Error deleting task:', error);
         response.status(500).json({ error: 'Failed to delete task. Please try again.' });
+    } finally {
+        client.release();
+    }
+}
+
+export async function deletePlayer(request: Request, response: Response): Promise<void> {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const team_id = request.params.team_id;
+    const player_id = request.params.player_id;
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        await client.query(`
+            DELETE FROM task_submissions
+            WHERE player_id = $1
+              AND task_id IN (SELECT task_id FROM mastery_tasks WHERE team_id = $2)
+        `, [player_id, team_id]);
+        await client.query(`
+            DELETE FROM task_completions
+            WHERE player_id = $1
+              AND task_id IN (SELECT task_id FROM mastery_tasks WHERE team_id = $2)
+        `, [player_id, team_id]);
+        await client.query(`
+            DELETE FROM comments
+            WHERE player_id = $1
+              AND task_id IN (SELECT task_id FROM mastery_tasks WHERE team_id = $2)
+        `, [player_id, team_id]);
+        // Need to delete posts related to this player for this team from s3 and invalidate cloudFront cache 
+        const playerPostsInTeam = await client.query(`
+            SELECT media_name FROM posts 
+            WHERE user_id = $1 
+              AND task_id IN (SELECT task_id FROM mastery_tasks WHERE team_id = $2)
+              AND media_type = $3
+        `, [player_id, team_id, 'player_submission']);
+        // Delete posts from S3 and invalidate CloudFront cache
+        for (const post of playerPostsInTeam.rows) {
+            const mediaName = post.media_name;
+            await deleteFile(mediaName);
+            await invalidateCache(mediaName);
+        }
+        await client.query(`
+            DELETE FROM posts
+            WHERE user_id = $1
+              AND task_id IN (SELECT task_id FROM mastery_tasks WHERE team_id = $2)
+        `, [player_id, team_id]);
+        await client.query(`
+            DELETE FROM team_memberships
+            WHERE user_id = $1 AND team_id = $2
+        `, [player_id, team_id]);
+        await client.query('COMMIT');
+        response.status(200).json({ success: true });
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('Error removing player and related data:', error);
+        response.status(500).json({ error: 'Failed to remove player and related data.' });
     } finally {
         client.release();
     }

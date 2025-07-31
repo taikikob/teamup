@@ -1,26 +1,15 @@
 import { Request, Response } from "express-serve-static-core";
 import pool from '../db';
 import { User } from "../types/User";
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import sharp from 'sharp';
 import crypto from 'crypto';
 import {getSignedUrl} from "@aws-sdk/cloudfront-signer"
-import { CloudFrontClient, CreateInvalidationCommand } from "@aws-sdk/client-cloudfront";
 
-const s3 = new S3Client({
-    region: process.env.BUCKET_REGION,
-    credentials: {
-        accessKeyId: process.env.BUCKET_ACCESS_KEY!,
-        secretAccessKey: process.env.BUCKET_SECRET_KEY!
-    }
-});
-
-const cloudFront = new CloudFrontClient({
-    credentials: {
-        accessKeyId: process.env.BUCKET_ACCESS_KEY!,
-        secretAccessKey: process.env.BUCKET_SECRET_KEY!
-    }
-});
+import s3 from "../s3";
+import cloudFront from "../cloudFront";
+import { deleteFile } from "../lib/s3utils";
+import { invalidateCache } from "../lib/cloudFrontUtils";
 
 // When getting image data, we have to attatch the url to the returned object
 export const getCoachResources = async (req: Request, res: Response) => {
@@ -395,6 +384,10 @@ export const postPlayerSubmission = async (req: Request, res: Response) => {
 }
 
 export const deletePost = async (req: Request, res: Response) => {
+    if (!process.env.BUCKET_NAME || !process.env.DISTRIBUTION_ID) {
+        res.status(500).json({ error: 'Server configuration error' });
+        return;
+    }
     console.log("Deleting post with body:", req.body);
     const user = req.user as User;
     if (!user) {
@@ -420,30 +413,8 @@ export const deletePost = async (req: Request, res: Response) => {
         }
 
         const mediaName = result.rows[0].media_name;
-
-        // Delete the file from S3
-        const deleteParams = {
-            Bucket: process.env.BUCKET_NAME,
-            Key: mediaName,
-        };
-
-        const command = new DeleteObjectCommand(deleteParams);
-        // Delete the file from S3
-        await s3.send(command);
-
-        // Invalidate the cloudfront chache for this image
-        const invalidationParams = {
-            DistributionId: process.env.DISTRIBUTION_ID!,
-            InvalidationBatch: {
-                CallerReference: mediaName,
-                Paths: {
-                    Quantity: 1,
-                    Items: [`/${mediaName}`]
-                }
-            }
-        }
-        const invalidationCommand = new CreateInvalidationCommand(invalidationParams);
-        await cloudFront.send(invalidationCommand);
+        await deleteFile(mediaName);
+        await invalidateCache(mediaName);
         // Delete the post from the database
         await pool.query('DELETE FROM posts WHERE post_id = $1', [postId]);
 

@@ -10,6 +10,13 @@ interface CoachInfo {
     email: string;
 }
 
+interface PlayerInfo {
+    user_id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+}
+
 interface AccessCodeInfo {
     code: string;
     role: 'Player' | 'Coach';
@@ -21,6 +28,7 @@ interface TeamInfo {
     team_name: string;
     team_description: string | null;
     is_user_coach: boolean;
+    players_info: PlayerInfo[];
     coaches_info: CoachInfo[];
     team_access_codes: AccessCodeInfo[];
 }

@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom';
 import TeamNav from '../components/TeamNav';
 import TeamHomePage from './teamPages/TeamHomePage';
 import MasteryPage from './teamPages/MasteryPage';
-import AnnouncementsPage from './teamPages/AnnouncementsPage';
 import TeammatesPage from './teamPages/TeammatesPage';
 import TeamSettingsPage from './teamPages/TeamSettingsPage';
 
@@ -28,7 +27,6 @@ function Team() {
                             </PlayerSubmissionsProvider>
                             }
                         />
-                        <Route path="announcements" element={<AnnouncementsPage />} />
                         <Route path="teammates" element={<TeammatesPage />} />
                         <Route path="settings" element={<TeamSettingsPage />} />
                     </Routes>

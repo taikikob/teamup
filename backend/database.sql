@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS posts (
     task_id INTEGER NOT NULL,
     caption TEXT,
     media_name VARCHAR(255) NOT NULL, -- Name of the media file
-    media_type VARCHAR(50) NOT NULL, -- e.g., 'coach_resource', 'player_submission', 'profile_picture
+    media_type VARCHAR(50) NOT NULL, -- e.g., 'coach_resource', 'player_submission'
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     media_format VARCHAR(20) NOT NULL, -- 'image', 'video', 'other'
     FOREIGN KEY (task_id) REFERENCES mastery_tasks(task_id) ON DELETE CASCADE

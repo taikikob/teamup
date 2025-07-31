@@ -13,9 +13,6 @@ function TeamNav() {
             <NavLink to={`/teams/${team_id}/mastery`} className={({ isActive }) => isActive ? "active" : ""}>Mastery</NavLink>
           </li>
           <li>
-            <NavLink to={`/teams/${team_id}/announcements`} className={({ isActive }) => isActive ? "active" : ""}>Announcements</NavLink>
-          </li>
-          <li>
             <NavLink to={`/teams/${team_id}/teammates`} className={({ isActive }) => isActive ? "active" : ""}>Teammates</NavLink>
           </li>
           <li>
