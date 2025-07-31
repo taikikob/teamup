@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CustomNode from "../../components/CustomNode";
 import CustomEdge from "../../components/CustomEdge";
 import TaskModal from "../../components/TaskModal";
+import { useSearchParams } from "react-router-dom";
 
 const nodeTypes = {
     custom: CustomNode
@@ -31,6 +32,16 @@ function MasteryPage() {
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [saveError, setSaveError] = useState<string | null>(null);
     const saveTimeoutRef = useRef<number | null>(null); // To store the debounce timer
+
+    // When notification is clicked, the URL will look like
+    // /team/:teamId/mastery?nodeId=abc&taskId=123
+    const [searchParams] = useSearchParams();
+    const initialNodeId = searchParams.get("nodeId");
+    const initialTaskId = searchParams.get("taskId");
+
+    useEffect(() => {
+        if (initialNodeId) setOpenModalId(initialNodeId);
+    }, [initialNodeId]);
 
     // Function to save flow data to backend
     const saveFlowToBackend = useCallback(async (currentNodes: Node[], currentEdges: Edge[]) => {
@@ -333,6 +344,7 @@ function MasteryPage() {
                     <TaskModal
                         node={modalNode}
                         onClose={handleCloseModal}
+                        initialTaskId={initialTaskId}
                     />
                 )}
             </div>

@@ -5,7 +5,7 @@ import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Landingpage from './pages/Landingpage';
-import Inbox from './pages/Inbox';
+import InboxPage from './pages/InboxPage';
 import Team from './pages/Team';
 import { UserProvider } from './contexts/UserContext';
 import { ToastContainer } from 'react-toastify';
@@ -23,7 +23,7 @@ function App() {
           <Route path='/login' element={<Login />}/>
           <Route path='/signup' element={<Signup />}/>
           <Route path='/home' element={<Home />}/>
-          <Route path='/inbox' element={<Inbox />}/>
+          <Route path='/inbox' element={<InboxPage />}/>
           {/* Setting up a parent route at /teams/:teamId, will handle nested routes 
               inside the team component */}
           <Route path="/teams/:team_id/*" element={<Team />} />

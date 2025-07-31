@@ -41,7 +41,9 @@ const OVERLAY_STYLES: React.CSSProperties = {
     zIndex: 1000
 }
 
-function TaskModal({node, onClose}: {node: Node; onClose: () => void;}) {
+// initialTaskId is inputted if the user clicked a notification to open a certain task sidebar
+
+function TaskModal({node, onClose, initialTaskId}: {node: Node; onClose: () => void; initialTaskId: string | null;}) {
     const { teamInfo, isLoadingTeam, teamError } = useTeam();
     const [loadingTasks, setLoadingTasks] = useState(false);
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -100,6 +102,13 @@ function TaskModal({node, onClose}: {node: Node; onClose: () => void;}) {
             console.error('Failed to save task order:', err);
         }
     };
+
+    useEffect(() => {
+        if (!loadingTasks && initialTaskId && tasks.length > 0) {
+            const found = tasks.find(t => String(t.task_id) === String(initialTaskId));
+            if (found) setSelectedTask(found);
+        }
+    }, [initialTaskId, tasks]);
 
     useEffect(() => {
         fetchTasks();

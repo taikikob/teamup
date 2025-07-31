@@ -124,6 +124,26 @@ CREATE TABLE IF NOT EXISTS comments (
 CREATE INDEX idx_comments_player_task ON comments (player_id, task_id);
 CREATE INDEX idx_comments_created_at ON comments (created_at DESC);
 
+CREATE TABLE IF NOT EXISTS notifications (
+  notification_id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  type VARCHAR(50) NOT NULL, -- e.g., 'task_completed', 'comment_reply', 'post_created'
+  sent_from_id INTEGER NOT NULL, -- User who sent the notification
+  content TEXT NOT NULL, -- Content of the notification
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  team_id INTEGER, -- Team related to the notification, can be NULL
+  node_id VARCHAR, -- Node related to the notification, can be NULL
+  task_id INTEGER, -- Task related to the notification, can be NULL
+  is_read boolean,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (sent_from_id) REFERENCES users(user_id),
+  FOREIGN KEY (team_id) REFERENCES teams(team_id),
+  FOREIGN KEY (node_id, team_id) REFERENCES mastery_nodes(node_id, team_id),
+  FOREIGN KEY (task_id) REFERENCES mastery_tasks(task_id)
+);
+
+CREATE INDEX idx_notifications_user_created_at ON notifications (user_id, created_at DESC);
+
 
 -- Creates a table named `"sessions"` **only if it doesn't already exist**.
 -- The quotes around `"session"` are necessary because `session` is a **reserved keyword** in SQL.
