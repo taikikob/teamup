@@ -53,11 +53,19 @@ function PlayerSubmissions({ taskId, loadingComments }: { taskId: number, loadin
                                             This type of submission is not supported yet. We only support photos and videos as of now.
                                         </div>
                                     )}
-                                    <div>Submitted at {new Date(sub.created_at).toLocaleString()}</div>
+                                    { selectedSubmission.isSubmitted && !selectedSubmission.isComplete && (
+                                        <div>
+                                            <p>Coach has not yet approved this submission.</p>
+                                        </div>
+                                    )}
+                                    <div>Media uploaded at {new Date(sub.created_at).toLocaleString()}</div>
                                 </div>
                             ))}
                             { selectedSubmission.isSubmitted && !selectedSubmission.isComplete && (
                                 <div>
+                                    { selectedSubmission.submitted_at &&
+                                        <p>Submitted at: {new Date(selectedSubmission.submitted_at).toLocaleString()}</p>
+                                    }
                                     <MarkCompleteButton 
                                         player_id={selectedSubmission.user_id} 
                                         task_id={selectedSubmission.task_id}
@@ -71,6 +79,22 @@ function PlayerSubmissions({ taskId, loadingComments }: { taskId: number, loadin
                                         setSelected={setSelected}
                                     />
                                 </div>  
+                            )}
+                            { selectedSubmission.isComplete && (
+                                <div>
+                                    <div style={{ color: "green" }}>
+                                        <p>Coach has approved this submission.</p>
+                                        { selectedSubmission.completed_at &&
+                                            <p>Completed at: {new Date(selectedSubmission.completed_at).toLocaleString()}</p>
+                                        }
+                                    </div>
+                                    <UnapproveButton 
+                                        player_id={selectedSubmission.user_id} 
+                                        task_id={selectedSubmission.task_id}
+                                        setSelectedSubmission={setSelectedSubmission} 
+                                        setSelected={setSelected}
+                                    />
+                                </div>
                             )}
                             <CommentSection loadingComments={loadingComments} player_id={selectedSubmission.user_id} task_id={taskId}/>
                             <br />

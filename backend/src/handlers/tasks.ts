@@ -134,6 +134,11 @@ export const postTaskUnapprove = async (req: Request, res: Response) => {
             [taskId, player_id]
         );
 
+        await client.query(
+            `DELETE FROM task_completions WHERE task_id = $1 AND player_id = $2`,
+            [taskId, player_id]
+        );
+
         const node_id = (await client.query(
             `SELECT node_id FROM mastery_tasks WHERE task_id = $1`,
             [taskId]
