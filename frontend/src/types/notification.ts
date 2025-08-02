@@ -1,7 +1,16 @@
+export type NotificationType =
+  | "task_completed"
+  | "comment_added"
+  | "player_removed"
+  | "task_unapproved"
+  | "player_submitted"
+  | "player_removed"
+;
+
 export type notification = {
     notification_id: number;
     user_id: number;
-    type: string; // e.g., 'task', 'comment', 'team'
+    type: NotificationType;
     content: string; // e.g., 'New task assigned', 'Comment on your post
     created_at: string; // ISO date string
     team_id: number;

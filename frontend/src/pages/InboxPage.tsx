@@ -29,14 +29,17 @@ function InboxPage() {
       <div>
         {notifications.length > 0 ? (
           notifications.map((notif) => (
+            // if notif.type === 'player_removed' don't show the View Link
             <div key={notif.notification_id}>
               <h3>{notif.type}</h3>
               <p>{notif.content}</p>
               <small>{notif.created_at}</small>
               <button>{notif.is_read ? 'Mark as Unread' : 'Mark as Read'}</button>
-              <Link to={`/teams/${notif.team_id}/mastery?nodeId=${notif.node_id}&taskId=${notif.task_id}`}>
-                <button>View</button>
-              </Link>
+              {notif.type !== 'player_removed' && (
+                <Link to={`/teams/${notif.team_id}/mastery?nodeId=${notif.node_id}&taskId=${notif.task_id}`}>
+                  <button>View</button>
+                </Link>
+              )}
               <hr />
             </div>
           ))

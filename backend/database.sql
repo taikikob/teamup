@@ -127,7 +127,7 @@ CREATE INDEX idx_comments_created_at ON comments (created_at DESC);
 CREATE TABLE IF NOT EXISTS notifications (
   notification_id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL,
-  type VARCHAR(50) NOT NULL, -- e.g., 'task_completed', 'comment_added', 'post_created'
+  type VARCHAR(50) NOT NULL, -- e.g., 'task_completed', 'comment_added', 'player_removed
   sent_from_id INTEGER NOT NULL, -- User who sent the notification
   content TEXT NOT NULL, -- Content of the notification
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

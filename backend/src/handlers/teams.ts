@@ -701,6 +701,19 @@ export async function deletePlayer(request: Request, response: Response): Promis
             DELETE FROM team_memberships
             WHERE user_id = $1 AND team_id = $2
         `, [player_id, team_id]);
+        // create notification for the player that they have been removed from the team
+        // get team name
+        const teamNameRes = await client.query(`
+            SELECT team_name FROM teams WHERE team_id = $1
+        `, [team_id]);
+        const teamName = teamNameRes.rows[0]?.team_name;
+        if (!teamName) {
+            throw new Error('Team not found');
+        }
+        await client.query(`
+            INSERT INTO notifications (user_id, type, sent_from_id, content)
+            VALUES ($1, $2, $3, $4)
+        `, [player_id, 'player_removed', user.user_id, `You have been removed from ${teamName}.`]);
         await client.query('COMMIT');
         response.status(200).json({ success: true });
     } catch (error) {
