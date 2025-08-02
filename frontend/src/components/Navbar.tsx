@@ -1,6 +1,7 @@
 import {Link, useNavigate} from "react-router-dom";
 import "../css/Navbar.css";
 import { useUser } from "../contexts/UserContext";
+import { useNotifications } from "../contexts/NotificationContext";
 
 function Navbar() {
     // do a condition to check if user is logged in
@@ -8,6 +9,7 @@ function Navbar() {
     // if logged in, show what I current have now
     
     const {user, refreshUser, isLoadingUser} = useUser();
+    const { unreadCount } = useNotifications();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -50,7 +52,12 @@ function Navbar() {
                     // Option 2: User is logged in
                     <>
                         <Link to="/home" className="nav-link">Home</Link>
-                        <Link to="/inbox" className="nav-link">Inbox</Link>
+                        <Link to="/inbox" className="nav-link">
+                            Inbox
+                            {unreadCount > 0 && (
+                                <span className="notif-badge">{unreadCount}</span>
+                            )}
+                        </Link>
                         <Link to="/profile" className="nav-link">Profile</Link>
                         <button className="logout-btn" onClick={handleLogout}>Logout</button>
                     </>
@@ -65,4 +72,5 @@ function Navbar() {
         </nav> 
     )
 }
+
 export default Navbar;
