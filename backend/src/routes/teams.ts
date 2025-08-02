@@ -4,7 +4,7 @@ import { isAuth, isCoach, checkTeamMembership } from '../lib/authMiddleware';
 
 const router = Router();
 
-// all routes using isCoach should have team_id in the url
+// all routes using isCoach or checkTeamMembership should have team_id in the url
 router.get('/', isAuth, getTeams);
 router.post('/create', isAuth, postCreate);
 router.post('/join', isAuth, postJoin);
