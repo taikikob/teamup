@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { notification } from "../types/notification";
 import { toast } from "react-toastify";
+import { useUser } from "../contexts/UserContext"; // <-- import your user context
 
 type NotificationContextType = {
     notifications: notification[];
@@ -27,6 +28,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const [unreadCount, setUnreadCount] = useState(0);
     const [loadingNotifications, setLoadingNotifications] = useState(false);
     const [updatingIds, setUpdatingIds] = useState<Set<number>>(new Set());
+    const { user } = useUser(); // <-- get the user
 
     const fetchNotifications = async () => {
         setLoadingNotifications(true);
@@ -98,8 +100,13 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     };
 
     useEffect(() => {
-        fetchNotifications();
-    }, []);
+        if (user) {
+            fetchNotifications();
+        } else {
+            setNotifications([]);
+            setUnreadCount(0);
+        }
+    }, [user]); // <-- refetch when user changes
 
     return (
         <NotificationContext.Provider value={{ notifications, unreadCount, loadingNotifications, fetchNotifications, markAsRead, markAsUnread, updatingIds }}>
