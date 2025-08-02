@@ -39,11 +39,52 @@ export const postTaskSubmit = async (req: Request, res: Response) => {
     const { taskId } = req.params;
 
     try {
-        const result = await pool.query(
+        // use transaction to ensure atomicity
+        const client = await pool.connect();
+        await client.query("BEGIN");
+        const result = await client.query(
             `INSERT INTO task_submissions (task_id, player_id) VALUES ($1, $2) returning submitted_at`,
             [taskId, user.user_id]
         );
-        res.status(201).json({ 
+        // add notification to all coaches in the team
+        const teamIdResult = await client.query(
+            `SELECT team_id FROM mastery_tasks WHERE task_id = $1`,
+            [taskId]
+        );
+        const team_id = teamIdResult.rows[0]?.team_id;
+        if (!team_id) {
+            throw new Error("Team not found for the given task");
+        }
+        const node_id_result = await client.query(
+            `SELECT node_id FROM mastery_tasks WHERE task_id = $1`,
+            [taskId]
+        );
+        const node_id = node_id_result.rows[0]?.node_id;
+        if (!node_id) {
+            throw new Error("Node not found for the given task");
+        }
+        const coachesIdsResult = await client.query(
+            `SELECT user_id FROM team_memberships 
+            WHERE team_id = $1 AND role = $2`,
+            [team_id, 'Coach']
+        );
+        // get player name
+        const playerNameResult = await client.query(
+            `SELECT first_name, last_name FROM users WHERE user_id = $1`,
+            [user.user_id]
+        );
+        const playerName = `${playerNameResult.rows[0].first_name} ${playerNameResult.rows[0].last_name}`;
+        // loop through each coachID and add a notification
+        for (const coach of coachesIdsResult.rows) {
+            await client.query(
+                `INSERT INTO notifications (user_id, type, sent_from_id, content, team_id, node_id, task_id) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                [coach.user_id, 'player_submitted', user.user_id, `Player ${playerName} has submitted a task!`, team_id, node_id, taskId]
+            );
+        }
+        await client.query("COMMIT");
+        client.release();
+        res.status(201).json({
             message: "Task submitted successfully",
             submittedAt: result.rows[0].submitted_at 
         });

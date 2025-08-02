@@ -6,7 +6,7 @@ import { usePlayerSubmissions } from "../contexts/PlayerSubmissionsContext";
 import CommentSection from "./CommentSection";
 import UnapproveButton from "./UnapproveButton";
 
-function PlayerSubmissions({ taskId, loadingComments }: { taskId: number, loadingComments: boolean }) {
+function PlayerSubmissions({ taskId, loadingComments, initialPlayerId }: { taskId: number, loadingComments: boolean, initialPlayerId: string | null }) {
     const [selectedSubmission, setSelectedSubmission] = useState<PlayerSubmission | null>(null);
     const [selected, setSelected] = useState(false);
     const { playerSubmissions, loadingPlayerSubmissions } = usePlayerSubmissions();
@@ -15,6 +15,16 @@ function PlayerSubmissions({ taskId, loadingComments }: { taskId: number, loadin
         setSelectedSubmission(null);
         setSelected(false);
     }, [taskId]);
+
+    useEffect(() => {
+        if (initialPlayerId && playerSubmissions.length > 0) {
+            const found = playerSubmissions.find(sub => String(sub.user_id) === String(initialPlayerId));
+            if (found) {
+                setSelectedSubmission(found);
+                setSelected(true);
+            }
+        }
+    }, [initialPlayerId, playerSubmissions]);
 
     // separate submissions into waiting for review and reviewed
     const submitted = playerSubmissions.filter(sub => sub.isSubmitted && !sub.isComplete);

@@ -43,7 +43,7 @@ const OVERLAY_STYLES: React.CSSProperties = {
 
 // initialTaskId is inputted if the user clicked a notification to open a certain task sidebar
 
-function TaskModal({node, onClose, initialTaskId}: {node: Node; onClose: () => void; initialTaskId: string | null;}) {
+function TaskModal({node, onClose, initialTaskId, initialPlayerId}: {node: Node; onClose: () => void; initialTaskId: string | null; initialPlayerId: string | null;}) {
     const { teamInfo, isLoadingTeam, teamError } = useTeam();
     const [loadingTasks, setLoadingTasks] = useState(false);
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -266,7 +266,7 @@ function TaskModal({node, onClose, initialTaskId}: {node: Node; onClose: () => v
             </div>
             {/* Sidebar for selected task */}
             {selectedTask && (
-                <TaskSidebar task={selectedTask} onClose={() => setSelectedTask(null)} />
+                <TaskSidebar task={selectedTask} onClose={() => setSelectedTask(null)} initialPlayerId={initialPlayerId} />
             )}
         </>,
         portalRoot

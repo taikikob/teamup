@@ -38,6 +38,7 @@ function MasteryPage() {
     const [searchParams] = useSearchParams();
     const initialNodeId = searchParams.get("nodeId");
     const initialTaskId = searchParams.get("taskId");
+    const playerId = searchParams.get("playerId");
 
     useEffect(() => {
         if (initialNodeId) setOpenModalId(initialNodeId);
@@ -345,6 +346,7 @@ function MasteryPage() {
                         node={modalNode}
                         onClose={handleCloseModal}
                         initialTaskId={initialTaskId}
+                        initialPlayerId={playerId}
                     />
                 )}
             </div>

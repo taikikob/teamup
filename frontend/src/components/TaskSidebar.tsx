@@ -25,7 +25,7 @@ const SIDEBAR_STYLES: React.CSSProperties = {
   overflowY: "auto"
 };
 
-function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
+function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: () => void; initialPlayerId: string | null }) {
   const { teamInfo } = useTeam();
   const { fetchPlayerSubmissions, clearPlayerSubmissions } = usePlayerSubmissions();
   const { user } = useUser();
@@ -276,7 +276,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
         </>
       )}
       {teamInfo?.is_user_coach && (
-        <PlayerSubmissions taskId={task.task_id} loadingComments={loadingComments} />
+        <PlayerSubmissions taskId={task.task_id} loadingComments={loadingComments} initialPlayerId={initialPlayerId} />
       )}
       {!teamInfo?.is_user_coach && (
         <>

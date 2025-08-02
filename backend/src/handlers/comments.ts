@@ -81,7 +81,7 @@ export const addComment = async (req: Request, res: Response) => {
                 await client.query(
                     `INSERT INTO notifications (user_id, type, sent_from_id, content, team_id, node_id, task_id) 
                     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                    [coach.user_id, 'comment_added', user.user_id, comment.content, team_id, node_id, comment.task_id]
+                    [coach.user_id, 'player_comment_added', user.user_id, comment.content, team_id, node_id, comment.task_id]
                 );
             }
         } else {
@@ -89,7 +89,7 @@ export const addComment = async (req: Request, res: Response) => {
             await client.query(
                 `INSERT INTO notifications (user_id, type, sent_from_id, content, team_id, node_id, task_id) 
                 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                [comment.player_id, 'comment_added', user.user_id, comment.content, team_id, node_id, comment.task_id]
+                [comment.player_id, 'coach_comment_added', user.user_id, comment.content, team_id, node_id, comment.task_id]
             );
         }
         // insert new notification to receiver
