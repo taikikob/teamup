@@ -48,9 +48,13 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
   const playerFileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchCoachResources = async () => {
+    if (teamInfo === null || task.task_id === undefined) {
+      console.error("Team information or task ID is not available.");
+      return;
+    }
     setLoadingCoachResources(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/posts/coachResources/${task.task_id}`, {
+      const res = await fetch(`http://localhost:3000/api/posts/coachResources/${teamInfo.team_id}/${task.task_id}`, {
         credentials: 'include'
       });
       if (!res.ok) {
@@ -70,9 +74,13 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
 
   // Used to fetch all the player's own media uploads
   const fetchMyMedia = async () => {
+    if (!teamInfo || !task.task_id) {
+      console.error("Team information or task ID is not available.");
+      return;
+    }
     setLoadingMyMedia(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/posts/myMedia/${task.task_id}`, {
+      const res = await fetch(`http://localhost:3000/api/posts/myMedia/${teamInfo.team_id}/${task.task_id}`, {
         credentials: 'include'
       });
       if (!res.ok) {
@@ -163,6 +171,10 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
   };
 
   const playerAddMedia = async (event: React.FormEvent<HTMLFormElement>) => {
+    if (!teamInfo || !task.task_id) {
+      toast.error("Team information or task ID is not available.", { position: "top-center" });
+      return;
+    }
     setAddingMedia(true);
     event.preventDefault();
 
@@ -171,7 +183,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
       formData.append("media", playerFile);
     }
     formData.append("taskId", String(task.task_id));
-    const res = await fetch(`http://localhost:3000/api/posts/player`, {
+    const res = await fetch(`http://localhost:3000/api/posts/${teamInfo.team_id}/player`, {
       method: 'POST',
       body: formData,
       credentials: 'include'

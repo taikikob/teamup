@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { useTeam } from '../contexts/TeamContext';
 
 function DeleteMedia({ postId, refetch }: { postId: number; refetch: () => void }) {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const { teamInfo } = useTeam();
 
     const handleOpen = () => {
         setLoading(false);
@@ -16,9 +18,13 @@ function DeleteMedia({ postId, refetch }: { postId: number; refetch: () => void 
     };
 
     const handleDelete = async (id: number) => {
+        if (!teamInfo) {
+            console.error("Team information is not available.");
+            return;
+        }
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3000/api/posts`, {
+            const res = await fetch(`http://localhost:3000/api/posts/${teamInfo.team_id}`, {
                 method: 'DELETE',
                 credentials: 'include',
                 headers: {
