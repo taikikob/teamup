@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; // Need useParams here to get team_id
 import { useUser } from './UserContext'; // Assuming you still need user for auth
+import { toast } from 'react-toastify'; 
 
 interface CoachInfo {
     user_id: number;
@@ -75,6 +76,16 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
                     navigate('/login', { replace: true }); // Use { replace: true } to prevent going back to the protected page
                 } else if (res.status === 404) {
                     setTeamError("Team not found.");
+                } else if (res.status === 403) {
+                    // Only show the toast if the error is not already set
+                    if (!teamError) {
+                        setTeamError("You do not have permission to view this team.");
+                        toast.error("You are not a member of this team.", {
+                            position: "top-center",
+                            toastId: "not-a-member" // <-- unique ID prevents duplicates
+                        });
+                        navigate("/home", { replace: true });
+                    }
                 } else {
                     throw new Error(errorResponse.message || `HTTP error! Status: ${res.status}`);
                 }

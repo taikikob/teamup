@@ -60,6 +60,35 @@ export const isCoach = async (req: Request, res: Response, next: NextFunction): 
   }
 }
 
+export const checkTeamMembership = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const user = req.user as User;
+  const user_id = user.user_id;
+  const team_id = parseInt(req.params.team_id || '', 10);
+  if (!user_id || isNaN(team_id)) {
+    res.status(400).json({ message: 'Bad Request: Invalid user ID or team ID.' });
+    return;
+  }
+  try {
+    const query = `
+      SELECT 1
+      FROM team_memberships
+      WHERE user_id = $1 AND team_id = $2;
+    `;
+    const result = await pool.query(query, [user_id, team_id]);
+    if (result.rows.length > 0) {
+      // User is a member of the team
+      next();
+    } else {
+      // User is not a member of the team
+      res.status(403).json({ message: 'Forbidden: You are not a member of this team.' });
+    }
+  } catch (error) {
+    console.error('Error checking team membership:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+    return;
+  }
+}
+
 // export const isAdmin = (req: Request, res: Response, next: NextFunction): void => {
 //   if (req.isAuthenticated() && req.user.admin) {
 //     next();
