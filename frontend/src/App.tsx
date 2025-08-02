@@ -8,6 +8,7 @@ import Landingpage from './pages/Landingpage';
 import InboxPage from './pages/InboxPage';
 import Team from './pages/Team';
 import { UserProvider } from './contexts/UserContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -15,7 +16,8 @@ function App() {
   return (
     <>
     <UserProvider>
-    <Navbar></Navbar>
+      <NotificationProvider>
+        <Navbar></Navbar>
         <div className='main-content'>
         <Routes>
           <Route path='/' element={<Landingpage />}/>
@@ -30,6 +32,7 @@ function App() {
         </Routes>
         <ToastContainer />
       </div>
+      </NotificationProvider>
     </UserProvider>
     </>
   )

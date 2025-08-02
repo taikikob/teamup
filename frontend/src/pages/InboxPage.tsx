@@ -1,35 +1,18 @@
-import { useState, useEffect } from "react";
-import type { notification } from "../types/notification";
 import { Link } from "react-router-dom";
+import { useNotifications } from "../contexts/NotificationContext";
 
 function InboxPage() {
-  const [notifications, setNotifications] = useState<notification[]>([]);
-  // fetch all notifications for the user here
-  const fetchNotification = async () => {
-    // Make an API call to fetch notifications for this user
-    const response = await fetch(`http://localhost:3000/api/notif`, {
-        method: 'GET',
-        credentials: 'include',
-    });
-    if (response.ok) {
-        const data = await response.json();
-        setNotifications(data);
-    } else {
-        console.error('Failed to fetch notifications');
-    }
-  };
-
-  useEffect(() => {
-    fetchNotification();
-  },[])
+  const { notifications, fetchNotifications, loadingNotifications } = useNotifications();
 
   return (
     <div>
       <h1>Inbox</h1>
+      <button onClick={fetchNotifications} style={{ marginBottom: "1em" }}>
+        {loadingNotifications ? 'Refreshing...' : 'Reload'}
+      </button>
       <div>
         {notifications.length > 0 ? (
           notifications.map((notif) => (
-            // if notif.type === 'player_removed' don't show the View Link
             <div key={notif.notification_id}>
               <h3>{notif.type}</h3>
               <p>{notif.content}</p>
