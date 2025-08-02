@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import type { Comment } from "../types/comment";
+import { useTeam } from "./TeamContext";
 
 type CommentsContextType = {
   comments: Comment[];
@@ -16,13 +17,18 @@ const CommentsContext = createContext<CommentsContextType | undefined>(undefined
 export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
-
+  const { teamInfo } = useTeam(); // Get team info to access coach IDs
   // Fetch all comments for a task
   const fetchComments = useCallback(async (taskId: number) => {
+    if (!teamInfo) {
+      // Optionally, you can set loading to true here and set to false when teamInfo is available
+      return;
+    }
     setLoadingComments(true);
     setComments([]);
+    
     try {
-      const res = await fetch(`http://localhost:3000/api/comments/${taskId}`, {
+      const res = await fetch(`http://localhost:3000/api/comments/${teamInfo.team_id}/${taskId}`, {
         credentials: "include",
       });
       if (!res.ok) {
@@ -36,13 +42,17 @@ export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } finally {
       setLoadingComments(false);
     }
-  }, []);
+  }, [teamInfo]);
 
   // Add a comment to DB and context
   const addComment = useCallback(
     async (comment: Omit<Comment, "comment_id" | "created_at" >) => {
+      if (!teamInfo) {
+        // Optionally, you can set loading to true here and set to false when teamInfo is available
+        return;
+      }
       try {
-        const res = await fetch(`http://localhost:3000/api/comments`, {
+        const res = await fetch(`http://localhost:3000/api/comments/${teamInfo.team_id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -51,6 +61,7 @@ export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (!res.ok) {
           throw new Error("Failed to add comment");
         }
+        // CHECK WHY COMMENT IS NOT BEING ADDED
         const newComment = await res.json();
         // Add the sender's name to the new comment
         newComment.sender_name = comment.sender_name;
@@ -64,8 +75,12 @@ export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Delete a comment from DB and context
   const deleteComment = useCallback(async (comment_id: number) => {
+    if (!teamInfo) {
+      // Optionally, you can set loading to true here and set to false when teamInfo is available
+      return;
+    }
     try {
-      const res = await fetch(`http://localhost:3000/api/comments/${comment_id}`, {
+      const res = await fetch(`http://localhost:3000/api/comments/${teamInfo.team_id}/${comment_id}`, {
         method: "DELETE",
         credentials: "include",
       });
