@@ -11,7 +11,7 @@ router.get('/myMedia/:taskId', isAuth, getMySubmissions);
 router.get('/playerSubmission/:team_id/:taskId/:player_id', isAuth, isCoach, getSubmission);
 // if I want to use isCoach, I make sure team_id is in the url
 
-router.post('/coach', isAuth, upload.single('media'), postCoachResource);
+router.post('/:team_id/coach', isAuth, isCoach, upload.single('media'), postCoachResource);
 router.post('/player', isAuth, upload.single('media'), postPlayerSubmission);
 
 router.delete('/', isAuth, deletePost);

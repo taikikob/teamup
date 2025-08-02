@@ -138,7 +138,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
     }
     formData.append("caption", caption);
     formData.append("taskId", String(task.task_id));
-    const res = await fetch(`http://localhost:3000/api/posts/coach`, {
+    const res = await fetch(`http://localhost:3000/api/posts/${teamInfo.team_id}/coach`, {
       method: 'POST',
       body: formData,
       credentials: 'include'
@@ -220,7 +220,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
       setSubmitting(false);
       setHasSubmitted(true); // Refetch submission status after submitting
     }
-  }
+  };
 
   const unsubmitTask = async () => {
     if (!teamInfo || !task.task_id) {
@@ -247,7 +247,7 @@ function TaskSidebar({ task, onClose }: { task: Task; onClose: () => void }) {
     } finally {
       setSubmittedAt(null); // Reset submittedAt state
     }
-  }
+  };
   if (!user) return null;
   if (!task) return null;
   return (

@@ -5,7 +5,7 @@ import DeleteNewTaskButton from './DeleteNewTaskButton';
 
 function SortableTask({ task, id, onDelete, onSelect }: {
   task: Task;
-  id: string;
+  id: number;
   onDelete: () => void;
   onSelect: () => void;
 }) {

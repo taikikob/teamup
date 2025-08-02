@@ -199,24 +199,18 @@ export async function getNodeTasks(request: Request, response: Response): Promis
     const client = await pool.connect();
     try {
         const result = await client.query(`
-            SELECT task_id, title, task_order
-            FROM mastery_tasks
-            WHERE team_id = $1 AND node_id = $2
-        `, [team_id, node_id]);
-        const is_player =  await client.query(`
-            SELECT 1 FROM team_memberships
-            WHERE team_id = $1 AND user_id = $2 AND role = 'Player'
-        `, [team_id, user.user_id]);
-        if (is_player.rowCount === 1) {
-            // attatch the completed boolean to each task
-            const tasks = result.rows.map(task => ({
-                ...task,
-                completed: false // need to fetch this from the database
-            }));
-            response.status(200).json(tasks);
-        } else {
-            response.status(200).json(result.rows);
-        }
+        SELECT 
+            t.task_id, 
+            t.title, 
+            t.task_order,
+            CASE WHEN c.task_id IS NOT NULL THEN true ELSE false END AS completed
+        FROM mastery_tasks t
+        LEFT JOIN task_completions c
+            ON t.task_id = c.task_id AND c.player_id = $3
+        WHERE t.team_id = $1 AND t.node_id = $2
+        ORDER BY t.task_order
+        `, [team_id, node_id, user.user_id]);
+        response.status(200).json(result.rows);
     } catch (error) {
         console.error('Error fetching node tasks:', error);
         response.status(500).json({ error: 'Failed to fetch node tasks. Please try again.' });

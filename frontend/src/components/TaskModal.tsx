@@ -130,7 +130,7 @@ function TaskModal({node, onClose, initialTaskId}: {node: Node; onClose: () => v
         }
     };
 
-    const handleDeleteTask = async (task_id: string) => {
+    const handleDeleteTask = async (task_id: number) => {
         console.log("Delete clicked for", task_id);
         if (!teamInfo || !teamInfo.team_id) {
             console.error('Team information is not available.');
