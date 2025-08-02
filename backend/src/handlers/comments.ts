@@ -44,10 +44,56 @@ export const addComment = async (req: Request, res: Response) => {
     const comment: Omit<Comment, "comment_id" | "created_at" | "sender_name"> = req.body;
 
     try {
-        const result = await pool.query(
+        // use transaction to ensure atomicity
+        const client = await pool.connect();
+        await client.query('BEGIN');
+        const result = await client.query(
             `INSERT INTO comments (player_id, sender_id, task_id, content) VALUES ($1, $2, $3, $4) RETURNING *`,
             [comment.player_id, comment.sender_id, comment.task_id, comment.content]
         );
+        const teamIdResult = await client.query(
+            `SELECT team_id FROM mastery_tasks WHERE task_id = $1`,
+            [comment.task_id]
+        );
+        const team_id = teamIdResult.rows[0]?.team_id;
+        if (!team_id) {
+            throw new Error("Team not found for the given task");
+        }
+        const node_id_result = await client.query(
+            `SELECT node_id FROM mastery_tasks WHERE task_id = $1`,
+            [comment.task_id]
+        );
+        const node_id = node_id_result.rows[0]?.node_id;
+        if (!node_id) {
+            throw new Error("Node not found for the given task");
+        }
+        // check whether user is player or coach
+        if (comment.player_id === user.user_id) {
+            // player has added a comment
+            // add notification for all coaches a part of this team
+            const coachesIdsResult = await client.query(
+                `SELECT user_id FROM team_memberships 
+                 WHERE team_id = $1 AND role = $2`,
+                 [team_id, 'Coach']
+            );
+            // loop through each coachID and add a notification
+            for (const coach of coachesIdsResult.rows) {
+                await client.query(
+                    `INSERT INTO notifications (user_id, type, sent_from_id, content, team_id, node_id, task_id) 
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                    [coach.user_id, 'comment_added', user.user_id, comment.content, team_id, node_id, comment.task_id]
+                );
+            }
+        } else {
+            // add notification for the player
+            await client.query(
+                `INSERT INTO notifications (user_id, type, sent_from_id, content, team_id, node_id, task_id) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                [comment.player_id, 'comment_added', user.user_id, comment.content, team_id, node_id, comment.task_id]
+            );
+        }
+        // insert new notification to receiver
+        await client.query('COMMIT');
         res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error("Error adding comment:", error);

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useComments } from "../contexts/CommentsContext";
 import { useUser } from "../contexts/UserContext";
 import { useTeam } from "../contexts/TeamContext";
+import { toast } from "react-toastify";
 
 type CommentSectionProps = {
     loadingComments: boolean;
@@ -35,6 +36,7 @@ function CommentSection({loadingComments, player_id, task_id }: CommentSectionPr
             content: content.trim(),
             sender_name: user.first_name + " " + user.last_name // Assuming user has first_name and last_name
         });
+        toast.success("Comment added successfully!", { position: "top-center" });
         setContent("");
         setSubmitting(false);
     };
