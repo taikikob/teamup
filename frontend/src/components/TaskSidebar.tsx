@@ -96,7 +96,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
       return;
     }
     try {
-      const res = await fetch(`http://localhost:3000/api/tasks/status/${task.task_id}`, {
+      const res = await fetch(`http://localhost:3000/api/tasks/${teamInfo.team_id}/status/${task.task_id}`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -201,7 +201,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
     }
     setSubmitting(true);
     try {
-      const response = await fetch(`http://localhost:3000/api/tasks/submit/${task.task_id}`, {
+      const response = await fetch(`http://localhost:3000/api/tasks/${teamInfo.team_id}/submit/${task.task_id}`, {
         method: "POST",
         credentials: 'include'
       });
@@ -228,7 +228,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
       return;
     }
     try {
-      const response = await fetch(`http://localhost:3000/api/tasks/unsubmit/${task.task_id}`, {
+      const response = await fetch(`http://localhost:3000/api/tasks/${teamInfo.team_id}/unsubmit/${task.task_id}`, {
         method: "DELETE",
         credentials: 'include'
       });
