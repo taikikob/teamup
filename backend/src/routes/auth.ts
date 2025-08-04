@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { postSignup } from '../handlers/auth';
 import passport from 'passport';
 import { isAuth } from '../lib/authMiddleware';
+import { User } from '../types/User'; // Adjust the import path as necessary
+import { getProfilePictureUrl } from '../lib/profilePictUtil';
 
 const router = Router();
 
@@ -24,8 +26,11 @@ router.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
-router.get('/me', isAuth, (req, res) => {
-  res.json(req.user); 
+router.get('/me', isAuth, async (req, res) => {
+  const user = req.user as User;
+  // check if user has profile picture
+  const profile_picture_link = await getProfilePictureUrl(user.user_id);
+  res.json({ ...user, profile_picture_link });
 });
 
 router.get('/logout', (req, res, next) => {

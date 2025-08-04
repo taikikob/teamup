@@ -1,0 +1,10 @@
+.error {
+    color: red;
+    font-weight: 400;
+}
+
+.image-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

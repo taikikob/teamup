@@ -5,7 +5,7 @@ import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sd
 import sharp from 'sharp';
 import crypto from 'crypto';
 import {getSignedUrl} from "@aws-sdk/cloudfront-signer"
-
+import { getProfilePictureUrl } from "../lib/profilePictUtil";
 import s3 from "../s3";
 import cloudFront from "../cloudFront";
 import { deleteFile } from "../lib/s3utils";
@@ -264,7 +264,134 @@ export const getMySubmissions = async (req: Request, res: Response) => {
     }
 };
 
+export const getProfilePicture = async (req: Request, res: Response) => {
+    const user = req.user as User;
+    if (!user) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+
+    try {
+        const profile_picture_link = await getProfilePictureUrl(user.user_id);
+
+        res.json({ profile_picture_link });
+    } catch (error) {
+        console.error("Error fetching profile picture:", error);
+        res.status(500).json({ error: 'Failed to fetch profile picture' });
+    }
+}
+
 const randomImageName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex');
+
+export const postProfilePicture = async (req: Request, res: Response) => {
+    const user = req.user as User;
+    if (!user) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    
+    if (!req.file) {
+        res.status(400).json({ error: 'No file uploaded' });
+        return;
+    }
+
+    // Additional file validation
+    if (!req.file.mimetype.startsWith('image/')) {
+        res.status(400).json({ error: 'File must be an image' });
+        return;
+    }
+
+    let imageName: string;
+    let oldImageName: string | null = null;
+
+    try {
+        // Check if user already has a profile picture BEFORE uploading new one
+        const existingPicture = await pool.query<{ media_name: string }>(
+            `SELECT media_name FROM profile_pictures WHERE user_id = $1`,
+            [user.user_id]
+        );
+
+        if (existingPicture.rows.length > 0) {
+            oldImageName = existingPicture.rows[0].media_name;
+        }
+
+        // Resize and prepare the image
+        const buffer = await sharp(req.file.buffer)
+            .resize({ width: 400, height: 400, fit: 'cover' }) // Ensure square aspect ratio
+            .jpeg({ quality: 85 }) // Optimize for web
+            .toBuffer();
+
+        imageName = randomImageName();
+        
+        // Upload to S3
+        const params = {
+            Bucket: process.env.BUCKET_NAME,
+            Key: imageName,
+            Body: buffer,
+            ContentType: 'image/jpeg', // Force JPEG after Sharp processing
+            CacheControl: 'max-age=31536000', // 1 year cache
+        };
+
+        const command = new PutObjectCommand(params);
+        await s3.send(command);
+
+        // Update database
+        if (oldImageName) {
+            // Update existing record
+            await pool.query(
+                `UPDATE profile_pictures SET media_name = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2`,
+                [imageName, user.user_id]
+            );
+        } else {
+            // Insert new record
+            await pool.query(
+                `INSERT INTO profile_pictures (user_id, media_name, created_at) VALUES ($1, $2, CURRENT_TIMESTAMP)`,
+                [user.user_id, imageName]
+            );
+        }
+
+        // Clean up old image AFTER successful database update
+        if (oldImageName) {
+            try {
+                await deleteFile(oldImageName);
+                // Invalidate cache for old image (don't await, let it run in background)
+                invalidateCache(oldImageName).catch(error => 
+                    console.error("Error invalidating cache for old profile picture:", error)
+                );
+            } catch (error) {
+                // Log but don't fail the request - the main operation succeeded
+                console.error("Error deleting old profile picture from S3:", error);
+            }
+        }
+
+        res.status(201).json({ 
+            message: 'Profile picture updated successfully',
+            imageUrl: `${process.env.CLOUDFRONT_URL}/${imageName}` // Return the URL
+        });
+
+    } catch (error) {
+        console.error("Error updating profile picture:", error);
+        
+        // If we uploaded to S3 but database failed, clean up the new image
+        if (imageName!) {
+            try {
+                await deleteFile(imageName);
+            } catch (cleanupError) {
+                console.error("Error cleaning up uploaded file after database failure:", cleanupError);
+            }
+        }
+        
+        if (error instanceof Error) {
+            // Handle specific Sharp errors
+            if (error.message.includes('Input file contains unsupported image format')) {
+                res.status(400).json({ error: 'Unsupported image format' });
+                return;
+            }
+        }
+        
+        res.status(500).json({ error: 'Failed to update profile picture' });
+    }
+}
 
 export const postCoachResource = async (req: Request, res: Response) => {
     const user = req.user as User;

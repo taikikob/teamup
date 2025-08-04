@@ -1,17 +1,58 @@
+import { useState } from "react";
 import { useUser } from "../contexts/UserContext";
+import "../css/Profile.css";
+import ImageCropper from "../components/ImageCropper";
 
 function Profile() {
+    const { user, isLoadingUser } = useUser();
+    const [showModal, setShowModal] = useState(false);
 
-    const {user} = useUser();
+    if (isLoadingUser) {
+        return (
+            <div className="profile-container" style={{ textAlign: "center", padding: "2rem" }}>
+                <p>Loading profile...</p>
+            </div>
+        );
+    }
 
     return (
-        <>
-            <h3>Player Profile</h3>
-            <img src="/mitoma_pp.png" alt="Mitoma Profile"/>
+        <div className="profile-container">
+            <div className="pp-button-container">
+                {user?.profile_picture_link ? (
+                    <img
+                        src={user.profile_picture_link}
+                        alt="Profile Picture"
+                        className="profile-picture"
+                    />
+                ) : (
+                    <img
+                        src="/default_pp.png"
+                        alt="Default Profile"
+                        className="profile-picture"
+                    />
+                )}
+                <button 
+                    onClick={() => setShowModal(true)}
+                    title="Change Profile Picture"
+                >
+                    <img src="/icons8-pencil-50.png" alt="Edit" className="pencil-icon"/>
+                </button>
+            </div>
+            
+            {showModal && (
+                <div style={{
+                    position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
+                    background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center"
+                }}>
+                    <div style={{ background: "#fff", padding: 24, borderRadius: 8, minHeight: 800 ,minWidth: 600 }}>
+                        <ImageCropper onClose={() => setShowModal(false)} />
+                    </div>
+                </div>
+            )}
             <p>Name: {user?.first_name} {user?.last_name}</p>
-            <p>email: {user?.email}</p>
-        </>
-    )
+            <p>Email: {user?.email}</p>
+        </div>
+    );
 }
 
 export default Profile;

@@ -6,12 +6,14 @@ type User = {
   email: string;
   first_name: string;
   last_name: string;
+  profile_picture_link: string | null;
 };
 
 type UserContextType = {
   user: User | null;
   isLoadingUser: boolean;
   refreshUser: () => Promise<void>;
+  uploadProfilePicture: (file: Blob) => Promise<void>;
 };
 const UserContext = createContext<UserContextType | null>(null);
 
@@ -29,6 +31,7 @@ export const UserProvider: React.FC<{ children: ReactNode}> = ({ children }) => 
 
       if (res.ok) {
         const data = await res.json();
+        console.log("Fetched user data:", data);
         setUser(data); // Set user data if successful
       } else {
         // If response is not OK (e.g., 401 Not Authenticated), set user to null
@@ -52,8 +55,25 @@ export const UserProvider: React.FC<{ children: ReactNode}> = ({ children }) => 
     await fetchCurrentUser(); // Just re-run the fetch logic
   };
 
+  const uploadProfilePicture = async (file: Blob) => {
+    const formData = new FormData();
+    formData.append("profile_picture", file, "profile.jpg");
+    try {
+      const res = await fetch("http://localhost:3000/api/posts/pp", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Failed to upload profile picture");
+      await fetchCurrentUser(); // Refresh user info to get new profile_picture_link
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, isLoadingUser, refreshUser }}>
+    <UserContext.Provider value={{ user, isLoadingUser, refreshUser, uploadProfilePicture }}>
       {children}
     </UserContext.Provider>
   );

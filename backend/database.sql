@@ -91,6 +91,13 @@ CREATE TABLE IF NOT EXISTS posts (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS profile_pictures (
+  user_id INTEGER PRIMARY KEY,
+  media_name VARCHAR(255) NOT NULL, -- Name of the media file
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS task_submissions (
   player_id INTEGER NOT NULL,
   task_id INTEGER NOT NULL,
