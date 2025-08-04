@@ -339,7 +339,7 @@ export const postProfilePicture = async (req: Request, res: Response) => {
         if (oldImageName) {
             // Update existing record
             await pool.query(
-                `UPDATE profile_pictures SET media_name = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2`,
+                `UPDATE profile_pictures SET media_name = $1, created_at = CURRENT_TIMESTAMP WHERE user_id = $2`,
                 [imageName, user.user_id]
             );
         } else {

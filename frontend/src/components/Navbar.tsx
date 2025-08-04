@@ -2,15 +2,29 @@ import {Link, useNavigate} from "react-router-dom";
 import "../css/Navbar.css";
 import { useUser } from "../contexts/UserContext";
 import { useNotifications } from "../contexts/NotificationContext";
+import { useState, useRef, useEffect } from "react";
 
 function Navbar() {
-    // do a condition to check if user is logged in
-    // if not logged in, show login and sign up links
-    // if logged in, show what I current have now
-    
     const {user, refreshUser, isLoadingUser} = useUser();
     const { unreadCount } = useNotifications();
     const navigate = useNavigate();
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowDropdown(false);
+            }
+        }
+        if (showDropdown) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showDropdown]);
 
     const handleLogout = async () => {
         try {
@@ -58,8 +72,28 @@ function Navbar() {
                                 <span className="notif-badge">{unreadCount}</span>
                             )}
                         </Link>
-                        <Link to="/profile" className="nav-link">Profile</Link>
-                        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+                        <Link to="#" className="nav-link profile-link" style={{ position: "relative" }}>
+                            <img
+                                className="profile-icon"
+                                src={user.profile_picture_link || "/default_pp.png"}
+                                alt="Profile"
+                                onClick={e => {
+                                    e.preventDefault();
+                                    setShowDropdown((prev) => !prev);
+                                }}
+                                style={{ cursor: "pointer" }}
+                            />
+                            {showDropdown && (
+                                <div className="profile-dropdown" ref={dropdownRef}>
+                                    <Link to="/profile" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                                        Profile
+                                    </Link>
+                                    <button className="dropdown-item" onClick={() => { setShowDropdown(false); handleLogout(); }}>
+                                        Log out
+                                    </button>
+                                </div>
+                            )}
+                        </Link>
                     </>
                 ) : (
                     // Option 3: User is not logged in (and loading is complete)
