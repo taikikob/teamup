@@ -9,8 +9,8 @@ import type { Team } from "../types/team";
 import { Link } from "react-router-dom";
 
 function Home() {
-    
-    const {user} = useUser();
+
+    const {user, isLoadingUser} = useUser();
     const location = useLocation();
     const navigate = useNavigate();
     const [refreshKey, setRefreshKey] = useState(0);
@@ -52,16 +52,22 @@ function Home() {
         <> 
             <h1>Hi {user?.first_name}!</h1>
             <h1>My Teams:</h1>
-            {teams.length === 0 ? (
-                <>
-                <p>You are not a part of any groups yet</p>
-                </>
+            {isLoadingUser ? (
+                <p>Loading teams...</p>
             ) : (
-                teams.map((team) => (
-                    <Link to={`/teams/${team.team_id}`} key={team.team_id}>
-                        <TeamCard team={team} />
-                    </Link>
-                ))
+                <>
+                    {teams.length === 0 ? (
+                        <>
+                            <p>You are not a part of any groups yet</p>
+                        </>
+                    ) : (
+                        teams.map((team) => (
+                            <Link to={`/teams/${team.team_id}`} key={team.team_id}>
+                                <TeamCard team={team} />
+                            </Link>
+                        ))
+                    )}
+                </>
             )}
             <JoinTeamButton />
             <CreateTeamButton/>
