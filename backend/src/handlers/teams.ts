@@ -4,6 +4,7 @@ import { genAccCode } from "../lib/accessCodeUtils";
 import { User } from "../types/User";
 import { deleteFile } from "../lib/s3utils";
 import { invalidateCache } from "../lib/cloudFrontUtils";
+import { getProfilePictureUrl } from "../lib/profilePictUtil";
 
 export async function getTeams(request: Request, response: Response): Promise<void> {
     const user = request.user as User;
@@ -36,65 +37,85 @@ export async function getTeamInfo(request:Request, response:Response): Promise<v
     }
     try {
         const team_id = request.params.team_id;
-        const result = await pool.query(
-            `SELECT t.team_id, t.team_name, t.team_description, 
-                EXISTS(
-                    SELECT 1 FROM team_memberships tm 
-                        WHERE tm.team_id = $1
-                        AND tm.user_id = $2
-                        AND tm.role = 'Coach'
-                ) AS is_user_coach,
-                (
-                    SELECT
-                        COALESCE(
-                            json_agg(
-                                json_build_object(
-                                    'user_id', u_coach.user_id,
-                                    'first_name', u_coach.first_name,
-                                    'last_name', u_coach.last_name,
-                                    'email', u_coach.email
-                                )
-                            ) FILTER (WHERE u_coach.user_id IS NOT NULL),
-                            '[]'::json -- Keep this COALESCE for coaches, as a team might genuinely have no coaches
-                        )
-                    FROM team_memberships tm_coach
-                    JOIN users u_coach ON tm_coach.user_id = u_coach.user_id
-                    WHERE tm_coach.team_id = t.team_id AND tm_coach.role = 'Coach'
-                ) AS coaches_info,
-                (
-                    SELECT
-                        COALESCE(
-                            json_agg(
-                                json_build_object(
-                                    'user_id', u_player.user_id,
-                                    'first_name', u_player.first_name,
-                                    'last_name', u_player.last_name,
-                                    'email', u_player.email
-                                )
-                            ) FILTER (WHERE u_player.user_id IS NOT NULL),
-                            '[]'::json -- Keep this COALESCE for players, as a team might genuinely have no players
-                        )
-                    FROM team_memberships tm_player
-                    JOIN users u_player ON tm_player.user_id = u_player.user_id
-                    WHERE tm_player.team_id = t.team_id AND tm_player.role = 'Player'
-                ) AS players_info,
-                (
-                    SELECT 
-                        json_agg(
-                            json_build_object (
-                                'code', ac.code,
-                                'role', ac.role,
-                                'expires_at', ac.expires_at
-                            )
-                        )
-                    FROM access_codes ac
-                    WHERE ac.team_id = $1
-                ) AS team_access_codes
-            FROM teams t
-            WHERE t.team_id = $1`,
-        [team_id, user.user_id]);
-        console.log(result.rows[0]);
-        response.status(200).json(result.rows[0]);
+        const teamResult = await pool.query(
+            `SELECT team_id, team_name, team_description 
+             FROM teams 
+             WHERE team_id = $1`,
+            [team_id]
+        );
+
+        if (teamResult.rows.length === 0) {
+            response.status(404).json({ error: 'Team not found' });
+            return;
+        }
+
+        const team = teamResult.rows[0];
+
+        // Query 2: Check if current user is a coach of this team
+        const coachCheckResult = await pool.query(
+            `SELECT 1 FROM team_memberships 
+             WHERE team_id = $1 AND user_id = $2 AND role = 'Coach'`,
+            [team_id, user.user_id]
+        );
+
+        const is_user_coach = coachCheckResult.rows.length > 0;
+
+        // Query 3: Get all coaches for this team
+        const coachesResult = await pool.query(
+            `SELECT u.user_id, u.first_name, u.last_name, u.email
+             FROM team_memberships tm
+             JOIN users u ON tm.user_id = u.user_id
+             WHERE tm.team_id = $1 AND tm.role = 'Coach'
+             ORDER BY u.first_name, u.last_name`,
+            [team_id]
+        );
+
+        // loop through all coaches, and add their profile picture link
+        for (const coach of coachesResult.rows) {
+            coach.profile_picture_link = await getProfilePictureUrl(coach.user_id);
+        }
+
+        const coaches_info = coachesResult.rows;
+
+        // Query 4: Get all players for this team
+        const playersResult = await pool.query(
+            `SELECT u.user_id, u.first_name, u.last_name, u.email
+             FROM team_memberships tm
+             JOIN users u ON tm.user_id = u.user_id
+             WHERE tm.team_id = $1 AND tm.role = 'Player'
+             ORDER BY u.first_name, u.last_name`,
+            [team_id]
+        );
+
+        // loop through all players, and add their profile picture link
+        for (const player of playersResult.rows) {
+            player.profile_picture_link = await getProfilePictureUrl(player.user_id);
+        }
+
+        const players_info = playersResult.rows;
+
+        // Query 5: Get access codes for this team
+        const accessCodesResult = await pool.query(
+            `SELECT code, role, expires_at
+             FROM access_codes
+             WHERE team_id = $1
+             ORDER BY expires_at DESC`,
+            [team_id]
+        );
+
+        const team_access_codes = accessCodesResult.rows;
+
+        // Combine all the data
+        const teamData = {
+            ...team,
+            is_user_coach,
+            coaches_info,
+            players_info,
+            team_access_codes
+        };
+
+        console.log(teamData);
+        response.status(200).json(teamData);
         return;
     } catch (error) {
         console.error('Error fetching team information:', error);

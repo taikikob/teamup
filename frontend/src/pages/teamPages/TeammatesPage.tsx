@@ -1,6 +1,7 @@
 import RemovePlayerButton from "../../components/RemovePlayerButton";
 import { toast } from "react-toastify";
 import { useTeam } from "../../contexts/TeamContext";
+import "../../css/TeammatesPage.css"
 
 function TeammatesPage() {
     const { teamInfo, refreshTeamInfo, isLoadingTeam } = useTeam();
@@ -36,7 +37,14 @@ function TeammatesPage() {
                 <div>
                     <div>
                         {teamInfo.coaches_info.map(coach => (
-                            <div key={coach.user_id}>
+                            <div className="user-row" key={coach.user_id}>
+                                <div>
+                                    <img 
+                                        src={coach.profile_picture_link || "/default_pp.png"} 
+                                        className="profile-icon" 
+                                        alt={`${coach.first_name} ${coach.last_name}'s profile picture`} 
+                                    />
+                                </div>
                                 {coach.first_name} {coach.last_name} - {coach.email}
                             </div>
                         ))}
@@ -53,7 +61,12 @@ function TeammatesPage() {
                 <div>
                     <div>
                         {teamInfo.players_info.map(player => (
-                            <div key={player.user_id} style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
+                            <div key={player.user_id} className="user-row">
+                                <img 
+                                    src={player.profile_picture_link || "/default_pp.png"} 
+                                    className="profile-icon" 
+                                    alt={`${player.first_name} ${player.last_name}'s profile picture`} 
+                                />
                                 <span>
                                     {player.first_name} {player.last_name} - {player.email}
                                 </span>

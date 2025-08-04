@@ -9,6 +9,7 @@ interface CoachInfo {
     first_name: string;
     last_name: string;
     email: string;
+    profile_picture_link: string | null;
 }
 
 interface PlayerInfo {
@@ -16,6 +17,7 @@ interface PlayerInfo {
     first_name: string;
     last_name: string;
     email: string;
+    profile_picture_link: string | null;
 }
 
 interface AccessCodeInfo {
@@ -91,6 +93,7 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
                 }
             } else {
                 const data: TeamInfo = await res.json();
+                console.log("Fetched team data:", data);
                 setTeamInfo(data);
             }
         } catch (err: any) {

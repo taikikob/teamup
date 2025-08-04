@@ -1,0 +1,9 @@
+.user-row {
+    border: 2px solid black;
+    border-radius: 20px;
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
