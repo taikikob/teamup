@@ -58,16 +58,30 @@ function CommentSection({loadingComments, player_id, task_id }: CommentSectionPr
                 <div>
                     {filteredComments.map(comment => (
                         <div className="comment" key={comment.comment_id}>
-                            <strong>{comment.sender_name}</strong> <em>{new Date(comment.created_at).toLocaleString()}</em>
-                            <p>{comment.content}</p>
-                            {/* Only show delete button if the user is the sender */}
-                            {(user?.user_id === comment.sender_id) && (
-                                deletingId === comment.comment_id ? (
-                                    <span>Deleting...</span>
-                                ) : (
-                                    <button onClick={() => handleDelete(comment.comment_id)}>Delete</button>
-                                )
-                            )}
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "4px" }}>
+                                <img
+                                    src={
+                                        (teamInfo.players_info.concat(teamInfo.coaches_info)
+                                            .find(person => person.user_id === comment.sender_id)?.profile_picture_link)
+                                        || "/default_pp.png"
+                                    }
+                                    className="profile-icon"
+                                    alt={`${comment.sender_name}'s profile picture`}
+                                />
+                                 <strong>{comment.sender_name}</strong> <em>{new Date(comment.created_at).toLocaleString()}</em>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <p>{comment.content}</p>
+                                {/* Only show delete button if the user is the sender */}
+                                {(user?.user_id === comment.sender_id) && (
+                                    deletingId === comment.comment_id ? (
+                                        <span>Deleting...</span>
+                                    ) : (
+                                        <button onClick={() => handleDelete(comment.comment_id)}>Delete</button>
+                                    )
+                                )}
+                            </div>
+                            
                         </div>
                     ))}
                 </div>

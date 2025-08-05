@@ -70,7 +70,7 @@ export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         console.error("Error adding comment:", error);
       }
     },
-    []
+    [teamInfo]
   );
 
   // Delete a comment from DB and context
@@ -91,7 +91,7 @@ export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch (error) {
       console.error("Error deleting comment:", error);
     }
-  }, []);
+  }, [teamInfo]);
 
   // Filter comments between coaches and player for a task
   // There can be multiple coaches in a team
