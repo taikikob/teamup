@@ -573,6 +573,37 @@ export async function updateNodeLabel(request: Request, response: Response): Pro
     }
 }
 
+export async function changeTeamName (request: Request, response: Response): Promise<void> {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const { team_name } = request.body;
+    const team_id = request.params.team_id;
+    if (!team_name || typeof team_name !== 'string') {
+        response.status(400).json({ error: 'Missing or invalid team_name.' });
+        return;
+    }
+    if (team_name.trim().length === 0) {
+        response.status(400).json({ error: 'Team name must be at least 1 character.' });
+        return;
+    }
+    const client = await pool.connect();
+    try {
+        await client.query(
+            'UPDATE teams SET team_name = $1 WHERE team_id = $2',
+            [team_name, team_id]
+        );
+        response.status(200).json({ message: 'Team name updated successfully.' });
+    } catch (error) {
+        console.error('Error updating team name:', error);
+        response.status(500).json({ error: 'Failed to update team name.' });
+    } finally {
+        client.release();
+    }
+}
+
 export async function updateTaskOrder(request: Request, response: Response): Promise<void> {
     const { team_id, node_id } = request.params;
     const { tasks } = request.body; // [{task_id, task_order}, ...]

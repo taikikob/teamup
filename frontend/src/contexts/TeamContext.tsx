@@ -40,6 +40,7 @@ interface TeamContextType {
     teamInfo: TeamInfo | null;
     isLoadingTeam: boolean;
     teamError: string | null;
+    updateTeamName: (newName: string) => Promise<void>;
     refreshTeamInfo: () => void; // Optional: A way to re-fetch on demand
 }
 
@@ -108,6 +109,29 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
         fetchTeamData();
     }, [team_id, user?.user_id]); // Re-fetch if team_id or user changes
 
+    const updateTeamName = async (newName: string) => {
+        if (!teamInfo || !teamInfo.team_id) {
+            throw new Error("Team information is not available.");
+        }
+        try {
+            const res = await fetch(`http://localhost:3000/api/teams/${teamInfo.team_id}/name`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ team_name: newName }),
+            });
+            if (!res.ok) {
+                throw new Error("Failed to update team name");
+            }
+            refreshTeamInfo();
+            const successMessage = await res.json();
+            toast.success(successMessage.message, { position: "top-center" });
+        } catch (error) {
+            console.error("Error updating team name:", error);
+            toast.error("Failed to update team name. Please try again.", { position: "top-center" });
+        }
+    };
+
     // Provide a way to refresh the data if needed (e.g., after an update)
     const refreshTeamInfo = () => {
         fetchTeamData();
@@ -117,6 +141,7 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
         teamInfo,
         isLoadingTeam,
         teamError,
+        updateTeamName,
         refreshTeamInfo,
     };
 

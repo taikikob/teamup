@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getTeams, getTeamInfo, getTeamFlow, getNodeTasks, postCreate, postJoin, newAC, postFlow, editDescription, deleteAC, updateNodeLabel, postCreateTask, updateTaskOrder, deleteTask, deletePlayer } from '../handlers/teams';
+import { getTeams, getTeamInfo, getTeamFlow, getNodeTasks, postCreate, postJoin, newAC, postFlow, editDescription, deleteAC, updateNodeLabel, postCreateTask, updateTaskOrder, deleteTask, deletePlayer, changeTeamName } from '../handlers/teams';
 import { isAuth, isCoach, checkTeamMembership } from '../lib/authMiddleware';
 
 const router = Router();
@@ -15,6 +15,7 @@ router.get('/:team_id/:node_id/tasks', isAuth, checkTeamMembership, getNodeTasks
 router.post('/:team_id/flow', isAuth, checkTeamMembership, isCoach, postFlow);
 router.post('/:team_id/node-label', isAuth, checkTeamMembership, isCoach, updateNodeLabel);
 router.post('/:team_id/:node_id/tasks', isAuth, checkTeamMembership, isCoach, postCreateTask);
+router.put('/:team_id/name', isAuth, checkTeamMembership, isCoach, changeTeamName);
 router.put('/:team_id/:node_id/tasks/order', isAuth, checkTeamMembership, isCoach, updateTaskOrder);
 router.patch('/:team_id/editDescription', isAuth, checkTeamMembership, isCoach, editDescription);
 router.delete('/:team_id/player/:player_id', isAuth, checkTeamMembership, isCoach, deletePlayer);
