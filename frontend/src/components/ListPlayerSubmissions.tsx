@@ -1,4 +1,5 @@
 import type { PlayerSubmission } from "../types/playerSubmission";
+import { useTeam } from "../contexts/TeamContext";
 
 function ListPlayerSubmissions({
   playerSubmissions,
@@ -9,6 +10,10 @@ function ListPlayerSubmissions({
   setSelectedSubmission: React.Dispatch<React.SetStateAction<PlayerSubmission | null>>;
   setSelected: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+    const { teamInfo } = useTeam();
+    if (!teamInfo) {
+        return <div>Loading team information...</div>;
+    }
     return (
         <div>
             <div style={{
@@ -34,7 +39,15 @@ function ListPlayerSubmissions({
                         flex: "1 1 320px",
                         cursor: "pointer",
                     }}>
-                        <h4>{submission.first_name} {submission.last_name}</h4>
+                        {/* Use the *<teamInfo> context to get the player's profile picture */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "4px" }}>
+                            <img
+                                src={teamInfo.players_info.find(player => player.user_id === submission.user_id)?.profile_picture_link || "/default_pp.png"}
+                                className="profile-icon"
+                                alt={`${submission.first_name} ${submission.last_name}'s profile picture`}
+                            />
+                            <h4 style={{ margin: 0 }}>{submission.first_name} {submission.last_name}</h4>
+                        </div>
                         {/* Display the first submission's media as a preview */}
                         {submission.submissions.length > 0 && (
                             <div>

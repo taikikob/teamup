@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTeam } from "../contexts/TeamContext";
 import type { PlayerSubmission } from "../types/playerSubmission";
 import MarkCompleteButton from "./MarkCompleteButton";
 import ListPlayerSubmissions from "./ListPlayerSubmissions";
@@ -10,6 +11,7 @@ function PlayerSubmissions({ taskId, loadingComments, initialPlayerId }: { taskI
     const [selectedSubmission, setSelectedSubmission] = useState<PlayerSubmission | null>(null);
     const [selected, setSelected] = useState(false);
     const { playerSubmissions, loadingPlayerSubmissions } = usePlayerSubmissions();
+    const { teamInfo } = useTeam();
 
     useEffect(() => {
         setSelectedSubmission(null);
@@ -30,7 +32,11 @@ function PlayerSubmissions({ taskId, loadingComments, initialPlayerId }: { taskI
     const submitted = playerSubmissions.filter(sub => sub.isSubmitted && !sub.isComplete);
     const completed = playerSubmissions.filter(sub => sub.isComplete);
     const unsubmitted = playerSubmissions.filter(sub => !sub.isSubmitted && !sub.isComplete);
-    console.log(submitted)
+    
+    if (!teamInfo) {
+        return <div>Loading team information...</div>;
+    }
+
     return (
         <div>
             <h3>Player Submissions</h3>
@@ -40,7 +46,14 @@ function PlayerSubmissions({ taskId, loadingComments, initialPlayerId }: { taskI
                 <>
                     { selected && selectedSubmission ? (
                         <div>
-                            <h4>{selectedSubmission.first_name} {selectedSubmission.last_name}</h4>
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "4px" }}>
+                                <img
+                                    src={teamInfo.players_info.find(player => player.user_id === selectedSubmission.user_id)?.profile_picture_link || "/default_pp.png"}
+                                    className="profile-icon"
+                                    alt={`${selectedSubmission.first_name} ${selectedSubmission.last_name}'s profile picture`}
+                                />
+                                <h4 style={{ margin: 0 }}>{selectedSubmission.first_name} {selectedSubmission.last_name}</h4>
+                            </div>
                             {/* Display all submissions for the selected player */}
                             {selectedSubmission.submissions.length === 0 && (
                                 <div>Player has not uploaded any media.</div>
