@@ -1,0 +1,30 @@
+services:
+  # Frontend service (React app served by nginx)
+  frontend:
+    build: ./frontend                # Build the image from the Dockerfile in ./frontend
+    ports:
+      - "5173:80"                    # Map host port 5173 to container port 80 (nginx default)
+    environment:
+      - NODE_ENV=production          # Set environment variable for production mode
+
+  # Backend service (Node.js/Express API)
+  backend:
+    build: ./backend                 # Build the image from the Dockerfile in ./backend
+    ports:
+      - "3000:3000"                  # Map host port 3000 to container port 3000
+    environment:
+      - NODE_ENV=production          # Set environment variable for production mode
+      - PORT=3000                    # Set the port the backend will listen on
+      - SESSION_SECRET=${SESSION_SECRET}         # Session secret for authentication
+      - DB_HOST=${DB_HOST}                 # AWS RDS database host
+      - DB_DATABASE=${DB_DATABASE}         # AWS RDS database name
+      - DB_USER=${DB_USER}                 # AWS RDS database user
+      - DB_PASSWORD=${DB_PASSWORD}         # AWS RDS database password
+      - DB_PORT=${DB_PORT}             # AWS RDS database port
+      - BUCKET_NAME=${BUCKET_NAME}           # S3 bucket name for file uploads
+      - BUCKET_REGION=${BUCKET_REGION}       # S3 bucket region
+      - BUCKET_ACCESS_KEY=${BUCKET_ACCESS_KEY}       # S3 bucket access key
+      - CLOUDFRONT_DISTRIBUTION_ID=${CLOUDFRONT_DISTRIBUTION_ID} # CloudFront distribution ID
+      - CLOUDFRONT_DOMAIN=${CLOUDFRONT_DOMAIN}           # Domain for CloudFront
+      - CLOUDFRONT_KEY_PAIR_ID=${CLOUDFRONT_KEY_PAIR_ID} # Key pair ID for CloudFront
+      - CLOUDFRONT_PRIVATE_KEY=${CLOUDFRONT_PRIVATE_KEY} # Private key for CloudFront
