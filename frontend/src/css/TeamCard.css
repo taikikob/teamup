@@ -1,6 +1,40 @@
 .team-card {
-  border: 1px solid #ccc;
-  padding: 1rem;
-  border-radius: 8px;
-  margin: 0.5rem 0;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s;
+  max-width: 240px;
+  width: 220px;           /* Set a fixed width for each card */
+  margin: 16px auto;
+}
+
+.team-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+}
+
+.team-card img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;      /* Slightly rounded corners */
+  margin-bottom: 14px;
+  background: #f3f3f3;
+  border: 2px solid #eaeaea;
+}
+
+.team-card div {
+  margin-bottom: 6px;
+  font-size: 1rem;
+  color: #222;
+  text-align: center;
+}
+
+.team-card div:last-child {
+  margin-bottom: 0;
+  color: #888;
+  font-size: 0.95rem;
 }

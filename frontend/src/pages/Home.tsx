@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import type { Team } from "../types/team";
 import { Link } from "react-router-dom";
+import "../css/Home.css";
 
 function Home() {
 
@@ -61,11 +62,13 @@ function Home() {
                             <p>You are not a part of any groups yet</p>
                         </>
                     ) : (
-                        teams.map((team) => (
-                            <Link to={`/teams/${team.team_id}`} key={team.team_id}>
-                                <TeamCard team={team} />
-                            </Link>
-                        ))
+                        <div className="team-card-list">
+                            {teams.map(team => (
+                                <Link to={`/teams/${team.team_id}`} key={team.team_id}>
+                                    <TeamCard team={team} />
+                                </Link>
+                            ))}
+                        </div>
                     )}
                 </>
             )}
