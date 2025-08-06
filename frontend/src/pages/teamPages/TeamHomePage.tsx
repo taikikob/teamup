@@ -116,12 +116,29 @@ function TeamHomePage() {
                     ref={teamImgInputRef}
                     onChange={e => {
                         const file = e.target.files && e.target.files[0];
-                        if (file) setTeamImg(file);
+                        // Check file type
+                        if (!file) {
+                            return;
+                        }
+                        if (!file.type.startsWith("image/")) {
+                            toast.error("Please select a valid image file.", { position: "top-center" });
+                            setTeamImg(null);
+                            if (teamImgInputRef.current) teamImgInputRef.current.value = "";
+                            return;
+                        }
+                        // Reject SVGs
+                        if (file.type === "image/svg+xml" || file.name.toLowerCase().endsWith(".svg")) {
+                            toast.error("SVG images are not allowed. Please select a PNG, JPG, or GIF.", { position: "top-center" });
+                            setTeamImg(null);
+                            if (teamImgInputRef.current) teamImgInputRef.current.value = "";
+                            return;
+                        }
+                        setTeamImg(file);
                     }}
                     type="file" 
                     accept="image/*"
                     />
-                    <button type="submit" disabled={addingMedia}>
+                    <button type="submit" disabled={addingMedia || !teamImg}>
                         {addingMedia ? "Posting..." : "Upload New Team Image"}
                     </button>
                 </form>
