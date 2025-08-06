@@ -144,9 +144,6 @@ CREATE TABLE IF NOT EXISTS notifications (
   is_read boolean DEFAULT false,
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
   FOREIGN KEY (sent_from_id) REFERENCES users(user_id),
-  FOREIGN KEY (team_id) REFERENCES teams(team_id),
-  FOREIGN KEY (node_id, team_id) REFERENCES mastery_nodes(node_id, team_id),
-  FOREIGN KEY (task_id) REFERENCES mastery_tasks(task_id)
 );
 
 CREATE INDEX idx_notifications_user_created_at ON notifications (user_id, created_at DESC);

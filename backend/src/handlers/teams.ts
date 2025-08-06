@@ -677,9 +677,18 @@ export async function deleteTeam(request: Request, response: Response): Promise<
     const client = await pool.connect();
     try {
         await client.query('BEGIN'); // Start transaction
+        // Get the team name for notification
+        const teamNameRes = await client.query(`
+            SELECT team_name FROM teams WHERE team_id = $1
+        `, [team_id]);
+        const teamName = teamNameRes.rows[0]?.team_name;
+        if (!teamName) {
+            response.status(404).json({ error: 'Team not found' });
+            return;
+        }
+        await addNotificationToTeam(team_id, 'team_deleted', user.user_id, `${teamName} has been deleted.`);
         await deleteTeamHelper(team_id, client);
         // Notify all team members that the team has been deleted
-        await addNotificationToTeam(team_id, 'team_deleted', user.user_id, `The team has been deleted.`);
         await client.query('COMMIT'); // Commit transaction
         response.status(204).send(); // No content to return
     } catch (error) {
@@ -777,8 +786,8 @@ export async function handleLeaveTeam(request: Request, response: Response): Pro
                 if (!teamName) {
                     throw new Error('Team not found');
                 }
-                await deleteTeamHelper(team_id, client);
                 await addNotificationToTeam(team_id, 'team_deleted', user.user_id, `${teamName} has been deleted.`);
+                await deleteTeamHelper(team_id, client);
                 teamDeleted = true;
             }
         } else {
