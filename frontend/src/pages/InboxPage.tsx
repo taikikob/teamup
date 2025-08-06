@@ -25,7 +25,7 @@ function InboxPage() {
               >
                 {notif.is_read ? 'Mark as Unread' : 'Mark as Read'}
               </button>
-              {notif.type !== 'player_removed' && notif.type !== 'player_comment_added' && (
+              {notif.type !== 'player_removed' && notif.type !== 'player_comment_added' && notif.type !== 'team_deleted' && (
                 <Link to={`/teams/${notif.team_id}/mastery?nodeId=${notif.node_id}&taskId=${notif.task_id}`}>
                   <button>View</button>
                 </Link>

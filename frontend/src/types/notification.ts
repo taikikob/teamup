@@ -6,6 +6,7 @@ export type NotificationType =
   | "task_unapproved"
   | "player_submitted"
   | "player_removed"
+  | "team_deleted"
 ;
 
 export type notification = {
