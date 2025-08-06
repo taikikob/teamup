@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTeam } from '../contexts/TeamContext';
 
-function LeaveTeamButton({ teamName, handleLeave }: { teamName: string; handleLeave: () => void }) {
+function LeaveTeamButton({ teamName, handleLeave }: { teamName: string; handleLeave: () => Promise<void> }) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { teamInfo } = useTeam(); // Get team info to access coach IDs
@@ -42,16 +42,24 @@ function LeaveTeamButton({ teamName, handleLeave }: { teamName: string; handleLe
             <h2>Leave Team</h2>
             <p>Are you sure you want to leave <strong>{teamName}</strong>?</p>
             { teamInfo?.is_user_coach && (
-                <p>If you are the only coach in your team, leaving this team will result in the team being unaccessible since nobody will have access to it.</p>
+                <p>If you are the only coach in your team, leaving this team will result in the team being deleted</p>
             )}
             { !teamInfo?.is_user_coach && (
+              <>
                 <p>If you leave this team, you will lose access to all its resources and data. The data associated with you (submissions, comments, progress) will also be deleted.</p>
+                <p>You will have to rejoin with an access code.</p>
+              </>
             )}
             <p>This action cannot be undone.</p>
             <button 
-              onClick={e => {
+              onClick={async e => {
                 e.stopPropagation();
-                handleLeave();
+                setLoading(true);
+                try {
+                  await handleLeave();
+                } finally {
+                  setLoading(false);
+                }
               }} 
               disabled={loading}
               style={{

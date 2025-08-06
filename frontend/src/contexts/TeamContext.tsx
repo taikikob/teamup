@@ -41,6 +41,7 @@ interface TeamContextType {
     isLoadingTeam: boolean;
     teamError: string | null;
     updateTeamName: (newName: string) => Promise<void>;
+    leaveTeam: () => Promise<void>;
     refreshTeamInfo: () => void; // Optional: A way to re-fetch on demand
 }
 
@@ -132,6 +133,38 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
         }
     };
 
+    const leaveTeam = async () => {
+        if (!teamInfo || !teamInfo.team_id) {
+            throw new Error("Team information is not available.");
+        }
+        
+        try {
+            const res = await fetch(`http://localhost:3000/api/teams/${teamInfo.team_id}/leave`, {
+                method: "DELETE",
+                credentials: "include",
+            });
+            
+            if (!res.ok) {
+                throw new Error("Failed to leave team");
+            }
+            
+            const data = await res.json();
+            
+            if (data.teamDeleted) {
+                toast.success("Team deleted as you were the last coach.", { position: "top-center" });
+            } else {
+                toast.success("You have left the team.", { position: "top-center" });
+            }
+            
+            // Always navigate to home after leaving/deleting team
+            navigate("/home", { replace: true });
+            
+        } catch (error) {
+            console.error("Error leaving team:", error);
+            toast.error("Failed to leave team. Please try again.", { position: "top-center" });
+        }
+    };
+
     // Provide a way to refresh the data if needed (e.g., after an update)
     const refreshTeamInfo = () => {
         fetchTeamData();
@@ -142,6 +175,7 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
         isLoadingTeam,
         teamError,
         updateTeamName,
+        leaveTeam,
         refreshTeamInfo,
     };
 

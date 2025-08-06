@@ -6,7 +6,7 @@ import LeaveTeamButton from "../../components/LeaveTeamButton";
 
 function TeamSettingsPage() {
     // Create updateTeamName function in TeamContext
-    const { teamInfo, updateTeamName } = useTeam();
+    const { teamInfo, updateTeamName, leaveTeam } = useTeam();
     const [teamName, setTeamName] = useState<string>(teamInfo?.team_name || "");
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -16,6 +16,7 @@ function TeamSettingsPage() {
         try {
             await updateTeamName(teamName);
         } catch (error) {
+            console.error("Failed to update team name:", error);
             toast.error("Failed to update team name.");
         } finally {
             setLoading(false);
@@ -24,6 +25,7 @@ function TeamSettingsPage() {
 
     const handleDeleteTeam = async () => {
         // Implement delete team functionality
+        
     }
 
     const handleLeaveTeam = async () => {
@@ -32,12 +34,10 @@ function TeamSettingsPage() {
             return;
         }
         try {
-            const response = await fetch(`http://localhost:3000/api/teams/${teamInfo.team_id}/leave`, {
-                method: "DELETE",
-                credentials: "include",
-            });
+            await leaveTeam();
         } catch (error) {
-            
+            console.error("Failed to leave team:", error);
+            toast.error("Failed to leave team. Please try again.");
         }
     }
 
@@ -91,8 +91,7 @@ function TeamSettingsPage() {
             )}
             <div>
                 <h2>Leave Team</h2>
-                <p>This action cannot be undone. For players: All the data associated with you (submissions, progress, comments) will be deleted from this team.</p>
-                <p>You will have to rejoin with an access code.</p>
+                <p>This action cannot be undone.</p>
                 <LeaveTeamButton
                     teamName={teamInfo.team_name}
                     handleLeave={handleLeaveTeam}

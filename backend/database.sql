@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS posts (
     media_type VARCHAR(50) NOT NULL, -- e.g., 'coach_resource', 'player_submission'
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     media_format VARCHAR(20) NOT NULL, -- 'image', 'video', 'other'
-    FOREIGN KEY (task_id) REFERENCES mastery_tasks(task_id) ON DELETE CASCADE
+    FOREIGN KEY (task_id) REFERENCES mastery_tasks(task_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
@@ -134,7 +134,7 @@ CREATE INDEX idx_comments_created_at ON comments (created_at DESC);
 CREATE TABLE IF NOT EXISTS notifications (
   notification_id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL,
-  type VARCHAR(50) NOT NULL, -- e.g., 'task_completed', 'comment_added', 'player_removed
+  type VARCHAR(50) NOT NULL, -- e.g., 'task_completed', 'comment_added', 'player_removed', 'team_deleted'
   sent_from_id INTEGER NOT NULL, -- User who sent the notification
   content TEXT NOT NULL, -- Content of the notification
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

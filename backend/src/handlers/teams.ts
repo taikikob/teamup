@@ -5,6 +5,8 @@ import { User } from "../types/User";
 import { deleteFile } from "../lib/s3utils";
 import { invalidateCache } from "../lib/cloudFrontUtils";
 import { getProfilePictureUrl } from "../lib/profilePictUtil";
+import { deleteTeamHelper } from "../lib/deleteTeamHelper";
+import { addNotificationToTeam } from "../lib/notificationHelpers";
 
 export async function getTeams(request: Request, response: Response): Promise<void> {
     const user = request.user as User;
@@ -700,6 +702,129 @@ export async function deleteTask(request: Request, response: Response): Promise<
     } catch (error) {
         console.error('Error deleting task:', error);
         response.status(500).json({ error: 'Failed to delete task. Please try again.' });
+    } finally {
+        client.release();
+    }
+}
+
+export async function handleLeaveTeam(request: Request, response: Response): Promise<void> {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const team_id = request.params.team_id;
+    const client = await pool.connect();
+    let teamDeleted = false;
+    
+    try {
+        await client.query('BEGIN'); // Start transaction
+
+        // check if user is a coach of this team
+        const coachCheckResult = await client.query(
+            `SELECT 1 FROM team_memberships 
+             WHERE team_id = $1 AND user_id = $2 AND role = $3
+            `, [team_id, user.user_id, 'Coach']
+        );
+        
+        if (coachCheckResult.rows.length > 0) {
+            // User is a coach, don't need to delete their related resources/comments
+            // remove coach from team_memberships
+            console.log('User is a coach, removing from team memberships');
+            await client.query(`
+                DELETE FROM team_memberships
+                WHERE user_id = $1 AND team_id = $2
+            `, [user.user_id, team_id]);
+            
+            // if there are no more coaches left in the team, delete the team
+            const remainingCoachesRes = await client.query(`
+                SELECT 1 FROM team_memberships
+                WHERE team_id = $1 AND role = 'Coach'
+            `, [team_id]);
+            
+            console.log('Remaining coaches:', remainingCoachesRes.rows);
+            if (remainingCoachesRes.rows.length === 0) {
+                // no more coaches, delete the team and all related resources
+                // fetch team name to include in notification
+                const teamNameRes = await client.query(`
+                    SELECT team_name FROM teams WHERE team_id = $1
+                `, [team_id]);
+                const teamName = teamNameRes.rows[0]?.team_name;
+                if (!teamName) {
+                    throw new Error('Team not found');
+                }
+                await deleteTeamHelper(team_id, client);
+                await addNotificationToTeam(team_id, 'team_deleted', user.user_id, `${teamName} has been deleted.`);
+                teamDeleted = true;
+            }
+        } else {
+            // user is a player, delete their related resources on s3 and invalidate cloudFront cache
+            // select all posts related to this player for this team
+            const playerPostsInTeam = await client.query(`
+                SELECT media_name FROM posts 
+                WHERE user_id = $1 
+                  AND task_id IN (SELECT task_id FROM mastery_tasks WHERE team_id = $2)
+            `, [user.user_id, team_id]);
+            
+            // Delete posts from S3 and invalidate CloudFront cache
+            for (const post of playerPostsInTeam.rows) {
+                const mediaName = post.media_name;
+                await deleteFile(mediaName);
+                await invalidateCache(mediaName);
+            }
+            
+            // delete all posts related to this player for this team
+            await client.query(`
+                DELETE FROM posts
+                WHERE user_id = $1 
+                  AND task_id IN (SELECT task_id FROM mastery_tasks WHERE team_id = $2)
+            `, [user.user_id, team_id]);
+            
+            // delete all submissions related to this
+            await client.query(`
+                DELETE FROM task_submissions
+                WHERE player_id = $1
+                AND task_id IN (SELECT task_id FROM mastery_tasks WHERE team_id = $2)
+            `, [user.user_id, team_id]);
+            
+            await client.query(`
+                DELETE FROM task_completions
+                WHERE player_id = $1
+                AND task_id IN (SELECT task_id FROM mastery_tasks WHERE team_id = $2)
+            `, [user.user_id, team_id]);
+            
+            await client.query(`
+                DELETE FROM comments
+                WHERE player_id = $1
+                AND task_id IN (SELECT task_id FROM mastery_tasks WHERE team_id = $2)
+            `, [user.user_id, team_id]);
+            
+            // delete the membership
+            await client.query(`
+                DELETE FROM team_memberships
+                WHERE user_id = $1 AND team_id = $2
+            `, [user.user_id, team_id]);
+        }
+
+        await client.query('COMMIT'); // Commit transaction
+        
+        // Return different responses based on what happened
+        if (teamDeleted) {
+            console.log('Team deleted successfully as the last coach left.');
+            response.status(200).json({ 
+                message: 'Team deleted successfully as you were the last coach.', 
+                teamDeleted: true 
+            });
+        } else {
+            response.status(200).json({ 
+                message: 'Left team successfully.', 
+                teamDeleted: false 
+            });
+        }
+    } catch (error) {
+        await client.query('ROLLBACK'); // Rollback transaction on error
+        console.error('Error handling leave team:', error);
+        response.status(500).json({ error: 'Failed to leave team. Please try again.' });
     } finally {
         client.release();
     }
