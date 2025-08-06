@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function DeleteTeamButton({ teamName, handleDelete }: { teamName: string; handleDelete: () => void }) {
+function DeleteTeamButton({ teamName, handleDelete }: { teamName: string; handleDelete: () => Promise<void> }) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 

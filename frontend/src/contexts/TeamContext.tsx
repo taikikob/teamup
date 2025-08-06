@@ -41,6 +41,7 @@ interface TeamContextType {
     isLoadingTeam: boolean;
     teamError: string | null;
     updateTeamName: (newName: string) => Promise<void>;
+    deleteTeam: () => Promise<void>;
     leaveTeam: () => Promise<void>;
     refreshTeamInfo: () => void; // Optional: A way to re-fetch on demand
 }
@@ -133,6 +134,34 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
         }
     };
 
+    const deleteTeam = async () => {
+        if (!teamInfo || !teamInfo.team_id) {
+            throw new Error("Team information is not available.");
+        }
+        
+        try {
+            const res = await fetch(`http://localhost:3000/api/teams/${teamInfo.team_id}`, {
+                method: "DELETE",
+                credentials: "include",
+            });
+            
+            // a 204 response means the team was deleted successfully
+            if (res.status === 204) {
+                toast.success("Team deleted successfully.", { position: "top-center" });
+            } else {
+                const errorResponse = await res.json();
+                throw new Error(errorResponse.message || `HTTP error! Status: ${res.status}`);
+            }
+            
+            // Always navigate to home after deleting team
+            navigate("/home", { replace: true });
+            
+        } catch (error) {
+            console.error("Error deleting team:", error);
+            toast.error("Failed to delete team. Please try again.", { position: "top-center" });
+        }
+    }
+
     const leaveTeam = async () => {
         if (!teamInfo || !teamInfo.team_id) {
             throw new Error("Team information is not available.");
@@ -176,6 +205,7 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
         teamError,
         updateTeamName,
         leaveTeam,
+        deleteTeam,
         refreshTeamInfo,
     };
 

@@ -6,7 +6,7 @@ import LeaveTeamButton from "../../components/LeaveTeamButton";
 
 function TeamSettingsPage() {
     // Create updateTeamName function in TeamContext
-    const { teamInfo, updateTeamName, leaveTeam } = useTeam();
+    const { teamInfo, updateTeamName, leaveTeam, deleteTeam } = useTeam();
     const [teamName, setTeamName] = useState<string>(teamInfo?.team_name || "");
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -25,7 +25,15 @@ function TeamSettingsPage() {
 
     const handleDeleteTeam = async () => {
         // Implement delete team functionality
-        
+        if (!teamInfo || !teamInfo.team_id) {
+            return;
+        }
+        try {
+            await deleteTeam();
+        } catch (error) {
+            console.error("Failed to delete team:", error);
+            toast.error("Failed to delete team. Please try again.");
+        }
     }
 
     const handleLeaveTeam = async () => {

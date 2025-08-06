@@ -667,6 +667,30 @@ export async function editDescription(request: Request, response: Response): Pro
     }
 };
 
+export async function deleteTeam(request: Request, response: Response): Promise<void> {
+    const user = request.user as User;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const team_id = request.params.team_id;
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN'); // Start transaction
+        await deleteTeamHelper(team_id, client);
+        // Notify all team members that the team has been deleted
+        await addNotificationToTeam(team_id, 'team_deleted', user.user_id, `The team has been deleted.`);
+        await client.query('COMMIT'); // Commit transaction
+        response.status(204).send(); // No content to return
+    } catch (error) {
+        console.error('Error deleting team:', error);
+        await client.query('ROLLBACK'); // Rollback transaction on error
+        response.status(500).json({ error: 'Failed to delete team. Please try again.' });
+    } finally {
+        client.release(); // Release the client back to the pool
+    }
+}
+
 export async function deleteAC(request: Request, response: Response): Promise<void> {
     const user = request.user as User;
     if (!user) {
