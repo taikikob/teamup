@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS teams (
   team_id SERIAL PRIMARY KEY,
   team_name varchar NOT NULL,
-  team_description varchar
+  team_description varchar,
+  team_img_name varchar,
 );
 
 CREATE TABLE IF NOT EXISTS team_memberships (

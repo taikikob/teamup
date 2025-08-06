@@ -5,7 +5,7 @@ import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sd
 import sharp from 'sharp';
 import crypto from 'crypto';
 import {getSignedUrl} from "@aws-sdk/cloudfront-signer"
-import { getProfilePictureUrl } from "../lib/profilePictUtil";
+import { getProfilePictureUrl } from "../lib/getMediaLinkHelper";
 import s3 from "../s3";
 import cloudFront from "../cloudFront";
 import { deleteFile } from "../lib/s3utils";
@@ -391,6 +391,78 @@ export const postProfilePicture = async (req: Request, res: Response) => {
         
         res.status(500).json({ error: 'Failed to update profile picture' });
     }
+}
+
+export const postTeamImage = async (req: Request, res: Response) => {
+    const user = req.user as User;
+    if (!user) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    if (!req.file) {
+        res.status(400).json({ error: 'No file uploaded' });
+        return;
+    }
+    const team_id = req.params.team_id;
+    // Resize the image
+    // Actual image data that needs to be sent to s3
+    const isImage = req.file.mimetype.startsWith('image/');
+    let buffer: Buffer;
+
+    if (isImage) {
+        buffer = await sharp(req.file.buffer).resize({ width: 400 }).toBuffer();
+    } else {
+        // Videos are not allowed for team images
+        res.status(400).json({ error: 'Only images are allowed for team images' });
+        return;
+    }
+    const imageName = randomImageName();
+    const params = {
+        Bucket: process.env.BUCKET_NAME,
+        Key: imageName,
+        Body: buffer,
+        ContentType: req.file.mimetype,
+    };
+    const command = new PutObjectCommand(params);
+    try {
+       await s3.send(command); 
+    } catch (error) {
+       console.error("Error uploading to S3:", error);
+       res.status(500).json({ error: 'Failed to upload resource' });
+       return;
+    }
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        // check if team_img_name already exists for this team
+        const existingImageName = await client.query(
+            `SELECT team_img_name FROM teams WHERE team_id = $1`,
+            [team_id]
+        );
+        const oldImageName = existingImageName.rows[0]?.team_img_name;
+        if (oldImageName) {
+            // Delete the old image from S3
+            await deleteFile(oldImageName);
+            // Invalidate cache for old image (don't await, let it run in background)
+            invalidateCache(oldImageName).catch(error => 
+                console.error("Error invalidating cache for old team image:", error)
+            );
+        }
+        // Update the team image in the database
+        await client.query(
+            `UPDATE teams SET team_img_name = $1 WHERE team_id = $2`,
+            [imageName, team_id]
+        );
+        await client.query('COMMIT');
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error("Error updating team image:", error);
+        res.status(500).json({ error: 'Failed to update team image' });
+    } finally {
+        client.release();
+        res.status(201).json({message: 'Team image updated successfully'})
+    }
+
 }
 
 export const postCoachResource = async (req: Request, res: Response) => {

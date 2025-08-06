@@ -30,6 +30,7 @@ interface TeamInfo {
     team_id: number;
     team_name: string;
     team_description: string | null;
+    team_img_url: string | null;
     is_user_coach: boolean;
     players_info: PlayerInfo[];
     coaches_info: CoachInfo[];

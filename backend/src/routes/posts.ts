@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { checkTeamMembership, isAuth, isCoach } from '../lib/authMiddleware';
 import upload from '../lib/multerMiddlware';
-import { postProfilePicture, postCoachResource, postPlayerSubmission, getCoachResources, getPlayerSubmissions, getSubmission, getMySubmissions, deletePost } from '../handlers/posts';
+import { postProfilePicture, postCoachResource, postPlayerSubmission, getCoachResources, getPlayerSubmissions, getSubmission, getMySubmissions, deletePost, postTeamImage } from '../handlers/posts';
 
 const router = Router();
 
@@ -13,6 +13,7 @@ router.get('/playerSubmission/:team_id/:taskId/:player_id', isAuth, isCoach, che
 
 // Profile picture upload endpoint can be used without being in a team
 router.post('/pp', isAuth, upload.single('profile_picture'), postProfilePicture);
+router.post('/:team_id', isAuth, isCoach, checkTeamMembership, upload.single('media'), postTeamImage);
 router.post('/:team_id/coach', isAuth, isCoach, checkTeamMembership, upload.single('media'), postCoachResource);
 router.post('/:team_id/player', isAuth, checkTeamMembership, upload.single('media'), postPlayerSubmission);
 

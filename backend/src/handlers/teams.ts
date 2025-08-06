@@ -4,7 +4,7 @@ import { genAccCode } from "../lib/accessCodeUtils";
 import { User } from "../types/User";
 import { deleteFile } from "../lib/s3utils";
 import { invalidateCache } from "../lib/cloudFrontUtils";
-import { getProfilePictureUrl } from "../lib/profilePictUtil";
+import { getProfilePictureUrl, getTeamImgUrl } from "../lib/getMediaLinkHelper";
 import { deleteTeamHelper } from "../lib/deleteTeamHelper";
 import { addNotificationToTeam } from "../lib/notificationHelpers";
 
@@ -22,8 +22,13 @@ export async function getTeams(request: Request, response: Response): Promise<vo
             WHERE tm.user_id = $1`,
             [user.user_id]
         );
-        console.log(result.rows);
-        response.status(200).json(result.rows);
+        // Need to add the link to each team image
+        const teamsWithImages = await Promise.all(result.rows.map(async (team) => {
+            const teamImgUrl = await getTeamImgUrl(team.team_id);
+            return { ...team, team_img_url: teamImgUrl };
+        }));
+        console.log("Teams fetched for user:", teamsWithImages);
+        response.status(200).json(teamsWithImages);
         return;
     } catch (error) {
         console.error('Error fetching teams that user is a part of:', error);
@@ -52,6 +57,10 @@ export async function getTeamInfo(request:Request, response:Response): Promise<v
         }
 
         const team = teamResult.rows[0];
+
+        // Query 1: Get team image URL
+        const teamImgUrl = await getTeamImgUrl(team.team_id);
+        team.team_img_url = teamImgUrl;
 
         // Query 2: Check if current user is a coach of this team
         const coachCheckResult = await pool.query(

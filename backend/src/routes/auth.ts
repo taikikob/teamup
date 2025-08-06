@@ -3,7 +3,7 @@ import { postSignup } from '../handlers/auth';
 import passport from 'passport';
 import { isAuth } from '../lib/authMiddleware';
 import { User } from '../types/User'; // Adjust the import path as necessary
-import { getProfilePictureUrl } from '../lib/profilePictUtil';
+import { getProfilePictureUrl } from '../lib/getMediaLinkHelper';
 
 const router = Router();
 
