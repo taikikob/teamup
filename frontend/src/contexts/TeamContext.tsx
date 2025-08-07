@@ -6,17 +6,19 @@ import { toast } from 'react-toastify';
 
 interface CoachInfo {
     user_id: number;
+    username: string;
     first_name: string;
     last_name: string;
-    email: string;
+    email: string | null;
     profile_picture_link: string | null;
 }
 
 interface PlayerInfo {
     user_id: number;
+    username: string;
     first_name: string;
     last_name: string;
-    email: string;
+    email: string | null;
     profile_picture_link: string | null;
 }
 

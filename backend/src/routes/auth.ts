@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { postSignup } from '../handlers/auth';
+import { postSignup, isUsernameUnique } from '../handlers/auth';
 import passport from 'passport';
 import { isAuth } from '../lib/authMiddleware';
 import { User } from '../types/User'; // Adjust the import path as necessary
@@ -32,6 +32,8 @@ router.get('/me', isAuth, async (req, res) => {
   const profile_picture_link = await getProfilePictureUrl(user.user_id);
   res.json({ ...user, profile_picture_link });
 });
+
+router.get('/check-username', isUsernameUnique);
 
 router.get('/logout', (req, res, next) => {
   req.logout(function (err) {

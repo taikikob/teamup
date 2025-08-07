@@ -1,15 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 function Signup() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [verifyingUsername, setVerifyingUsername] = useState(false);
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const usernameTimeout = useRef<number | null>(null);
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+
+    if (usernameTimeout.current) {
+      clearTimeout(usernameTimeout.current);
+    }
+
+    if (e.target.value) {
+      setVerifyingUsername(true); // Start verifying
+      usernameTimeout.current = setTimeout(() => {
+        checkUsername(e.target.value);
+      }, 300);
+    } else {
+      setVerifyingUsername(false);
+      setUsernameError("");
+    }
+  };
+
+  const checkUsername = async (value: string) => {
+    const response = await fetch(`http://localhost:3000/api/auth/check-username?username=${value}`);
+    const data = await response.json();
+    setUsernameError(!data.isUnique ? "Username is already taken" : "");
+    setVerifyingUsername(false); // Done verifying
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,11 +53,9 @@ function Signup() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Add sign-up logic here
-    // TODO: Add field to input first name and last name
     try {
       const body = {
-        email: email,
+        username: username,
         password: password,
         firstName: firstName,
         lastName: lastName
@@ -45,7 +70,7 @@ function Signup() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Signup failed:", errorData.error);
-        // optionally set error state here to show in UI
+        toast.error(`Signup failed: ${errorData.error}, please try again.`, { position: 'top-center' });
         return;
       }
       const data = await response.json();
@@ -60,22 +85,33 @@ function Signup() {
     }
   };
 
-  const handleGoogleSignup = () => {
-    // TODO: Add Google sign-up logic here
-  };
+  useEffect(() => {
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+    } else {
+      setPasswordError("");
+    }
+  }, [password, confirmPassword]);
 
   return (
     <div style={styles.container}>
-      <h2>Sign Up</h2>
       <form onSubmit={handleSignup} style={styles.form}>
+        <div style={styles.title}>Sign Up</div>
+        <div style={styles.label}>Username</div>
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={handleEmailChange}
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={handleUsernameChange}
           style={styles.input}
           required
         />
+        {verifyingUsername && <div style={{ color: '#888' }}>Verifying...</div>}
+        {usernameError && <div style={{ color: 'red' }}>{usernameError}</div>}
+        {username && !verifyingUsername && !usernameError && (
+          <div style={{ color: 'green' }}>Username is available</div>
+        )}
+        <div style={styles.label}>Password</div>
         <input
           type="password"
           placeholder="Password"
@@ -84,6 +120,20 @@ function Signup() {
           style={styles.input}
           required
         />
+        <div style={styles.label}>Confirm Password</div>
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          style={styles.input}
+          required
+        />
+        {passwordError && <div style={{ color: 'red' }}>{passwordError}</div>}
+        {password && confirmPassword && !passwordError && (
+          <div style={{ color: 'green' }}>Passwords match</div>
+        )}
+        <div style={styles.label}>First Name</div>
         <input
           type="text"
           placeholder="First Name"
@@ -92,6 +142,7 @@ function Signup() {
           style={styles.input}
           required
         />
+        <div style={styles.label}>Last Name</div>
         <input
           type="text"
           placeholder="Last Name"
@@ -100,63 +151,132 @@ function Signup() {
           style={styles.input}
           required
         />
-        <button type="submit" style={styles.button}>
+        <button
+          type="submit"
+          disabled={
+            !username ||
+            !password ||
+            !confirmPassword ||
+            !firstName ||
+            !lastName ||
+            !!passwordError ||
+            !!usernameError ||
+            verifyingUsername
+          }
+          style={{
+            ...styles.button,
+            background: (
+              !username ||
+              !password ||
+              !confirmPassword ||
+              !firstName ||
+              !lastName ||
+              !!passwordError ||
+              !!usernameError ||
+              verifyingUsername
+            )
+              ? "#bdbdbd"
+              : styles.button.background,
+            cursor: (
+              !username ||
+              !password ||
+              !confirmPassword ||
+              !firstName ||
+              !lastName ||
+              !!passwordError ||
+              !!usernameError ||
+              verifyingUsername
+            )
+              ? "not-allowed"
+              : "pointer"
+          }}
+          title={
+            !username ||
+            !password ||
+            !confirmPassword ||
+            !firstName ||
+            !lastName ||
+            !!passwordError ||
+            !!usernameError ||
+            verifyingUsername
+              ? "Please fill out all fields correctly"
+              : undefined
+          }
+        >
           Sign Up
         </button>
       </form>
-      <div style={styles.divider}>or</div>
-      <button onClick={handleGoogleSignup} style={styles.googleButton}>
-        Sign Up with Google
-      </button>
     </div>
   );
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    width: "100%",
-    maxWidth: "400px",
-    margin: "100px auto",
-    padding: "20px",
-    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-    borderRadius: "8px",
-    textAlign: "center",
-    fontFamily: "sans-serif",
+    width: "100vw",
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "center"
   },
   form: {
+    background: "#fff",
+    borderRadius: "12px",
+    boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+    padding: "32px 28px",
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
-    marginTop: "15px"
+    gap: "18px",
+    minWidth: "500px",
+    maxWidth: "360px",
+    margin: "0 auto",
+    marginTop: "100px",
   },
   input: {
-    padding: "10px",
+    padding: "12px",
     fontSize: "1rem",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
+    border: "1px solid #d1d5db",
+    borderRadius: "6px",
+    background: "#f9fafb",
+    outline: "none",
+    transition: "border 0.2s",
   },
   button: {
-    padding: "10px",
+    padding: "12px",
     fontSize: "1rem",
-    backgroundColor: "#28a745",
+    background: "linear-gradient(90deg, #28a745 60%, #218838 100%)",
     color: "white",
     border: "none",
-    borderRadius: "4px",
+    borderRadius: "6px",
     cursor: "pointer",
+    fontWeight: 600,
+    marginTop: "10px",
+    transition: "background 0.2s",
   },
   googleButton: {
-    padding: "10px",
+    padding: "12px",
     fontSize: "1rem",
-    backgroundColor: "#db4437",
+    background: "#db4437",
     color: "white",
     border: "none",
-    borderRadius: "4px",
+    borderRadius: "6px",
     cursor: "pointer",
+    marginTop: "8px",
   },
-  divider: {
-    margin: "20px 0",
-    color: "#888",
+  label: {
+    textAlign: "left",
+    fontWeight: 500,
+    color: "#333",
+    marginBottom: "-8px",
+    marginTop: "2px"
   },
+  title: {
+    marginBottom: "12px",
+    color: "#222",
+    fontWeight: 700,
+    fontSize: "2rem",
+    letterSpacing: "-1px"
+  }
 };
 
 export default Signup;

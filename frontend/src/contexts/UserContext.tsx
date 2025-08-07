@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 
 type User = {
   user_id: number;
-  email: string;
+  email: string | null; // Email is optional, can be null
+  username: string;
   first_name: string;
   last_name: string;
   profile_picture_link: string | null;

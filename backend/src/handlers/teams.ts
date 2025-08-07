@@ -73,7 +73,7 @@ export async function getTeamInfo(request:Request, response:Response): Promise<v
 
         // Query 3: Get all coaches for this team
         const coachesResult = await pool.query(
-            `SELECT u.user_id, u.first_name, u.last_name, u.email
+            `SELECT u.user_id, u.first_name, u.last_name, u.email, u.username
              FROM team_memberships tm
              JOIN users u ON tm.user_id = u.user_id
              WHERE tm.team_id = $1 AND tm.role = 'Coach'
@@ -90,7 +90,7 @@ export async function getTeamInfo(request:Request, response:Response): Promise<v
 
         // Query 4: Get all players for this team
         const playersResult = await pool.query(
-            `SELECT u.user_id, u.first_name, u.last_name, u.email
+            `SELECT u.user_id, u.first_name, u.last_name, u.email, u.username
              FROM team_memberships tm
              JOIN users u ON tm.user_id = u.user_id
              WHERE tm.team_id = $1 AND tm.role = 'Player'

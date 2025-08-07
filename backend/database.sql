@@ -3,19 +3,20 @@ CREATE DATABASE teamup;
 -- Create schema down below
 CREATE TABLE IF NOT EXISTS users (
   user_id SERIAL PRIMARY KEY,
-  email varchar UNIQUE NOT NULL,
+  email varchar,
+  username varchar NOT NULL UNIQUE,
   password_hash varchar NOT NULL,
   salt varchar NOT NULL,
   first_name varchar NOT NULL,
   last_name varchar NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS teams (
   team_id SERIAL PRIMARY KEY,
   team_name varchar NOT NULL,
   team_description varchar,
-  team_img_name varchar,
+  team_img_name varchar
 );
 
 CREATE TABLE IF NOT EXISTS team_memberships (
@@ -144,7 +145,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   task_id INTEGER, -- Task related to the notification, can be NULL
   is_read boolean DEFAULT false,
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-  FOREIGN KEY (sent_from_id) REFERENCES users(user_id),
+  FOREIGN KEY (sent_from_id) REFERENCES users(user_id)
 );
 
 CREATE INDEX idx_notifications_user_created_at ON notifications (user_id, created_at DESC);

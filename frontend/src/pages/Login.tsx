@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { useUser } from "../contexts/UserContext";
 
 function Login() {
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const location = useLocation();
     const navigate = useNavigate();
@@ -12,8 +12,8 @@ function Login() {
     // Create a ref to track if the signup success toast has already been shown
     const signupToastShownRef = useRef(false);
 
-    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEmail(e.target.value);
+    const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setUsername(e.target.value);
     };
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +38,7 @@ function Login() {
         // TODO: Add login logic here
         try {
           const body = {
-            email: email,
+            username: username,
             password: password
           }
           const response = await fetch("http://localhost:3000/api/auth/login",{
@@ -48,8 +48,9 @@ function Login() {
             body: JSON.stringify(body)
           });
           if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Login failed:", errorData.error);
+            const data = await response.json();
+            console.error("Login failed:", data.message);
+            toast.error(`Login failed: ${data.message}, please try again.`, { position: 'top-center' });
             // optionally set error state here to show in UI
             return;
           }
@@ -60,41 +61,35 @@ function Login() {
           console.error("Error duing login: ", error);
         }
     };
-
-    const handleGoogleLogin = () => {
-        // TODO: Add Google login logic here
-    };
     
     return ( 
-        <div style={styles.container}>
-            <h2>Login</h2>
-            <form onSubmit={handleLogin} style={styles.form}>
-                <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={handleEmailChange}
-                style={styles.input}
-                required
-                />
-                <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={handlePasswordChange}
-                style={styles.input}
-                required
-                />
-                <button type="submit" style={styles.button}>
-                Log In
-                </button>
-            </form>
-            <div style={styles.divider}>or</div>
-            <button onClick={handleGoogleLogin} style={styles.googleButton}>
-                Login with Google
-            </button>
-        </div>
-  );
+      <div style={styles.container}>
+        <h2>Login</h2>
+        <form onSubmit={handleLogin} style={styles.form}>
+          <div style={styles.label}>Username</div>
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={handleUsernameChange}
+            style={styles.input}
+            required
+          />
+          <div style={styles.label}>Password</div>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={handlePasswordChange}
+            style={styles.input}
+            required
+          />
+          <button type="submit" style={styles.button}>
+            Log In
+          </button>
+        </form>
+      </div>
+    );
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
@@ -113,6 +108,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: "column",
     gap: "12px",
     marginTop: "15px"
+  },
+  label: {
+    textAlign: "left",
+    fontWeight: 500,
+    color: "#333",
+    marginBottom: "-8px",
+    marginTop: "2px"
   },
   input: {
     padding: "10px",
@@ -141,7 +143,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   divider: {
     margin: "20px 0",
     color: "#888",
-  },
+  }
 };
 
 export default Login;

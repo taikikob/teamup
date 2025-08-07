@@ -5,7 +5,7 @@ import { validPassword } from './lib/passwordUtils';
 
 // name of field that I want passport to look for username and password in request
 const customFields = {
-    usernameField: 'email',
+    usernameField: 'username',
     passwordField: 'password'
 }
 
@@ -14,28 +14,31 @@ const customFields = {
 // passport will automatically grab those fields from the post request, and populate the username
 // and password parameters of this function
 // done is a function that I will eventually pass the results of my authentication into
-const verifyCallback = async (email:string, password:string, done:Function) => {
-    // own implementation of a password verification
+const verifyCallback = async (username: string, password: string, done: Function) => {
     try {
-        const user = await pool.query("SELECT * FROM users WHERE email = $1",
-            [email]
-        );
-        // the null paramter in the done function means that there was no error
-        if (user.rows.length === 0) {
-            // no user found with given email
-            // this done function will result in passport returning an unauthorized error on HTTP status
-            return done(null, false)
+        if (!username) {
+            return done(null, false, { message: "Username not provided" });
         }
-        const isValid = validPassword(password, user.rows[0].password_hash, user.rows[0].salt);
-        if (isValid) {
-            return done(null, user.rows[0]);
-        } else {
-            return done(null, false);
+        if (!password) {
+            return done(null, false, { message: "Password not provided" });
         }
+
+        const userResult = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
+        if (userResult.rows.length === 0) {
+            return done(null, false, { message: "Username does not exist" });
+        }
+
+        const user = userResult.rows[0];
+        const isValid = validPassword(password, user.password_hash, user.salt);
+        if (!isValid) {
+            return done(null, false, { message: "Incorrect password" });
+        }
+
+        return done(null, user);
     } catch (error) {
-        done(error);
+        return done(error);
     }
-}
+};
 
 const strategy = new LocalStrategy(customFields, verifyCallback);
 
@@ -48,7 +51,7 @@ passport.serializeUser((user: any, done) => {
 
 interface DeserializedUser {
   user_id: number;
-  email: string;
+  username: string;
   first_name: string;
   last_name: string;
 }
@@ -60,7 +63,7 @@ passport.deserializeUser(async (userId:number, done) => {
     if (isNaN(id)) return done(new Error("Invalid user ID type"));
 
     const result = await pool.query(
-      'SELECT user_id, email, first_name, last_name FROM users WHERE user_id = $1',
+      'SELECT user_id, username, first_name, last_name FROM users WHERE user_id = $1',
       [userId]
     );
 
