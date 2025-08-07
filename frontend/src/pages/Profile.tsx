@@ -6,6 +6,8 @@ import ImageCropper from "../components/ImageCropper";
 function Profile() {
     const { user, isLoadingUser } = useUser();
     const [showModal, setShowModal] = useState(false);
+    const [email, setEmail] = useState(user?.email || "");
+    const [emailEdit, setEmailEdit] = useState(false);
 
     if (isLoadingUser) {
         return (
@@ -49,8 +51,28 @@ function Profile() {
                     </div>
                 </div>
             )}
+            <p>Username: {user?.username}</p>
             <p>Name: {user?.first_name} {user?.last_name}</p>
-            <p>Email: {user?.email}</p>
+            <div style={{ marginBottom: 12 }}>
+                <span>Email: </span>
+                {emailEdit ? (
+                    <>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            style={{ marginRight: 8 }}
+                        />
+                        <button onClick={() => setEmailEdit(false)}>Save</button>
+                        <button onClick={() => { setEmail(user?.email || ""); setEmailEdit(false); }}>Cancel</button>
+                    </>
+                ) : (
+                    <>
+                        <span>{user?.email ?? "No email provided"}</span>
+                        <button style={{ marginLeft: 8 }} onClick={() => setEmailEdit(true)}>Update Email</button>
+                    </>
+                )}
+            </div>
         </div>
     );
 }
