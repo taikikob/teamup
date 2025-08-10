@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 function Signup() {
@@ -202,6 +202,11 @@ function Signup() {
         >
           Sign Up
         </button>
+        <div>
+        <p style={{ textAlign: 'center', marginTop: '20px' }}>
+          Already have an account? <Link to="/login">Log in</Link>
+        </p>
+      </div>
       </form>
     </div>
   );

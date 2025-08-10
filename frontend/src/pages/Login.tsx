@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useUser } from "../contexts/UserContext";
+import { Link } from "react-router-dom";
 
 function Login() {
     const [username, setUsername] = useState("");
@@ -72,6 +73,10 @@ function Login() {
             Log In
           </button>
         </form>
+        <div style={{ marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <Link to="/signup">Don't have an account? Sign up</Link>
+          <Link to="/forgot-password">Forgot Password?</Link>
+        </div>
       </div>
     );
 }
