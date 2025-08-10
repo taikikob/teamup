@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { postSignup, isUsernameUnique, verifyEmailHandler, resendVerificationEmailHandler } from '../handlers/auth';
+import { postSignup, isUsernameUnique, verifyEmailHandler, resendVerificationEmailHandler, handleForgotPassword, handleResetPassword } from '../handlers/auth';
 import passport from 'passport';
 import { isAuth } from '../lib/authMiddleware';
 import { User } from '../types/User'; // Adjust the import path as necessary
@@ -36,7 +36,9 @@ router.get('/me', isAuth, async (req, res) => {
 router.get('/check-username', isUsernameUnique);
 
 router.post('/verify-email', verifyEmailHandler);
-router.post('/resend-verification-email', resendVerificationEmailHandler); 
+router.post('/resend-verification-email', resendVerificationEmailHandler);
+router.post('/forgot-password', handleForgotPassword);
+router.post('/reset-password', handleResetPassword);
 
 router.get('/logout', (req, res, next) => {
   req.logout(function (err) {

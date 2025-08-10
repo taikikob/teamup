@@ -32,7 +32,7 @@ export async function sendVerificationEmail(username: string, email: string, ver
     }
 }
 
-export async function sendPasswordResetEmail(email: string, resetToken: string): Promise<void> {
+export async function sendPasswordResetEmail(username: string, email: string, resetToken: string): Promise<void> {
     // send a password reset link to the user's email
     const resetUrl = `http://localhost:3000/api/auth/reset-password?token=${resetToken}`;
 
@@ -40,7 +40,7 @@ export async function sendPasswordResetEmail(email: string, resetToken: string):
         from: `noreply@casatrain.com`,
         to: email,
         subject: 'Password Reset',
-        html: `<p>Please reset your password by clicking the following link:</p><a href="${resetUrl}">Reset Password</a>`
+        html: `<p>Hello ${username},</p><p>Use this token to reset your password: <strong>${resetToken}</strong></p><p>This token is valid for 15 minutes.</p>>`
     };
 
     try {

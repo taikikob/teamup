@@ -3,7 +3,7 @@ import pool from '../db'
 import { SignupDto } from "../dtos/Signup.dto";
 import { genPassword } from "../lib/passwordUtils";
 import crypto from "crypto";
-import { sendVerificationEmail } from "../nodeMailer";
+import { sendVerificationEmail, sendPasswordResetEmail } from "../nodeMailer";
 
 export async function postSignup(request: Request<{},{}, SignupDto>, response: Response): Promise<void>{
     try {
@@ -134,6 +134,90 @@ export const resendVerificationEmailHandler = async (request: Request, response:
         response.status(200).json({ message: "Verification email resent. Please check your email." });
     } catch (error) {
         console.error("Error resending verification email:", error);
+        response.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const handleForgotPassword = async (request: Request, response: Response): Promise<void> => {
+    const { username, email } = request.body;
+    // verify username and email are provided
+    if (!username || typeof username !== 'string' || username.trim() === '') {
+        response.status(400).json({ message: "Invalid username" });
+        return;
+    }
+    if (!email || typeof email !== 'string' || email.trim() === '') {
+        response.status(400).json({ message: "Invalid email address" });
+        return;
+    }
+
+    try {
+        // Find user with the provided username and email
+        const result = await pool.query("SELECT user_id FROM users WHERE email = $1 AND username = $2", [email, username]);
+        if (result.rows.length === 0) {
+            response.status(404).json({ message: "User with provided username and email not found" });
+            return;
+        }
+
+        const userId = result.rows[0].user_id;
+
+        // Generate a password reset token
+        const resetToken = crypto.randomBytes(3).toString("hex");
+        // Set token to expire in 15 minutes
+        const resetTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+        // Update the user's reset token in the database
+        await pool.query("UPDATE users SET reset_password_token = $1, reset_token_expires_at = $2 WHERE user_id = $3",
+            [resetToken, resetTokenExpiresAt, userId]);
+
+        // Send the password reset email
+        await sendPasswordResetEmail(username, email, resetToken);
+
+        response.status(200).json({ message: "Password reset email sent. Please check your email." });
+    } catch (error) {
+        console.error("Error handling forgot password:", error);
+        response.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const handleResetPassword = async (request: Request, response: Response): Promise<void> => {
+    const { username, code, newPassword } = request.body;
+    // verify username, code and newPassword are provided
+    if (!username || typeof username !== 'string' || username.trim() === '') {
+        response.status(400).json({ message: "Invalid username" });
+        return;
+    }
+    if (!code || typeof code !== 'string' || code.trim() === '') {
+        response.status(400).json({ message: "Invalid reset code" });
+        return;
+    }
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.trim() === '') {
+        response.status(400).json({ message: "New password is required" });
+        return;
+    }
+
+    try {
+        // Find user with the provided reset token
+        const now = new Date();
+        const result = await pool.query("SELECT user_id FROM users WHERE reset_password_token = $1 AND reset_token_expires_at > $2", [code, now]);
+        if (result.rows.length === 0) {
+            response.status(400).json({ message: "Invalid or expired reset code" });
+            return;
+        }
+
+        const userId = result.rows[0].user_id;
+
+        // Generate a new password hash
+        const saltHash = genPassword(newPassword);
+        const salt = saltHash.salt;
+        const hash = saltHash.hash;
+
+        // Update the user's password and clear the reset token
+        await pool.query("UPDATE users SET password_hash = $1, salt = $2, reset_password_token = NULL, reset_token_expires_at = NULL WHERE user_id = $3",
+            [hash, salt, userId]);
+
+        response.status(200).json({ message: "Password reset successful. You can now log in with your new password." });
+    } catch (error) {
+        console.error("Error resetting password:", error);
         response.status(500).json({ message: "Internal server error" });
     }
 }
