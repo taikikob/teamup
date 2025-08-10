@@ -7,6 +7,7 @@ function Signup() {
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [verifyingUsername, setVerifyingUsername] = useState(false);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -43,6 +44,10 @@ function Signup() {
     setPassword(e.target.value);
   };
 
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
   const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFirstName(e.target.value);
   };
@@ -57,6 +62,7 @@ function Signup() {
       const body = {
         username: username,
         password: password,
+        email: email,
         firstName: firstName,
         lastName: lastName
       }
@@ -75,10 +81,12 @@ function Signup() {
       }
       const data = await response.json();
       if (response.status === 201) {
-        // resend user to home page with the state so home page refreshes for user
-        navigate('/login', {state: {
-          signupSuccessMessage: data.message
-        }})
+        // send user to email verification page
+        toast.success(data.message, { position: 'top-center' });
+        navigate('/verify-email', { state: { 
+          email: email,
+          username: username
+        } });
       }
     } catch (error) {
       console.error("Error during signup:", error);
@@ -133,6 +141,15 @@ function Signup() {
         {password && confirmPassword && !passwordError && (
           <div style={{ color: 'green' }}>Passwords match</div>
         )}
+        <div style={styles.label}>Email</div>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={handleEmailChange}
+          style={styles.input}
+          required
+        />
         <div style={styles.label}>First Name</div>
         <input
           type="text"
@@ -154,11 +171,6 @@ function Signup() {
         <button
           type="submit"
           disabled={
-            !username ||
-            !password ||
-            !confirmPassword ||
-            !firstName ||
-            !lastName ||
             !!passwordError ||
             !!usernameError ||
             verifyingUsername
@@ -166,11 +178,6 @@ function Signup() {
           style={{
             ...styles.button,
             background: (
-              !username ||
-              !password ||
-              !confirmPassword ||
-              !firstName ||
-              !lastName ||
               !!passwordError ||
               !!usernameError ||
               verifyingUsername
@@ -178,11 +185,6 @@ function Signup() {
               ? "#bdbdbd"
               : styles.button.background,
             cursor: (
-              !username ||
-              !password ||
-              !confirmPassword ||
-              !firstName ||
-              !lastName ||
               !!passwordError ||
               !!usernameError ||
               verifyingUsername
@@ -191,11 +193,6 @@ function Signup() {
               : "pointer"
           }}
           title={
-            !username ||
-            !password ||
-            !confirmPassword ||
-            !firstName ||
-            !lastName ||
             !!passwordError ||
             !!usernameError ||
             verifyingUsername

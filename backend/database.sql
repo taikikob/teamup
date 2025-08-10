@@ -3,12 +3,18 @@ CREATE DATABASE teamup;
 -- Create schema down below
 CREATE TABLE IF NOT EXISTS users (
   user_id SERIAL PRIMARY KEY,
-  email varchar,
+  email varchar NOT NULL,
   username varchar NOT NULL UNIQUE,
   password_hash varchar NOT NULL,
   salt varchar NOT NULL,
   first_name varchar NOT NULL,
   last_name varchar NOT NULL,
+  verified boolean DEFAULT false, -- Indicates if the user has verified their email
+  verification_token varchar, -- Token for email verification
+  verification_token_expires_at TIMESTAMP, -- Expiration time for the verification token
+  reset_password_token varchar, -- Token for password reset
+  reset_password_token_expires_at TIMESTAMP, -- Expiration time for the password reset token
+  notifications_enabled boolean DEFAULT false, -- Whether the user wants to receive notifications
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

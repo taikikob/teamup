@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { postSignup, isUsernameUnique } from '../handlers/auth';
+import { postSignup, isUsernameUnique, verifyEmailHandler, resendVerificationEmailHandler } from '../handlers/auth';
 import passport from 'passport';
 import { isAuth } from '../lib/authMiddleware';
 import { User } from '../types/User'; // Adjust the import path as necessary
@@ -9,9 +9,9 @@ const router = Router();
 
 // /api/auth/signup
 router.post('/signup', postSignup);
-
 // passport is a middleware, the done function is the next function
 // if the login credentials that user provides to this api route is valid
+
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err: any, user: Express.User | false, info: { message?: string } | undefined) => {
     if (err) return next(err);
@@ -34,6 +34,9 @@ router.get('/me', isAuth, async (req, res) => {
 });
 
 router.get('/check-username', isUsernameUnique);
+
+router.post('/verify-email', verifyEmailHandler);
+router.post('/resend-verification-email', resendVerificationEmailHandler); 
 
 router.get('/logout', (req, res, next) => {
   req.logout(function (err) {

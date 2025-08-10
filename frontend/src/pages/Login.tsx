@@ -1,16 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useUser } from "../contexts/UserContext";
 
 function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const location = useLocation();
     const navigate = useNavigate();
     const { refreshUser } = useUser();
-    // Create a ref to track if the signup success toast has already been shown
-    const signupToastShownRef = useRef(false);
 
     const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUsername(e.target.value);
@@ -19,19 +16,6 @@ function Login() {
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(e.target.value);
     };
-
-    // display sign up toast
-    useEffect(() => {
-      if (location.state?.signupSuccessMessage && !signupToastShownRef.current) {
-        toast.success(location.state.signupSuccessMessage, { position: 'top-center' });
-        signupToastShownRef.current = true; // Mark the toast as shown
-        // only navigate after showing the message
-        navigate(location.pathname, {
-            replace: true,
-            state: { ...location.state, signupSuccessMessage: undefined }
-        });
-      }
-    }, [location, navigate]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
