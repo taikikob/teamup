@@ -13,6 +13,7 @@ function Signup() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [loading, setLoading] = useState(false);
   const usernameTimeout = useRef<number | null>(null);
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,6 +58,7 @@ function Signup() {
   };
 
   const handleSignup = async (e: React.FormEvent) => {
+    setLoading(true);
     e.preventDefault();
     try {
       const body = {
@@ -88,6 +90,7 @@ function Signup() {
           username: username
         } });
       }
+      setLoading(false);
     } catch (error) {
       console.error("Error during signup:", error);
     }
@@ -173,21 +176,24 @@ function Signup() {
           disabled={
             !!passwordError ||
             !!usernameError ||
-            verifyingUsername
+            verifyingUsername || 
+            loading
           }
           style={{
             ...styles.button,
             background: (
               !!passwordError ||
               !!usernameError ||
-              verifyingUsername
+              verifyingUsername ||
+              loading
             )
               ? "#bdbdbd"
               : styles.button.background,
             cursor: (
               !!passwordError ||
               !!usernameError ||
-              verifyingUsername
+              verifyingUsername ||
+              loading
             )
               ? "not-allowed"
               : "pointer"
@@ -200,7 +206,7 @@ function Signup() {
               : undefined
           }
         >
-          Sign Up
+          {loading ? "Signing up..." : "Sign Up"}
         </button>
         <div>
         <p style={{ textAlign: 'center', marginTop: '20px' }}>

@@ -76,7 +76,7 @@ function ForgotPassword() {
             {step === 1 && (
                 <>
                     <h1>Forgot Password</h1>
-                    <p>Please enter your username and email address to reset your password.</p>
+                    <p>Please enter your username and associated email address to reset your password.</p>
                     <form style={styles.form} onSubmit={handleStep1Submit}>
                         <div style={styles.label}>Username</div>
                         <input
@@ -96,7 +96,7 @@ function ForgotPassword() {
                             style={styles.input}
                             required
                         />
-                        <button type="submit" style={styles.button} disabled={loading}>
+                        <button type="submit" style={{ ...styles.button, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.5 : 1 }} disabled={loading}>
                             {loading ? "Sending..." : "Send Reset Code"}
                         </button>
                     </form>
@@ -137,7 +137,7 @@ function ForgotPassword() {
                         />
                         <button
                           type="submit"
-                          style={styles.button}
+                          style={{ ...styles.button, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.5 : 1 }}
                           disabled={
                             loading ||
                             !code ||

@@ -166,7 +166,7 @@ export const handleForgotPassword = async (request: Request, response: Response)
         const resetTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
         // Update the user's reset token in the database
-        await pool.query("UPDATE users SET reset_password_token = $1, reset_token_expires_at = $2 WHERE user_id = $3",
+        await pool.query("UPDATE users SET reset_password_token = $1, reset_password_token_expires_at = $2 WHERE user_id = $3",
             [resetToken, resetTokenExpiresAt, userId]);
 
         // Send the password reset email
@@ -198,7 +198,7 @@ export const handleResetPassword = async (request: Request, response: Response):
     try {
         // Find user with the provided reset token
         const now = new Date();
-        const result = await pool.query("SELECT user_id FROM users WHERE reset_password_token = $1 AND reset_token_expires_at > $2", [code, now]);
+        const result = await pool.query("SELECT user_id FROM users WHERE reset_password_token = $1 AND reset_password_token_expires_at > $2", [code, now]);
         if (result.rows.length === 0) {
             response.status(400).json({ message: "Invalid or expired reset code" });
             return;
@@ -212,7 +212,7 @@ export const handleResetPassword = async (request: Request, response: Response):
         const hash = saltHash.hash;
 
         // Update the user's password and clear the reset token
-        await pool.query("UPDATE users SET password_hash = $1, salt = $2, reset_password_token = NULL, reset_token_expires_at = NULL WHERE user_id = $3",
+        await pool.query("UPDATE users SET password_hash = $1, salt = $2, reset_password_token = NULL, reset_password_token_expires_at = NULL WHERE user_id = $3",
             [hash, salt, userId]);
 
         response.status(200).json({ message: "Password reset successful. You can now log in with your new password." });
