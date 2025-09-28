@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
 export async function sendVerificationEmail(username: string, email: string, verificationToken: string): Promise<void> {
     const mailOptions = {
         from: `noreply@casatrain.com`,
-        to: email,
+        to: "taikik@umich.edu", // TODO: Replace this with email later
         subject: 'Your Verification Code',
         html: `<p>Hello ${username},</p><p>This is your verification code: ${verificationToken}</p>`
     };
@@ -38,7 +38,7 @@ export async function sendPasswordResetEmail(username: string, email: string, re
 
     const mailOptions = {
         from: `noreply@casatrain.com`,
-        to: email,
+        to: "taikik@umich.edu", // TODO: Replace this with email later
         subject: 'Password Reset',
         html: `<p>Hello ${username},</p><p>Use this token to reset your password: <strong>${resetToken}</strong></p><p>This token is valid for 15 minutes.</p>>`
     };

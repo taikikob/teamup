@@ -21,7 +21,7 @@ const PgSession = connectPgSimple(session);
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // Replace with your frontend URL in production
+  origin: 'http://localhost:5173', // TODO: Replace with your frontend URL in production
   credentials: true 
 }));
 
