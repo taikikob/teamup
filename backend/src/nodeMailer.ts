@@ -18,8 +18,8 @@ const transporter = nodemailer.createTransport({
 export async function sendVerificationEmail(username: string, email: string, verificationToken: string): Promise<void> {
     const mailOptions = {
         from: `noreply@casatrain.com`,
-        to: "taikikobayashi26@gmail.com", // TODO: Replace this with email later
-        subject: 'Your Verification Code',
+        to: email, // TODO: Replace this with email later
+        subject: 'Casatrain: Your Verification Code',
         html: `<p>Hello ${username},</p><p>This is your verification code: ${verificationToken}</p>`
     };
 
@@ -38,8 +38,8 @@ export async function sendPasswordResetEmail(username: string, email: string, re
 
     const mailOptions = {
         from: `noreply@casatrain.com`,
-        to: "taikik@umich.edu", // TODO: Replace this with email later
-        subject: 'Password Reset',
+        to: email, // Can only send to emails that are verified on SES for now
+        subject: 'Casatrain: Password Reset',
         html: `<p>Hello ${username},</p><p>Use this reset code to reset your password: <strong>${resetToken}</strong></p><p>This code is valid for 15 minutes.</p>`
     };
 
@@ -49,5 +49,22 @@ export async function sendPasswordResetEmail(username: string, email: string, re
     } catch (error) {
         console.error(`Failed to send password reset email to ${email}:`, error);
         throw new Error('Failed to send password reset email');
+    }
+}
+
+export async function sendNotificationEmail(username: string, email: string, message: string): Promise<void> {
+    const mailOptions = {
+        from: `noreply@casatrain.com`,
+        to: email,
+        subject: 'Notification From Casatrain!',
+        html: `<p>Hello ${username},</p><p>${message}</p>`
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Notification email sent to ${email}`);
+    } catch (error) {
+        console.error(`Failed to send notification email to ${email}:`, error);
+        throw new Error('Failed to send notification email');
     }
 }

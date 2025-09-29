@@ -72,7 +72,7 @@ function Navbar() {
                                 <span className="notif-badge">{unreadCount}</span>
                             )}
                         </Link>
-                        <Link to="#" className="nav-link profile-link" style={{ position: "relative" }}>
+                        <div className="nav-link profile-link" style={{ position: "relative" }}>
                             <img
                                 className="profile-icon"
                                 src={user.profile_picture_link || "/default_pp.png"}
@@ -88,12 +88,15 @@ function Navbar() {
                                     <Link to="/profile" className="dropdown-item" onClick={() => setShowDropdown(false)}>
                                         Profile
                                     </Link>
+                                    <Link to="/settings" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                                        Settings
+                                    </Link>
                                     <button className="dropdown-item" onClick={() => { setShowDropdown(false); handleLogout(); }}>
                                         Log out
                                     </button>
                                 </div>
                             )}
-                        </Link>
+                        </div>
                     </>
                 ) : (
                     // Option 3: User is not logged in (and loading is complete)

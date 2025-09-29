@@ -64,7 +64,7 @@ passport.deserializeUser(async (userId:number, done) => {
     if (isNaN(id)) return done(new Error("Invalid user ID type"));
 
     const result = await pool.query(
-      'SELECT user_id, username, email, first_name, last_name FROM users WHERE user_id = $1',
+      'SELECT user_id, username, email, first_name, last_name, notifications_enabled FROM users WHERE user_id = $1',
       [userId]
     );
 

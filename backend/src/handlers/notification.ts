@@ -21,6 +21,30 @@ export const getNotifications = async (req: Request, res: Response) => {
     }
 }
 
+export const changeNotifSetting = async (req: Request, res: Response) => {
+    const user = req.user as User;
+    if (!user) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const { notifications_enabled } = req.body;
+    if (typeof notifications_enabled !== 'boolean') {
+        res.status(400).json({ error: 'Invalid notifications_enabled value' });
+        return;
+    }
+    try {
+        const result = await pool.query(
+            `UPDATE users SET notifications_enabled = $1 WHERE user_id = $2 RETURNING user_id, email, username, first_name, last_name, notifications_enabled`,
+            [notifications_enabled, user.user_id]
+        );
+        res.status(200).json(result.rows[0]);
+        return;
+    } catch (error) {
+        console.error('Error updating notification settings:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 export const markAsRead = async (req: Request, res: Response) => {
     const user = req.user as User;
     if (!user) {

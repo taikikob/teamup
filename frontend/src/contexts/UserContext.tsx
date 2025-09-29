@@ -7,6 +7,7 @@ type User = {
   username: string;
   first_name: string;
   last_name: string;
+  notifications_enabled: boolean;
   profile_picture_link: string | null;
 };
 
