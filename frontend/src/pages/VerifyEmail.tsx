@@ -99,7 +99,7 @@ function VerifyEmail() {
                 </button>
             </form>
             <p style={{ marginTop: 32, color: "#555" }}>
-                Didn't receive an email? <a href="#" onClick={resendCode}>Resend verification code</a>
+                Didn't receive an email? <a href="#" onClick={e => { e.preventDefault(); resendCode(); }}>Resend verification code</a>
             </p>
             {message && <p style={{ color: "green" }}>{message}</p>}
         </div>

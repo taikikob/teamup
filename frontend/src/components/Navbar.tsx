@@ -1,11 +1,11 @@
-import {Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../css/Navbar.css";
 import { useUser } from "../contexts/UserContext";
 import { useNotifications } from "../contexts/NotificationContext";
 import { useState, useRef, useEffect } from "react";
 
 function Navbar() {
-    const {user, refreshUser, isLoadingUser} = useUser();
+    const { user, refreshUser, isLoadingUser } = useUser();
     const { unreadCount } = useNotifications();
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
@@ -35,7 +35,6 @@ function Navbar() {
                 await refreshUser();
                 navigate("/");
             } else {
-                // Handle cases where the logout request fails
                 const errorData = await response.json();
                 console.error("Logout failed:", errorData.message || "Unknown error");
             }
@@ -44,70 +43,54 @@ function Navbar() {
         }
     }
 
+    // Only show navbar if user is logged in (and not loading)
+    if (isLoadingUser || !user) {
+        return null;
+    }
+
     return (
         <nav className="navbar">
             <div className="navbar-title">
-                {user ? (
-                    <Link to="/home">
-                        <img src="/virTrainLogo.png" alt="VirTrain Logo"/>
-                    </Link>
-                ):(
-                    <Link to="/">
-                        <img src="/virTrainLogo.png" alt="VirTrain Logo"/>
-                    </Link>
-                )}
+                <Link to="/home">
+                    <img src="/virTrainLogo.png" alt="VirTrain Logo"/>
+                </Link>
             </div>
-            {/* Conditional rendering based on isLoadingUser first */}
             <div className="navbar-links">
-                {isLoadingUser ? (
-                    // Option 1: Show a simple loading message
-                    <span className="nav-loading">Loading...</span> // You can style this or replace with a spinner component
-                ) : user ? (
-                    // Option 2: User is logged in
-                    <>
-                        <Link to="/home" className="nav-link">Home</Link>
-                        <Link to="/inbox" className="nav-link">
-                            Inbox
-                            {unreadCount > 0 && (
-                                <span className="notif-badge">{unreadCount}</span>
-                            )}
-                        </Link>
-                        <div className="nav-link profile-link" style={{ position: "relative" }}>
-                            <img
-                                className="profile-icon"
-                                src={user.profile_picture_link || "/default_pp.png"}
-                                alt="Profile"
-                                onClick={e => {
-                                    e.preventDefault();
-                                    setShowDropdown((prev) => !prev);
-                                }}
-                                style={{ cursor: "pointer" }}
-                            />
-                            {showDropdown && (
-                                <div className="profile-dropdown" ref={dropdownRef}>
-                                    <Link to="/profile" className="dropdown-item" onClick={() => setShowDropdown(false)}>
-                                        Profile
-                                    </Link>
-                                    <Link to="/settings" className="dropdown-item" onClick={() => setShowDropdown(false)}>
-                                        Settings
-                                    </Link>
-                                    <button className="dropdown-item" onClick={() => { setShowDropdown(false); handleLogout(); }}>
-                                        Log out
-                                    </button>
-                                </div>
-                            )}
+                <Link to="/home" className="nav-link">Home</Link>
+                <Link to="/inbox" className="nav-link">
+                    Inbox
+                    {unreadCount > 0 && (
+                        <span className="notif-badge">{unreadCount}</span>
+                    )}
+                </Link>
+                <div className="nav-link profile-link" style={{ position: "relative" }}>
+                    <img
+                        className="profile-icon"
+                        src={user.profile_picture_link || "/default_pp.png"}
+                        alt="Profile"
+                        onClick={e => {
+                            e.preventDefault();
+                            setShowDropdown((prev) => !prev);
+                        }}
+                        style={{ cursor: "pointer" }}
+                    />
+                    {showDropdown && (
+                        <div className="profile-dropdown" ref={dropdownRef}>
+                            <Link to="/profile" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                                Profile
+                            </Link>
+                            <Link to="/settings" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+                                Settings
+                            </Link>
+                            <button className="dropdown-item" onClick={() => { setShowDropdown(false); handleLogout(); }}>
+                                Log out
+                            </button>
                         </div>
-                    </>
-                ) : (
-                    // Option 3: User is not logged in (and loading is complete)
-                    <> 
-                        <Link to="/login" className="nav-link">Login</Link>
-                        <Link to="/signup" className="nav-link">Sign Up</Link>
-                    </>
-                )}
+                    )}
+                </div>
             </div>
-        </nav> 
-    )
+        </nav>
+    );
 }
 
 export default Navbar;

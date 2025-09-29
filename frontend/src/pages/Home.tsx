@@ -16,8 +16,7 @@ function Home() {
     const navigate = useNavigate();
     const [refreshKey, setRefreshKey] = useState(0);
     const [teams, setTeams] = useState<Team[]>([]);
-
-
+    
     useEffect(() => {
         const fetchTeams = async () => {
             const res = await fetch('http://localhost:3000/api/teams', {

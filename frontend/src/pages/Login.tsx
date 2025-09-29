@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useUser } from "../contexts/UserContext";
 import { Link } from "react-router-dom";
 
 function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
-    const { refreshUser } = useUser();
 
     const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUsername(e.target.value);
@@ -39,8 +37,6 @@ function Login() {
             // optionally set error state here to show in UI
             return;
           }
-          // **Crucial**: After successful login, tell the UserContext to re-fetch user data
-          await refreshUser();
           navigate("/home");
         } catch (error) {
           console.error("Error duing login: ", error);
