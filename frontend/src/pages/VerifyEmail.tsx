@@ -68,7 +68,9 @@ function VerifyEmail() {
     return (
         <div style={{ maxWidth: 500, margin: "60px auto", padding: 24, textAlign: "center", background: "#fff", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
             <h1>Verify Your Email</h1>
-            <p>{username}, please enter the verification code sent to {email}.</p>
+            <p>{username}, please enter the verification code sent to <strong>{email}</strong>.</p>
+            <p><strong>Note:</strong> Check your spam folder if you don't see the email.</p>
+            <p>You have 15 minutes to enter the code</p>
             <p>Do not refresh the page, or you will have to sign up again</p>
             <form onSubmit={handleSubmit} style={{ marginTop: 24 }}>
                 <input

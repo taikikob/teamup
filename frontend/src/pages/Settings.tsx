@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useUser } from "../contexts/UserContext";
+import { toast } from "react-toastify";
 
 function Settings() {
     const { user, isLoadingUser, refreshUser } = useUser();
@@ -42,12 +43,14 @@ function Settings() {
         if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
         setDeleteLoading(true);
         try {
-            await fetch("http://localhost:3000/api/user/delete", {
+            await fetch("http://localhost:3000/api/auth/delete", {
                 method: "DELETE",
                 credentials: "include",
             });
-            // Optionally redirect or log out user
-            window.location.href = "/signup";
+            toast.success("Successfully deleted user.", { position: "top-center" });
+            setTimeout(() => {
+                window.location.href = "/signup";
+            }, 1500); // 1.5 seconds delay
         } catch (err) {
             // Optionally show error
         }

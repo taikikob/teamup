@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { postSignup, isUsernameUnique, verifyEmailHandler, resendVerificationEmailHandler, handleForgotPassword, handleResetPassword } from '../handlers/auth';
+import { postSignup, isUsernameUnique, verifyEmailHandler, resendVerificationEmailHandler, handleForgotPassword, handleResetPassword, DeleteUser } from '../handlers/auth';
 import passport from 'passport';
 import { isAuth } from '../lib/authMiddleware';
 import { User } from '../types/User'; // Adjust the import path as necessary
@@ -50,5 +50,7 @@ router.get('/logout', (req, res, next) => {
     });
   });
 });
+
+router.delete('/delete', isAuth, DeleteUser);
 
 export default router;

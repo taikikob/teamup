@@ -221,3 +221,28 @@ export const handleResetPassword = async (request: Request, response: Response):
         response.status(500).json({ message: "Internal server error" });
     }
 }
+
+export async function DeleteUser(request: Request, response: Response): Promise<void> {
+    const user = request.user as { user_id: number } | undefined;
+    if (!user) {
+        response.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const userId = user.user_id;
+
+    try {
+        await pool.query("DELETE FROM users WHERE user_id = $1", [userId]);
+        request.logout(function (err) {
+            if (err) {
+                console.error("Error logging out after account deletion:", err);
+            }
+            request.session.destroy(() => {
+                response.clearCookie('connect.sid'); // or your session cookie name
+                response.status(200).json({ msg: 'Account deleted successfully' });
+            });
+        });
+    } catch (error) {
+        console.error("Error deleting user account:", error);
+        response.status(500).json({ error: 'Internal server error' });
+    }
+}
