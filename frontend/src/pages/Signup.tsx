@@ -222,7 +222,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   container: {
     width: "100vw",
     minHeight: "100vh",
-    background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "center"
@@ -238,7 +237,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     minWidth: "500px",
     maxWidth: "360px",
     margin: "0 auto",
-    marginTop: "100px",
+    marginTop: "40px"
   },
   input: {
     padding: "12px",
@@ -283,7 +282,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#222",
     fontWeight: 700,
     fontSize: "2rem",
-    letterSpacing: "-1px"
+    letterSpacing: "-1px",
+    textAlign: "center"
   }
 };
 

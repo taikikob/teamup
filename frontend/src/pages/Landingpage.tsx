@@ -54,7 +54,7 @@ function Landingpage() {
                 </div>
 
                 <footer className="footer">
-                    <p>&copy; 2025 TeamUp. All rights reserved.</p>
+                    <p>&copy; 2025 Casatrain. All rights reserved.</p>
                 </footer>
             </div>
         </>

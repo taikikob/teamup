@@ -6,7 +6,7 @@ function PublicNavbar() {
         <nav className="navbar">
             <div className="navbar-title">
                 <Link to="/">
-                    <img src="/virTrainLogo.png" alt="VirTrain Logo"/>
+                    <img src="/casatrain.png" alt="VirTrain Logo"/>
                 </Link>
             </div>
             <div className="navbar-links">

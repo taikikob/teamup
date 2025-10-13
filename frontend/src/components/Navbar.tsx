@@ -52,7 +52,7 @@ function Navbar() {
         <nav className="navbar">
             <div className="navbar-title">
                 <Link to="/home">
-                    <img src="/virTrainLogo.png" alt="VirTrain Logo"/>
+                    <img src="/casatrain.png" alt="Casatrain Logo"/>
                 </Link>
             </div>
             <div className="navbar-links">
