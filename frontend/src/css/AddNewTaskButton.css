@@ -1,3 +1,9 @@
+.add-task-modal {
+    display: flex;
+    flex-direction: column;
+    width: 450px;
+}
+
 .add-task-button {
     padding: 10px 24px;
     background: #0D6EFD;
@@ -6,6 +12,13 @@
     border-radius: 6px;
     font-weight: 600;
     cursor: pointer;
+    width: 150px;
+    align-self: flex-end;
+}
+
+.add-task-modal .close-button {
+    width: 100px;
+    align-self: center;
 }
 
 .add-task-modal h2{

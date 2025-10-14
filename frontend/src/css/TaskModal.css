@@ -1,0 +1,15 @@
+.task-modal {
+    display: flex;
+    flex-direction: column;
+    width: 500px;
+}
+
+.task-modal .close-button {
+    align-self: center;
+}
+
+.task-modal .add-task-button-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}

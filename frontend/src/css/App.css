@@ -6,6 +6,10 @@
   flex-direction: column;
 }
 
+/* * {
+  border: 1px black solid;
+} */
+
 .close-button {
     padding: 8px 20px;
     background: #e0e0e0;

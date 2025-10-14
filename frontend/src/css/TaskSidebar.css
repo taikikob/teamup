@@ -1,0 +1,58 @@
+.task-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 1000px;
+    height: 100%;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+    z-index: 1100;
+    padding: 32px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.task-sidebar h2 {
+    text-align: center;
+    margin-top: 0;
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+}
+
+.task-sidebar .coach-upload-section {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    padding: 16px;
+    border: 2px black solid;
+    border-radius: 8px;
+}
+
+.task-sidebar .coach-upload-section form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 8px;
+    gap: 4px;
+}
+
+.task-sidebar .coach-upload-section input[type="text"] {
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    width: 100%;
+    font-size: 1rem;
+}
+
+.task-sidebar .coach-upload-section button {
+    padding: 4px;
+    cursor: pointer;
+    width: 150px;
+    background-color: #0D6EFD;
+    border-radius: 8px;
+}
+
+.task-sidebar .close-button {
+    width: 150px;
+    align-self: center;
+}

@@ -11,19 +11,7 @@ import { toast } from 'react-toastify';
 import { useUser } from "../contexts/UserContext";
 import { usePlayerSubmissions } from "../contexts/PlayerSubmissionsContext";
 import { useComments } from "../contexts/CommentsContext";
-
-const SIDEBAR_STYLES: React.CSSProperties = {
-  position: "fixed",
-  top: 0,
-  right: 0,
-  width: "1000px",
-  height: "100%",
-  background: "#fff",
-  boxShadow: "-2px 0 8px rgba(0,0,0,0.1)",
-  zIndex: 1100,
-  padding: "32px",
-  overflowY: "auto"
-};
+import '../css/TaskSidebar.css';
 
 function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: () => void; initialPlayerId: string | null }) {
   const { teamInfo } = useTeam();
@@ -263,12 +251,12 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
   if (!user) return null;
   if (!task) return null;
   return (
-    <div style={SIDEBAR_STYLES}>
+    <div className="task-sidebar">
       <h2>{task.title}</h2>
       <p>{task.description}</p>
       <CoachResources loadingCoachResources={loadingCoachResources} coachResources={coachResources} refetch={fetchCoachResources} />
       { teamInfo?.is_user_coach && (
-        <>
+        <div className="coach-upload-section">
           <div>Coaches, upload any resources for this task here:</div>
           <form onSubmit={coachSubmit}>
             <input 
@@ -281,11 +269,11 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
               accept="image/*, video/*"
             />
             <input value={caption} onChange={e => setCaption(e.target.value)} type="text" placeholder='Caption'></input>
-            <button type="submit" disabled={addingMedia}>
+            <button type="submit" disabled={addingMedia || !coachFile}>
               {addingMedia ? "Posting..." : "Post Media"}
             </button>
           </form>
-        </>
+        </div>
       )}
       {teamInfo?.is_user_coach && (
         <PlayerSubmissions taskId={task.task_id} loadingComments={loadingComments} initialPlayerId={initialPlayerId} />
@@ -359,16 +347,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
       )}
       <br></br>
       <button
-        style={{
-          marginTop: "24px",
-          background: "#e74c3c",
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          padding: "8px 16px",
-          cursor: "pointer",
-          fontWeight: 500
-        }}
+        className="close-button"
         onClick={() => {
           onClose();
           clearPlayerSubmissions();

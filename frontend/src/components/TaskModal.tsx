@@ -261,7 +261,9 @@ function TaskModal({node, onClose, initialTaskId, initialPlayerId}: {node: Node;
                         ))
                 )}
                 {teamInfo.is_user_coach && (
-                    <AddNewTaskButton node={node} taskCount={tasks.length} onTaskAdded={fetchTasks}/>
+                    <div className='add-task-button-container'>
+                        <AddNewTaskButton node={node} taskCount={tasks.length} onTaskAdded={fetchTasks}/>
+                    </div>
                 )}
                 <button className="close-button" onClick={onClose}>Close</button>
             </div>
