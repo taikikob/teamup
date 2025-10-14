@@ -1,14 +1,18 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useTeam } from "../../contexts/TeamContext";
 import { toast } from "react-toastify";
 import DeleteTeamButton from "../../components/DeleteTeamButton";
 import LeaveTeamButton from "../../components/LeaveTeamButton";
+import "../../css/TeamSettingsPage.css"
 
 function TeamSettingsPage() {
     // Create updateTeamName function in TeamContext
-    const { teamInfo, updateTeamName, leaveTeam, deleteTeam } = useTeam();
+    const { teamInfo, updateTeamName, leaveTeam, deleteTeam, refreshTeamInfo } = useTeam();
     const [teamName, setTeamName] = useState<string>(teamInfo?.team_name || "");
     const [loading, setLoading] = useState<boolean>(false);
+    const [addingMedia, setAddingMedia] = useState(false);
+    const [teamImg, setTeamImg] = useState<File | null>(null);
+    const teamImgInputRef = useRef<HTMLInputElement>(null); 
 
     const handleChangeTeamName = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -49,6 +53,38 @@ function TeamSettingsPage() {
         }
     }
 
+    const teamImgSubmit = async (e: React.FormEvent) => {
+        setAddingMedia(true);
+        e.preventDefault();
+        if (!teamInfo) return;
+    
+        const formData = new FormData();
+        if (teamImg) {
+            formData.append("media", teamImg);
+        }
+        const res = await fetch(`http://localhost:3000/api/posts/${teamInfo.team_id}`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+        if (!res.ok) {
+            const errorData = await res.json();
+            console.error("Failed to update team image:", errorData.error); 
+            return;
+        }
+        const data = await res.json();
+        if (res.status === 201) {
+            // show a success toast notification
+            toast.success(data.message, { position: 'top-center' });
+        }
+        setTeamImg(null);
+        if (teamImgInputRef.current) {
+            teamImgInputRef.current.value = ""; // <-- Reset the file input
+        }
+        refreshTeamInfo(); // Refresh team info to get the new image
+        setAddingMedia(false);
+    }
+
     useEffect(() => {
         if (teamInfo?.team_name) {
             setTeamName(teamInfo.team_name);
@@ -60,10 +96,11 @@ function TeamSettingsPage() {
     }
 
     return (
-        <>
+        <div className="team-settings-page">
             <h1>Team Settings</h1>
             { teamInfo?.is_user_coach && (
-                <div>
+                <div className="coach-settings">
+                    <h2>Coach Settings</h2>
                     <div>
                         <h2>Change Team Name</h2>
                         <form onSubmit={handleChangeTeamName} style={{ maxWidth: 400 }}>
@@ -86,6 +123,40 @@ function TeamSettingsPage() {
                             </button>
                         </form>
                     </div>
+                    <div className="team-photo-change">
+                        <h2>Change Team Photo</h2>
+                        <form onSubmit={teamImgSubmit}>
+                            <input 
+                                ref={teamImgInputRef}
+                                onChange={e => {
+                                    const file = e.target.files && e.target.files[0];
+                                    // Check file type
+                                    if (!file) {
+                                        return;
+                                    }
+                                    if (!file.type.startsWith("image/")) {
+                                        toast.error("Please select a valid image file.", { position: "top-center" });
+                                        setTeamImg(null);
+                                        if (teamImgInputRef.current) teamImgInputRef.current.value = "";
+                                        return;
+                                    }
+                                    // Reject SVGs
+                                    if (file.type === "image/svg+xml" || file.name.toLowerCase().endsWith(".svg")) {
+                                        toast.error("SVG images are not allowed. Please select a PNG, JPG, or GIF.", { position: "top-center" });
+                                        setTeamImg(null);
+                                        if (teamImgInputRef.current) teamImgInputRef.current.value = "";
+                                        return;
+                                    }
+                                    setTeamImg(file);
+                                }}
+                            type="file" 
+                            accept="image/*"
+                            />
+                            <button type="submit" disabled={addingMedia || !teamImg}>
+                                {addingMedia ? "Posting..." : "Upload New Team Image"}
+                            </button>
+                        </form>
+                    </div>
                     <div>
                         <h2>Delete Team</h2>
                         <p>Once you delete a team, there is no going back. Please be certain.</p>
@@ -105,7 +176,7 @@ function TeamSettingsPage() {
                     handleLeave={handleLeaveTeam}
                 />
             </div>
-        </>
+        </div>
     );
 }
 
