@@ -6,7 +6,7 @@ import '../css/TeamNav.css';
 
 function TeamNav() {
     const { team_id } = useParams();
-    const { teamInfo, isLoadingTeam, teamError, refreshTeamInfo} = useTeam(); // Consume the context
+    const { teamInfo } = useTeam(); // Consume the context
   return (
       <div className='team-nav'>
         <div>{teamInfo?.team_name}</div>

@@ -1,6 +1,5 @@
 .home-container {
-  margin: 0 auto;
-  padding: 48px 16px 32px 16px;
+  margin: 10px;
   background: #fff;
   min-height: 70vh;
   display: flex;

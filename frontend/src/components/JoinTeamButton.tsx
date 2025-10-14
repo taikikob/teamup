@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import '../css/JoinTeamButton.css'
 
 function JoinTeamButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -62,7 +63,7 @@ function JoinTeamButton() {
 
   return (
     <div>
-      <button onClick={handleOpen}>Join Team Using a Code</button>
+      <button className="join-team-button" onClick={handleOpen}>Join Team</button>
 
       {isOpen && (
         <div style={overlayStyles}>
