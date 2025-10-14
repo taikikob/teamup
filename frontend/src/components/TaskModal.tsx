@@ -6,6 +6,7 @@ import AddNewTaskButton from './AddNewTaskButton';
 import SortableTask from './SortableTask';
 import type { Task } from '../types/task'; // Assuming you have a Task type defined in types/task.ts
 import TaskSidebar from './TaskSidebar';
+import '../css/TaskModal.css';
 
 import {
   DndContext,
@@ -262,7 +263,7 @@ function TaskModal({node, onClose, initialTaskId, initialPlayerId}: {node: Node;
                 {teamInfo.is_user_coach && (
                     <AddNewTaskButton node={node} taskCount={tasks.length} onTaskAdded={fetchTasks}/>
                 )}
-                <button onClick={onClose}>Close</button>
+                <button className="close-button" onClick={onClose}>Close</button>
             </div>
             {/* Sidebar for selected task */}
             {selectedTask && (

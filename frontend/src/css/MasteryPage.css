@@ -1,0 +1,62 @@
+.mastery-page {
+    width: 100%;
+    margin-top: 12px;
+}
+
+.mastery-page h1 {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.reactflow-wrapper {
+    width: 100%;
+    max-width: 1350px;
+    height: 500px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    position: relative;
+}
+
+.coach-controls {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid black;
+    border-radius: 8px;
+    width: fit-content;
+    margin-top: 6px;
+}
+
+.coach-controls h3 {
+    padding: 5px;
+}
+
+.edit-map-button {
+    padding: 8px 20px;
+    background: orange;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.add-node-button {
+    padding: 8px 20px;
+    background: #0D6EFD;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.done-button {
+    padding: 8px 20px;
+    background: #22C55E;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}

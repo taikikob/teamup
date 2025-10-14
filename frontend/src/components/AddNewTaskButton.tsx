@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useTeam } from '../contexts/TeamContext'
 import type { Node } from 'reactflow';
+import '../css/AddNewTaskButton.css';
 
 function AddNewTaskButton({ node, taskCount, onTaskAdded }: { node: Node, taskCount: number, onTaskAdded: () => void }) {
   const { teamInfo } = useTeam(); // Consume the context
@@ -69,23 +70,24 @@ function AddNewTaskButton({ node, taskCount, onTaskAdded }: { node: Node, taskCo
 
   return (
     <div>
-      <button onClick={handleOpen}>Add a new task</button>
+      <button className="add-task-button" onClick={handleOpen}>Add Task</button>
 
       {isOpen && (
         <div style={overlayStyles}>
-          <div style={modalStyles}>
+          <div style={modalStyles} className="add-task-modal">
             <h2>Add a New Task</h2>
             <p>Enter Task Title:</p>
             <input
               type="text"
               value={inputTitle}
+              className='text-input'
               onChange={(e) => setInputTitle(e.target.value)}
             />
-            <button onClick={handleAddNewTask} disabled={loading || inputTitle.trim() === ''}>
+            <button className="add-task-button" onClick={handleAddNewTask} disabled={loading || inputTitle.trim() === ''}>
               {loading ? 'Loading...' : 'Add New Task'}
             </button>
             <br/>
-            <button onClick={handleClose}>Close</button>
+            <button className="close-button" onClick={handleClose}>Close</button>
           </div>
         </div>
       )}

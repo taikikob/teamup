@@ -28,7 +28,7 @@ function TeammatesPage() {
     }
 
     return (
-        <>
+        <div className="teammates-page">
             <h1>Teammates</h1>
             <h2>Coaches</h2>
             {isLoadingTeam ? (
@@ -40,7 +40,7 @@ function TeammatesPage() {
                             <div className="user-row" key={coach.user_id}>
                                 <div>
                                     <img 
-                                        src={coach.profile_picture_link || "/default_pp.png"} 
+                                        src={coach.profile_picture_link || "/default_pp.svg"} 
                                         className="profile-icon" 
                                         alt={`${coach.first_name} ${coach.last_name}'s profile picture`} 
                                     />
@@ -80,7 +80,7 @@ function TeammatesPage() {
             ) : (
                 <div>No players in this team.</div>
             )}
-        </>
+        </div>
     )
 }
 

@@ -1,0 +1,18 @@
+.add-task-button {
+    padding: 10px 24px;
+    background: #0D6EFD;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.add-task-modal h2{
+    text-align: center;
+}
+
+.add-task-modal p {
+    margin-top: 8px;
+    margin-bottom: 4px;
+}

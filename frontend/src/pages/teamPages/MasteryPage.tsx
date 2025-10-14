@@ -8,6 +8,7 @@ import CustomNode from "../../components/CustomNode";
 import CustomEdge from "../../components/CustomEdge";
 import TaskModal from "../../components/TaskModal";
 import { useSearchParams } from "react-router-dom";
+import "../../css/MasteryPage.css"
 
 const nodeTypes = {
     custom: CustomNode
@@ -148,7 +149,7 @@ function MasteryPage() {
             {
                 id: newId,
                 position: { x: Math.random() * 200, y: Math.random() * 200 },
-                data: { label: `Node ${newId}` },
+                data: { label: `New Node` },
                 type: 'custom',
             },
         ]);
@@ -268,23 +269,28 @@ function MasteryPage() {
     }));
 
     return (
-        <>
+        <div className="mastery-page">
             <h1>Mastery Map</h1>
             {teamInfo.is_user_coach && (
-                <div style={{ marginBottom: 12, display: 'flex', gap: '8px' }}> {/* Added flex and gap for buttons */}
+                <div className="coach-controls">
+                    <h3>Coach Options</h3>
                     {editing ? (
                         <>
-                            <button onClick={addNode}>Add Node</button>
+                            <button className="add-node-button" onClick={addNode}>Add Node</button>
                             {/* Changed Close to simply exit editing */}
-                            <button onClick={handleCloseEditing}>Done</button>
+                            To delete a node or edge, click on it and press delete key.
+                            <br />
+                            To change a node's label, double click on the node.
+                            {/* Show a "Done" button to exit editing mode */}
+                            <button className="done-button" onClick={handleCloseEditing}>Done</button>
                         </>
                     ) : (
-                        <button onClick={() => setEditing(true)}>Edit Map</button>
+                        <button className="edit-map-button" onClick={() => setEditing(true)}>Edit Map</button>
                     )}
                 </div>
             )}
             {/* Display auto-save status below buttons */}
-            <div style={{ marginBottom: 10, minHeight: '20px' }}>
+            <div>
                 {teamInfo.is_user_coach && editing && (
                     isSaving ? (
                         <span style={{ color: 'orange' }}>Saving...</span>
@@ -295,7 +301,7 @@ function MasteryPage() {
             </div>
             {/* Add error message display here */}
             {saveError && <div style={{ color: 'red', marginBottom: 8 }}>{saveError}</div>}
-            <div style={{ width: '100%', height: '700px', border: '1px solid #ccc', borderRadius: 8, position: 'relative' }}>
+            <div className="reactflow-wrapper">
                 {/* Loading overlay for nodes/edges */}
                 {loading && (
                     <div style={{
@@ -326,6 +332,7 @@ function MasteryPage() {
                     nodesDraggable={teamInfo.is_user_coach && editing}
                     nodesConnectable={teamInfo.is_user_coach && editing}
                     elementsSelectable={teamInfo.is_user_coach && editing}
+                    proOptions={{ hideAttribution: true }}
                     onNodeClick={(_, node) => {
                         if (teamInfo.is_user_coach && editing) {
                             return;
@@ -350,7 +357,7 @@ function MasteryPage() {
                     />
                 )}
             </div>
-        </>
+        </div>
     );
 }
 
