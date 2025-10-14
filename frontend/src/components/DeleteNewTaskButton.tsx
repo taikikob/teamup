@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Task } from '../types/task';
+import '../css/DeleteNewTaskButton.css';
 
 function DeleteNewTaskButton({ task, handleDelete }: { task: Task; handleDelete: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,34 +38,27 @@ function DeleteNewTaskButton({ task, handleDelete }: { task: Task; handleDelete:
 
       {isOpen && (
         <div style={overlayStyles}>
-          <div style={modalStyles}>
+          <div style={modalStyles} className='delete-task-modal' onClick={e => e.stopPropagation()}>
             <h2>Delete Task</h2>
-            <p>Are you sure you want to delete this task: <br></br><strong>{task.title}</strong>?</p>
-            <p>Deleting this task will remove all data (media submitted from players, player progress, etc.) associated with it.</p>
+            <p>Are you sure you want to delete this task:</p><strong>{task.title}</strong>
+            <p>Deleting this task will remove <strong>all</strong> data (media submitted from players, player progress, etc.) associated with it.</p>
             <button 
               onClick={e => {
                 e.stopPropagation();
                 handleDelete();
               }} 
               disabled={loading}
-              style={{
-                background: "#e74c3c",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                padding: "8px 16px",
-                cursor: loading ? "not-allowed" : "pointer",
-                fontWeight: 500,
-                marginTop: "12px"
-              }}
+              className='delete-button'
+              style={{ cursor: loading ? "not-allowed" : "pointer" }}
             >
               {loading ? 'Loading...' : 'Delete Task'}
             </button>
-            <br/>
             <button onClick={e => {
               e.stopPropagation();
               handleClose();
-            }}>Close</button>
+            }}
+            className='close-button'
+            >Close</button>
           </div>
         </div>
       )}
@@ -87,7 +81,7 @@ const overlayStyles: React.CSSProperties = {
 const modalStyles: React.CSSProperties = {
   background: '#fff',
   padding: '2rem',
-  borderRadius: '8px'
+  borderRadius: '8px',
 };
 
 export default DeleteNewTaskButton;

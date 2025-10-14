@@ -1,0 +1,30 @@
+.delete-task-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: default !important; /* Force default cursor inside modal */
+}
+
+.delete-task-modal h2 {
+    text-align: center;
+}
+
+.delete-task-modal strong {
+    text-align: center;
+}
+
+.delete-task-modal .delete-button {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: 500;
+    margin-top: 12px;
+    width: 150px;
+    align-self: center;
+}
+
+.delete-task-modal .close-button {
+    margin-top: 0;
+}
