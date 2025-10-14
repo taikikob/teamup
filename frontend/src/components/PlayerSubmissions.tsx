@@ -6,6 +6,7 @@ import ListPlayerSubmissions from "./ListPlayerSubmissions";
 import { usePlayerSubmissions } from "../contexts/PlayerSubmissionsContext";
 import CommentSection from "./CommentSection";
 import UnapproveButton from "./UnapproveButton";
+import '../css/PlayerSubmissions.css';
 
 function PlayerSubmissions({ taskId, loadingComments, initialPlayerId }: { taskId: number, loadingComments: boolean, initialPlayerId: string | null }) {
     const [selectedSubmission, setSelectedSubmission] = useState<PlayerSubmission | null>(null);
@@ -127,26 +128,32 @@ function PlayerSubmissions({ taskId, loadingComments, initialPlayerId }: { taskI
                             }}>Back to all submissions</button>
                         </div>
                     ) :(
-                    <>
-                        <h4>Awaiting Review:</h4>
-                        <ListPlayerSubmissions 
-                            playerSubmissions={submitted} 
-                            setSelectedSubmission={setSelectedSubmission} 
-                            setSelected={setSelected}
-                        />
-                        <h4>Approved:</h4>
-                        <ListPlayerSubmissions 
-                            playerSubmissions={completed} 
-                            setSelectedSubmission={setSelectedSubmission} 
-                            setSelected={setSelected}
-                        />
-                        <h4>Unsubmitted:</h4>
-                        <ListPlayerSubmissions 
-                            playerSubmissions={unsubmitted} 
-                            setSelectedSubmission={setSelectedSubmission} 
-                            setSelected={setSelected}
-                        />
-                    </>
+                    <div className="all-player-submissions">
+                        <div>
+                            <h4>Awaiting Review:</h4>
+                            <ListPlayerSubmissions 
+                                playerSubmissions={submitted} 
+                                setSelectedSubmission={setSelectedSubmission} 
+                                setSelected={setSelected}
+                            />
+                        </div>
+                        <div>
+                            <h4>Approved:</h4>
+                            <ListPlayerSubmissions 
+                                playerSubmissions={completed} 
+                                setSelectedSubmission={setSelectedSubmission} 
+                                setSelected={setSelected}
+                            />
+                        </div>
+                        <div>
+                            <h4>Unsubmitted:</h4>
+                            <ListPlayerSubmissions 
+                                playerSubmissions={unsubmitted} 
+                                setSelectedSubmission={setSelectedSubmission} 
+                                setSelected={setSelected}
+                            />
+                        </div>
+                    </div>
                     )}
                </>
             )}

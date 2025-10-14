@@ -1,0 +1,10 @@
+.all-player-submissions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.all-player-submissions h4{
+    font-size: large;
+}

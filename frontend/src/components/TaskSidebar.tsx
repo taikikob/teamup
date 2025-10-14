@@ -31,6 +31,9 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [submittedAt, setSubmittedAt] = useState<string | null>(null);
+  const [editingDescription, setEditingDescription] = useState(false);
+  const [savingDescription, setSavingDescription] = useState(false);
+  const [newDescription, setNewDescription] = useState(task.description || "");
 
   const coachFileInputRef = useRef<HTMLInputElement>(null); 
   const playerFileInputRef = useRef<HTMLInputElement>(null);
@@ -248,12 +251,88 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
       setSubmittedAt(null); // Reset submittedAt state
     }
   };
+
+  // Handler to save the new description (replace with your API call as needed)
+  const handleSaveDescription = async () => {
+    // TODO: Add API call to update description on the backend
+    setSavingDescription(true);
+    if (!teamInfo || !task.task_id) {
+      toast.error("Team information or task ID is not available.", { position: "top-center" });
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:3000/api/tasks/${teamInfo.team_id}/description/${task.task_id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ description: newDescription }),
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to update task description:", errorData.error);
+        toast.error("Failed to update task description", { position: "top-center" });
+        return;
+      }
+      const data = await response.json();
+      toast.success(data.message, { position: "top-center" });
+      // Update the task description locally
+      task.description = newDescription;
+    } catch (error) {
+      console.error("Error occurred while updating task description:", error);
+    } finally {
+      setEditingDescription(false);
+      setSavingDescription(false);
+    }
+    // Optionally update the task description in state if needed
+  };
+
   if (!user) return null;
   if (!task) return null;
   return (
     <div className="task-sidebar">
       <h2>{task.title}</h2>
-      <p>{task.description}</p>
+      <h3>Task Description</h3>
+      {editingDescription ? (
+        <div style={{ marginBottom: "12px" }}>
+          <textarea
+            value={newDescription}
+            onChange={e => setNewDescription(e.target.value)}
+            rows={3}
+            style={{ width: "100%", borderRadius: "6px", padding: "8px" }}
+          />
+          <button
+            className="save-button"
+            onClick={handleSaveDescription}
+            disabled={savingDescription}
+          >
+            {savingDescription ? "Saving..." : "Save"}
+          </button>
+          <button
+            className="close-button"
+            onClick={() => setEditingDescription(false)}
+          >
+            Cancel
+          </button>
+        </div>
+      ) : (
+        <>
+          {!task.description || task.description.trim() === "" ? (
+            <p>No description provided.</p>
+          ) : (
+            <p>{task.description}</p>
+          )}
+          {teamInfo?.is_user_coach && (
+            <button
+              className="edit-description-button"
+              onClick={() => setEditingDescription(true)}
+            >
+              Edit Description
+            </button>
+          )}
+        </>
+      )}
       <CoachResources loadingCoachResources={loadingCoachResources} coachResources={coachResources} refetch={fetchCoachResources} />
       { teamInfo?.is_user_coach && (
         <div className="coach-upload-section">
