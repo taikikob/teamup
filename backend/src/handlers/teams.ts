@@ -235,6 +235,7 @@ export async function getNodeTasks(request: Request, response: Response): Promis
             t.task_id, 
             t.title, 
             t.task_order,
+            t.description,
             CASE WHEN c.task_id IS NOT NULL THEN true ELSE false END AS completed
         FROM mastery_tasks t
         LEFT JOIN task_completions c
