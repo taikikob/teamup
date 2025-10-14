@@ -1,24 +1,28 @@
 import { Link } from "react-router-dom";
 import { useNotifications } from "../contexts/NotificationContext";
+import { formatDistanceToNow } from "date-fns";
+import '../css/InboxPage.css'
 
 function InboxPage() {
   const { notifications, fetchNotifications, loadingNotifications, markAsRead, markAsUnread, updatingIds } = useNotifications();
 
   return (
-    <div>
+    <div className="inbox-page">
       <h1>Inbox</h1>
-      <button onClick={fetchNotifications} style={{ marginBottom: "1em" }}>
-        {loadingNotifications ? 'Refreshing...' : 'Reload'}
+      <button className="refresh-button" onClick={fetchNotifications} style={{ marginBottom: "1em" }}>
+        <img src="/refresh-icon.svg" alt="Refresh" style={{ width: "20px", height: "20px" }} />
       </button>
       <div>
         {loadingNotifications ? (
           <div>Loading notifications...</div>
         ) : notifications.length > 0 ? (
           notifications.map((notif) => (
-            <div key={notif.notification_id}>
+            <div key={notif.notification_id} className="notification-card">
               <h3>{notif.type}</h3>
               <p>{notif.content}</p>
-              <small>{notif.created_at}</small>
+              <small>
+                {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}
+              </small>
               <button 
                 onClick={() => notif.is_read ? markAsUnread(notif.notification_id) : markAsRead(notif.notification_id)}
                 disabled={updatingIds.has(notif.notification_id)}
