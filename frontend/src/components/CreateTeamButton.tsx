@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../css/CreateTeamButton.css';
 
 function CreateTeamButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,7 +56,7 @@ function CreateTeamButton() {
 
   return (
     <div>
-      <button onClick={handleOpen}>Create Team</button>
+      <button className="create-team-button" onClick={handleOpen}>Create Team</button>
 
       {isOpen && (
         <div style={overlayStyles}>
