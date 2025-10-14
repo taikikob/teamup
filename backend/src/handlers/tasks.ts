@@ -203,6 +203,37 @@ export const postTaskUnapprove = async (req: Request, res: Response) => {
     }
 };
 
+export const editDescription = async (req: Request, res: Response) => {
+    const user = req.user as User;
+    if (!user) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+    }
+    const { team_id, taskId } = req.params;
+    const { description } = req.body;
+
+    if (!team_id || !taskId || description === undefined) {
+        res.status(400).json({ message: "Team ID, Task ID, and new description are required" });
+        return;
+    }
+    try {
+        const client = await pool.connect();
+        await client.query("BEGIN");
+
+        await client.query(
+            `UPDATE mastery_tasks SET description = $1 WHERE team_id = $2 AND task_id = $3`,
+            [description, team_id, taskId]
+        );
+
+        await client.query("COMMIT");
+        client.release();
+
+        res.status(200).json({ message: "Task description updated successfully" });
+    } catch (error) {
+        console.error("Error updating task description:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
 
 export const deleteTaskSubmit = async (req: Request, res: Response) => {
     const user = req.user as User;
