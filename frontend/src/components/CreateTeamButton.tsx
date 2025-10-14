@@ -57,23 +57,23 @@ function CreateTeamButton() {
   return (
     <div>
       <button className="create-team-button" onClick={handleOpen}>Create Team</button>
-
       {isOpen && (
         <div style={overlayStyles}>
-          <div style={modalStyles}>
+          <div className="create-team-modal" style={modalStyles}>
             <h2>Create Team</h2>
             <p>Enter Team Name:</p>
             <input
               type="text"
               value={teamName}
+              className='text-input'
               onChange={(e) => setTeamName(e.target.value)}
             />
             <p>By creating the team, you will be the <strong>coach</strong> of the team</p>
-            <button onClick={handleCreate} disabled={loading || teamName.trim() === ''}>
+            <button className="create-button" onClick={handleCreate} disabled={loading || teamName.trim() === ''}>
               {loading ? 'Loading...' : 'Create Team'}
             </button>
             <br/>
-            <button onClick={handleClose}>Close</button>
+            <button className="close-button" onClick={handleClose}>Close</button>
           </div>
         </div>
       )}

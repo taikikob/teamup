@@ -1,7 +1,26 @@
 /* App.css or index.css */
+/* Styling that is shared across multiple components exists here too */
 .app-root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
+.close-button {
+    padding: 8px 20px;
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+.text-input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  width: 100%;
+  font-size: 1rem;
+}

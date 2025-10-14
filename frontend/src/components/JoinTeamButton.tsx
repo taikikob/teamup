@@ -67,19 +67,20 @@ function JoinTeamButton() {
 
       {isOpen && (
         <div style={overlayStyles}>
-          <div style={modalStyles}>
+          <div className="join-team-modal" style={modalStyles}>
             <h2>Join a Team</h2>
             <p>Enter 6 Digit Code:</p>
             <input
               type="text"
               value={inputCode}
+              className='text-input'
               onChange={(e) => setInputCode(e.target.value)}
             />
-            <button onClick={handleJoin} disabled={loading || inputCode.trim() === ''}>
+            <button className="join-button" onClick={handleJoin} disabled={loading || inputCode.trim() === ''}>
               {loading ? 'Loading...' : 'Join Team'}
             </button>
             <br/>
-            <button onClick={handleClose}>Close</button>
+            <button className="close-button" onClick={handleClose}>Close</button>
           </div>
         </div>
       )}

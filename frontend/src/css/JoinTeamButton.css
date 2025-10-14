@@ -6,3 +6,28 @@
     color: white;
     border: none;
 }
+
+.join-team-modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 320px;
+}
+
+.join-team-modal h2 {
+  margin-bottom: 12px;
+}
+
+.join-team-modal p {
+  margin-bottom: 8px;
+}
+
+.create-button {
+    padding: 10px 24px;
+    background: #22C55E;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
