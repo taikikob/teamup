@@ -11,14 +11,17 @@ import InboxPage from './pages/InboxPage';
 import Team from './pages/Team';
 import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
+import About from './pages/About';
+import Footer from './components/Footer';
 import { UserProvider } from './contexts/UserContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './css/App.css';
 
 function App() {
   return (
-    <>
+    <div className='app-root'>
       <Routes>
         {/* Public routes */}
         <Route path='/' element={<><PublicNavbar /><Landingpage /></>} />
@@ -26,6 +29,7 @@ function App() {
         <Route path='/signup' element={<><PublicNavbar /><Signup /></>} />
         <Route path='/verify-email' element={<><PublicNavbar /><VerifyEmail /></>} />
         <Route path='/forgot-password' element={<><PublicNavbar /><ForgotPassword /></>} />
+        <Route path='/about' element={<><PublicNavbar /><About /></>} />
 
         {/* Authenticated routes */}
         <Route
@@ -85,7 +89,8 @@ function App() {
         />
       </Routes>
       <ToastContainer />
-    </>
+      <Footer />
+    </div>
   );
 }
 

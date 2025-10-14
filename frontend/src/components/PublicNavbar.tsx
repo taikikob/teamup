@@ -10,6 +10,7 @@ function PublicNavbar() {
                 </Link>
             </div>
             <div className="navbar-links">
+                <Link to="/about" className="nav-link">About</Link>
                 <Link to="/login" className="nav-link">Login</Link>
                 <Link to="/signup" className="nav-link">Sign Up</Link>
             </div>

@@ -52,10 +52,6 @@ function Landingpage() {
                     </div>
                     </div>
                 </div>
-
-                <footer className="footer">
-                    <p>&copy; 2025 Casatrain. All rights reserved.</p>
-                </footer>
             </div>
         </>
     )

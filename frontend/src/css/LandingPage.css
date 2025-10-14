@@ -139,17 +139,6 @@ body {
   margin-bottom: 10px;
 }
 
-.footer {
-  background: #1e293b;
-  color: #fff;
-  text-align: center;
-  padding: 18px 0;
-  font-size: 1rem;
-  border-top-left-radius: 14px;
-  border-top-right-radius: 14px;
-  margin-top: 32px;
-}
-
 /* Responsive Design */
 @media (max-width: 900px) {
   .main-content {
