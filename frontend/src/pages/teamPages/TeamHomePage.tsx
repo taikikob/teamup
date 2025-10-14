@@ -2,6 +2,7 @@ import { useState } from "react";
 import EditDescriptionButton from "../../components/EditDescriptionButton";
 import { useTeam } from "../../contexts/TeamContext";
 import { toast } from 'react-toastify';
+import "../../css/TeamHomePage.css";
 
 function TeamHomePage() {
     // coach should be able to view the access codes
@@ -70,31 +71,35 @@ function TeamHomePage() {
 
     return (
         <div className="team-home-page">
-            <div>
-                <strong>Team Description:</strong> {teamInfo.team_description || 'No description provided.'}
+            <div className="team-description">
+                <h2>Team Description:</h2> 
+                <p>{teamInfo.team_description || 'No description provided.'}</p>
                 {/* TODO: Add description if no description, edit description if one exists */}
                 {teamInfo.is_user_coach && (
                     <EditDescriptionButton/>
                 )}
             </div>
             {/* Coach if only 1 coach, coaches if more than 1 coach */}
-            <h2>
-                {teamInfo.coaches_info && teamInfo.coaches_info.length === 1 ? "Coach:" : "Coaches:"}
-            </h2>
-            {teamInfo.coaches_info && teamInfo.coaches_info.length > 0 ? (
-                <div>
-                    {teamInfo.coaches_info.map((coach) => (
-                        <div key={coach.user_id}>
-                            {coach.first_name} {coach.last_name} ({coach.email})
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <p>No coaches listed for this team.</p>
-            )}
+            <div className="team-coaches">
+                <h2>
+                    {teamInfo.coaches_info && teamInfo.coaches_info.length === 1 ? "Coach:" : "Coaches:"}
+                </h2>
+                {teamInfo.coaches_info && teamInfo.coaches_info.length > 0 ? (
+                    <div>
+                        {teamInfo.coaches_info.map((coach) => (
+                            <div key={coach.user_id}>
+                                {coach.first_name} {coach.last_name} ({coach.email})
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p>No coaches listed for this team.</p>
+                )}
+            </div>
+            
             {/* Display Access Codes ONLY IF the current user is a coach */}
             {teamInfo.is_user_coach && (
-                <div>
+                <div className="team-access-codes">
                     <h2>Access Codes: (Can Only Be Seen By Coaches)</h2>
                     <p>
                         <strong>Coach Access Code:</strong>{" "}
@@ -116,8 +121,8 @@ function TeamHomePage() {
                             "N/A"
                         )}
                     </p>
-                    {loadingButton ? (<button>Loading...</button>):(<button onClick={generateNewAccessCodes}>Generate New Access Codes</button>)}
-                    {loadingButton ? (<button>Loading...</button>):(<button onClick={disableAccessCodes}>Disable Access Codes</button>)}
+                    {loadingButton ? (<button>Loading...</button>):(<button className="generate-access-codes" onClick={generateNewAccessCodes}>Generate New Access Codes</button>)}
+                    {loadingButton ? (<button>Loading...</button>):(<button className="disable-access-codes" onClick={disableAccessCodes}>Disable Access Codes</button>)}
                 </div>
             )}
         </div>

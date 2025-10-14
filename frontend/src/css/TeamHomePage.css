@@ -1,0 +1,27 @@
+.team-home-page {
+    display: flex;
+    flex-direction: column;
+    margin-top: 12px;
+    gap: 8px;
+}
+
+.team-description p{
+    padding: 12px;
+}
+
+.generate-access-codes {
+    padding: 8px 20px;
+    border-radius: 6px;
+    background: #198754;
+    color: white;
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.disable-access-codes {
+    padding: 8px 20px;
+    border-radius: 6px;
+    background: #dc3545;
+    color: white;
+    cursor: pointer;
+}
