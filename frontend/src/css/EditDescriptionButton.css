@@ -1,0 +1,50 @@
+.edit-team-description-button {
+    padding: 8px 20px;
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.edit-description-modal {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+}
+
+.edit-description-modal .text-input {
+    min-height: 120px;   /* Makes the textarea about 6 rows tall */
+    resize: vertical;    /* Allow user to resize if desired */
+    font-size: 1rem;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    margin-bottom: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif; /* Add this line */
+}
+
+.edit-description-modal .save-button {
+    background: #198754;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100px;
+}
+
+.edit-description-modal .close-button {
+    width: 100px;
+}
+
+.edit-description-modal .button-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    margin-top: 8px;
+}

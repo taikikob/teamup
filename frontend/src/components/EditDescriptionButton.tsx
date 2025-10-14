@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTeam } from "../contexts/TeamContext";
 import { toast } from 'react-toastify';
+import "../css/EditDescriptionButton.css";
 
 function EditDescriptionButton() {
   const { teamInfo, refreshTeamInfo } = useTeam(); // Consume the context
@@ -68,23 +69,24 @@ function EditDescriptionButton() {
 
   return (
     <div>
-      <button onClick={handleOpen}>Edit Description</button>
+      <button className="edit-team-description-button" onClick={handleOpen}>Edit Description</button>
 
       {isOpen && (
         <div style={overlayStyles}>
-          <div style={modalStyles}>
+          <div style={modalStyles} className="edit-description-modal">
             <h2>Edit Team Description</h2>
             <p>Enter team description:</p>
-            <input
-              type="text"
+            <textarea
+              className='text-input'
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
-            <button onClick={handleEdit} disabled={loading || description.trim() === ''}>
-              {loading ? 'Loading ...' : 'Save'}
-            </button>
-            <br/>
-            <button onClick={handleClose}>Close</button>
+            <div className='button-row'>
+              <button className='close-button' onClick={handleClose}>Close</button>
+              <button className='save-button' onClick={handleEdit} disabled={loading || description.trim() === ''}>
+                {loading ? 'Loading ...' : 'Save'}
+              </button>
+            </div>
           </div>
         </div>
       )}
