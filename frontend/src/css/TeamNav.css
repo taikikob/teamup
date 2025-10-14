@@ -1,0 +1,38 @@
+.team-nav {
+  margin: 12px;
+}
+
+.team-nav div {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+.team-nav ul {
+  display: flex;
+  flex-direction: column; /* Change to column for vertical layout */
+  align-items: stretch;
+  list-style: none;
+  margin: 0;
+}
+
+.team-nav li {
+    display: flex;
+}
+
+.team-nav a {
+  text-decoration: none;
+  width: 100%;
+  color: #334155;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.team-nav a.active,
+.team-nav a:hover {
+  background: #6366f1;
+  color: #fff;
+}

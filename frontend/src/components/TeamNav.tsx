@@ -1,11 +1,16 @@
 import { NavLink, useParams } from 'react-router-dom';
+import { useTeam } from '../contexts/TeamContext'; // Import your TeamContext
+import '../css/TeamNav.css';
+
+
 
 function TeamNav() {
     const { team_id } = useParams();
+    const { teamInfo, isLoadingTeam, teamError, refreshTeamInfo} = useTeam(); // Consume the context
   return (
-    <>
-      <nav style={{ width: '200px', padding: '1rem', borderRight: '1px solid #ccc' }}>
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+      <div className='team-nav'>
+        <div>{teamInfo?.team_name}</div>
+        <ul>
           <li>
             <NavLink to={`/teams/${team_id}`} end className={({ isActive }) => isActive ? "active" : ""}>Home</NavLink>
           </li>
@@ -19,8 +24,7 @@ function TeamNav() {
             <NavLink to={`/teams/${team_id}/settings`} className={({ isActive }) => isActive ? "active" : ""}>Settings</NavLink>
           </li>
         </ul>
-      </nav>
-    </>
+      </div>
   );
 }
 

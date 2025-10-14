@@ -10,6 +10,7 @@
   max-width: 240px;
   width: 220px;           /* Set a fixed width for each card */
   margin: 16px auto;
+  border: 1px grey solid;
 }
 
 .team-card:hover {

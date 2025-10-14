@@ -10,20 +10,22 @@ import { Link } from "react-router-dom";
 import "../css/Home.css";
 
 function Home() {
-
-    const {user, isLoadingUser} = useUser();
+    const {isLoadingUser} = useUser();
     const location = useLocation();
     const navigate = useNavigate();
     const [refreshKey, setRefreshKey] = useState(0);
     const [teams, setTeams] = useState<Team[]>([]);
+    const [fetchingTeams, setFetchingTeams] = useState(false);
     
     useEffect(() => {
         const fetchTeams = async () => {
+            setFetchingTeams(true);
             const res = await fetch('http://localhost:3000/api/teams', {
                 credentials: 'include',
             });
             const data: Team[] = await res.json();
             setTeams(data);
+            setFetchingTeams(false);
         };
         fetchTeams();
         console.log(teams);
@@ -49,16 +51,15 @@ function Home() {
     }, [location, navigate]);
 
     return (
-        <> 
-            <h1>Hi {user?.first_name}!</h1>
+        <div className="home-container"> 
             <h1>My Teams:</h1>
-            {isLoadingUser ? (
+            {isLoadingUser || fetchingTeams ? (
                 <p>Loading teams...</p>
             ) : (
                 <>
                     {teams.length === 0 ? (
                         <>
-                            <p>You are not a part of any groups yet</p>
+                            <p className="no-teams-message">You are not a part of any groups yet</p>
                         </>
                     ) : (
                         <div className="team-card-list">
@@ -71,9 +72,12 @@ function Home() {
                     )}
                 </>
             )}
-            <JoinTeamButton />
-            <CreateTeamButton/>
-        </>
+            <div className="home-actions">
+                <JoinTeamButton />
+                <CreateTeamButton />
+            </div>
+            
+        </div>
     )
 }
 

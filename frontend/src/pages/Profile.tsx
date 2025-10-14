@@ -28,7 +28,7 @@ function Profile() {
                     />
                 ) : (
                     <img
-                        src="/default_pp.png"
+                        src="/default_pp.svg"
                         alt="Default Profile"
                         className="profile-picture"
                     />

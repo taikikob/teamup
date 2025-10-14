@@ -9,16 +9,16 @@ function Landingpage() {
                     <div className="hero">
                         <div className="hero-text-container">
                             <h1 className="hero-title">Structured Training, Anywhere, Anytime.</h1>
-                            <div className="logo-img">
-                                {/* You could add a background image or an illustration here */}
-                                {/* Example: <img src="training_illustration.png" alt="Training illustration" /> */}
-                            </div>
                             <p>
                                 "Casa" means "home" in Spanish, and our name—Casatrain—captures our mission: empowering athletes to make the most of their home training. We believe that the work athletes put in is what separates the good from the great.
                             </p>
                             <p className="hero-subtitle">
                                 Empower your players with personalized training roadmaps. Monitor progress, provide feedback, and build better teams.
                             </p>
+                            <div className="logo-img">
+                                {/* You could add a background image or an illustration here */}
+                                {/* Example: <img src="training_illustration.png" alt="Training illustration" /> */}
+                            </div>
                             <Link to="/signup" className="cta-button hero-cta">Join TeamUp Today</Link>
                         </div>
                     </div>

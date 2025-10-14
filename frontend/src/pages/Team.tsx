@@ -12,26 +12,24 @@ import { CommentsProvider } from '../contexts/CommentsContext';
 function Team() {
     return (
         <div style={{ display: 'flex' }}>
+            <TeamProvider>
                 <TeamNav />
-                <div style={{ padding: '1rem', flex: 1 }}>
-                    <TeamProvider>
-                        <Routes>
-                            <Route path="/" element={<TeamHomePage />} />
-                            <Route
-                                path="mastery"
-                                element={
-                                    <PlayerSubmissionsProvider>
-                                        <CommentsProvider>
-                                            <MasteryPage />
-                                        </CommentsProvider>
-                                    </PlayerSubmissionsProvider>
-                                }
-                            />
-                            <Route path="teammates" element={<TeammatesPage />} />
-                            <Route path="settings" element={<TeamSettingsPage />} />
-                        </Routes>
-                    </TeamProvider>
-                </div>
+                <Routes>
+                    <Route path="/" element={<TeamHomePage />} />
+                    <Route
+                        path="mastery"
+                        element={
+                            <PlayerSubmissionsProvider>
+                                <CommentsProvider>
+                                    <MasteryPage />
+                                </CommentsProvider>
+                            </PlayerSubmissionsProvider>
+                        }
+                    />
+                    <Route path="teammates" element={<TeammatesPage />} />
+                    <Route path="settings" element={<TeamSettingsPage />} />
+                </Routes>
+            </TeamProvider>
         </div>
     );
 }

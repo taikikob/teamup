@@ -66,7 +66,7 @@ function Navbar() {
                 <div className="nav-link profile-link" style={{ position: "relative" }}>
                     <img
                         className="profile-icon"
-                        src={user.profile_picture_link || "/default_pp.png"}
+                        src={user.profile_picture_link || "/default_pp.svg"}
                         alt="Profile"
                         onClick={e => {
                             e.preventDefault();
