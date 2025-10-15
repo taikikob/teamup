@@ -3,6 +3,7 @@ import { makeAspectCrop, ReactCrop, centerCrop, type Crop, type PixelCrop } from
 import 'react-image-crop/dist/ReactCrop.css'
 // import "../css/ImageCropper.css" // Make sure this file exists
 import { useUser } from "../contexts/UserContext"; // Make sure this context exists
+import '../css/ImageCropper.css';
 
 const ASPECT_RATIO = 1; // Square crop
 const MIN_DIMENSION = 150; // Minimum dimension for the crop area
@@ -213,7 +214,7 @@ function ImageCropper({ onClose }: ImageCropperProps) {
                     disabled={!imgSrc || !crop || isProcessing}
                     type="button"
                 >
-                    {isProcessing ? 'Processing...' : 'Crop Image'}
+                    {isProcessing ? 'Processing...' : 'Use as Profile Picture'}
                 </button>
             </div>
         </div>

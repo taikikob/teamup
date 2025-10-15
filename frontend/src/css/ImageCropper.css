@@ -1,10 +1,94 @@
+/* src/css/ImageCropper.css */
+
+.image-cropper {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 24px 18px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(30, 41, 59, 0.09);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  color: #333; /* Ensures text is not white */
+}
+
+.file-input-container {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.file-input-label {
+  display: inline-block;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #007bff;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.file-input-label:hover {
+  background-color: #0056b3;
+}
+
+/* We hide the default ugly file input */
+#file-input {
+  display: none;
+}
+
 .error {
-    color: red;
-    font-weight: 400;
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 1rem 0;
+  width: 100%;
+  text-align: center;
 }
 
 .image-preview {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  width: 100%;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.button-container button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button-container button:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Style for the primary action button */
+.button-container button:last-child {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.button-container button:last-child:hover {
+  background-color: #218838;
 }
