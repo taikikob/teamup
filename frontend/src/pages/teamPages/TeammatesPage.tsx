@@ -63,7 +63,7 @@ function TeammatesPage() {
                         {teamInfo.players_info.map(player => (
                             <div key={player.user_id} className="user-row">
                                 <img 
-                                    src={player.profile_picture_link || "/default_pp.png"} 
+                                    src={player.profile_picture_link || "/default_pp.svg"} 
                                     className="profile-icon" 
                                     alt={`${player.first_name} ${player.last_name}'s profile picture`} 
                                 />

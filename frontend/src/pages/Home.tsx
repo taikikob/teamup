@@ -59,7 +59,7 @@ function Home() {
                 <>
                     {teams.length === 0 ? (
                         <>
-                            <p className="no-teams-message">You are not a part of any groups yet</p>
+                            <p className="no-teams-message">You are not a part of any teams yet</p>
                         </>
                     ) : (
                         <div className="team-card-list">
