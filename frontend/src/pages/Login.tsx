@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,6 +19,7 @@ function Login() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsLoading(true);
         // TODO: Add login logic here
         try {
           const body = {
@@ -40,6 +42,8 @@ function Login() {
           navigate("/home");
         } catch (error) {
           console.error("Error duing login: ", error);
+        } finally {
+          setIsLoading(false);
         }
     };
     
@@ -65,8 +69,8 @@ function Login() {
             style={styles.input}
             required
           />
-          <button type="submit" style={styles.button}>
-            Log In
+          <button type="submit" style={styles.button} disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Log In"}
           </button>
         </form>
         <div style={{ marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center" }}>
