@@ -10,11 +10,18 @@
 
 .reactflow-wrapper {
     width: 100%;
-    max-width: 1350px;
-    height: 500px;
+    height: 1000px;
     border: 1px solid #ccc;
     border-radius: 8px;
     position: relative;
+    margin: 0 auto;
+}
+
+.saved-message {
+    text-align: center;
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: green;
 }
 
 .coach-controls {
@@ -22,10 +29,13 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    border: 1px solid black;
+    border: 2px black solid;
+    padding: 10px;
     border-radius: 8px;
     width: fit-content;
     margin-top: 6px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .coach-controls h3 {

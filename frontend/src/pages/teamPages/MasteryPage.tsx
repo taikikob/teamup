@@ -290,7 +290,7 @@ function MasteryPage() {
                 </div>
             )}
             {/* Display auto-save status below buttons */}
-            <div>
+            <div className="saved-message">
                 {teamInfo.is_user_coach && editing && (
                     isSaving ? (
                         <span style={{ color: 'orange' }}>Saving...</span>
