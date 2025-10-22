@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   task_id INTEGER, -- Task related to the notification, can be NULL
   is_read boolean DEFAULT false,
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-  FOREIGN KEY (sent_from_id) REFERENCES users(user_id)
+  FOREIGN KEY (sent_from_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_notifications_user_created_at ON notifications (user_id, created_at DESC);
