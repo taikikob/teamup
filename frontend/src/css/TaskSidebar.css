@@ -92,6 +92,12 @@
     margin-top: 12px;
 }
 
+.task-description {
+  white-space: pre-wrap; /* preserves newlines and wraps long lines */
+  word-break: break-word;
+  margin: 0 0 12px 0;
+}
+
 .submitted_message {
     font-weight: 600;
     margin-bottom: 8px;

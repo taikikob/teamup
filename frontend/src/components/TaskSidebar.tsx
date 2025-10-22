@@ -327,7 +327,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
           {!task.description || task.description.trim() === "" ? (
             <p>No description provided.</p>
           ) : (
-            <p>{task.description}</p>
+            <p className="task-description">{task.description}</p>
           )}
           {teamInfo?.is_user_coach && (
             <button
