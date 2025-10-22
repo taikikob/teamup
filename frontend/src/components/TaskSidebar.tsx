@@ -360,7 +360,15 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
       )}
       {!teamInfo?.is_user_coach && (
         <>
-          <h3>My Media</h3>
+          {/* If submitted, show Submitted Media */}
+          {hasSubmitted ? (
+            <h3 style={{ color: "#198754" }}>
+              Submitted Media
+            </h3>
+          ) : (
+            <h3>My Media</h3>
+          )}
+          
           {myMedia ? (
             <MyMedias loadingMySubmissions={loadingMyMedia} media={myMedia} refetch={fetchMyMedia} hasSubmitted={hasSubmitted} />
           ) : (
