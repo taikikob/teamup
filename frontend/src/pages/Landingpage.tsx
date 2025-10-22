@@ -15,9 +15,8 @@ function Landingpage() {
                             <p className="hero-subtitle">
                                 Empower your players with personalized training roadmaps. Monitor progress, provide feedback, and build better teams.
                             </p>
-                            <div className="logo-img">
-                                {/* You could add a background image or an illustration here */}
-                                {/* Example: <img src="training_illustration.png" alt="Training illustration" /> */}
+                            <div className="exampleRoadmap">
+                                <img src="exampleRoadmap.png" alt="Example Roadmap" />
                             </div>
                             <Link to="/signup" className="cta-button hero-cta">Join TeamUp Today</Link>
                         </div>
