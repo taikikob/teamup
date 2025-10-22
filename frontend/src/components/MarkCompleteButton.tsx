@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import type { PlayerSubmission } from "../types/playerSubmission";
 import { useTeam } from "../contexts/TeamContext";
 import { usePlayerSubmissions } from "../contexts/PlayerSubmissionsContext";
+import '../css/MarkCompleteButton.css';
 
 function MarkCompleteButton({
   player_id,
@@ -58,10 +59,15 @@ function MarkCompleteButton({
     }
     
     return (
-        <button onClick={handleMarkComplete} disabled={loading}>
-            {loading ? "Approving..." : "Approve Submission"}
+        <button
+          className="mark-complete-btn"
+          onClick={handleMarkComplete}
+          disabled={loading}
+          aria-busy={loading}
+        >
+          {loading ? "Approving..." : "Approve Submission"}
         </button>
     )
 }
-
+    
 export default MarkCompleteButton;

@@ -1,0 +1,27 @@
+/* Bare-minimum, modern styling */
+
+.mark-complete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #059669; /* green */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity .12s ease, transform .06s ease;
+}
+
+.mark-complete-btn:hover {
+  transform: translateY(-1px);
+}
+
+.mark-complete-btn:disabled {
+  background: #9ae6b4;
+  opacity: 0.75;
+  cursor: not-allowed;
+  transform: none;
+}

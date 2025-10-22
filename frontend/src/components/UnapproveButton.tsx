@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import type { PlayerSubmission } from "../types/playerSubmission";
 import { useTeam } from "../contexts/TeamContext";
 import { usePlayerSubmissions } from "../contexts/PlayerSubmissionsContext";
+import '../css/UnapproveButton.css';
 
 function UnapproveButton({
   player_id,
@@ -58,8 +59,13 @@ function UnapproveButton({
     }
     
     return (
-        <button onClick={handleUnapproveSubmission} disabled={loading}>
-            {loading ? "Returning Submission..." : "Send Back for Revision"}
+        <button
+          className="unapprove-btn"
+          onClick={handleUnapproveSubmission}
+          disabled={loading}
+          aria-busy={loading}
+        >
+          {loading ? "Returning Submission..." : "Send Back for Revision"}
         </button>
     )
 }
