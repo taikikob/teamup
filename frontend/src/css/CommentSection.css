@@ -1,0 +1,169 @@
+:root{
+  --bg: #ffffff;
+  --muted: #6b7280;
+  --text: #0b1220;
+  --accent: #4f46e5;
+  --danger: #ef4444;
+  --card-shadow: 0 6px 18px rgba(22,27,34,0.06);
+  --radius: 10px;
+  --gap: 12px;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+.cs-container{
+  width:100%;
+  margin:16px 0;
+  padding:14px;
+  background:var(--bg);
+  border-radius:var(--radius);
+  box-shadow:var(--card-shadow);
+  border:1px solid rgba(15,23,42,0.04);
+  color:var(--text);
+}
+
+.cs-header{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+}
+
+.cs-title{
+  margin:0;
+  font-size:15px;
+  font-weight:600;
+}
+
+.cs-count{
+  font-size:12px;
+  color:var(--muted);
+  background:rgba(79,70,229,0.08);
+  padding:4px 8px;
+  border-radius:999px;
+}
+
+.cs-empty{
+  margin:8px 0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.cs-list{
+  display:flex;
+  flex-direction:column;
+  gap:var(--gap);
+  margin-bottom:12px;
+}
+
+.cs-comment{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  padding:10px;
+  border-radius:8px;
+  background:linear-gradient(180deg, rgba(245,247,250,1) 0%, rgba(250,251,253,1) 100%);
+}
+
+.cs-avatar{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  object-fit:cover;
+  flex-shrink:0;
+  box-shadow:0 1px 2px rgba(16,24,40,0.05);
+}
+
+.cs-body{
+  flex:1;
+  min-width:0;
+}
+
+.cs-meta{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-bottom:6px;
+}
+
+.cs-sender{
+  font-size:14px;
+  color:var(--text);
+}
+
+.cs-time{
+  font-size:12px;
+  color:var(--muted);
+  margin-left:auto;
+}
+
+.cs-text{
+  margin:0;
+  color:var(--text);
+  font-size:14px;
+  line-height:1.45;
+  word-break:break-word;
+}
+
+.cs-actions{
+  margin-left:12px;
+  display:flex;
+  align-items:center;
+}
+
+.cs-delete{
+  border:none;
+  background:transparent;
+  color:var(--danger);
+  font-size:13px;
+  cursor:pointer;
+  padding:6px 8px;
+  border-radius:6px;
+}
+
+.cs-deleting{
+  font-size:13px;
+  color:#9ca3af;
+}
+
+/* form */
+.cs-form{
+  margin-top:12px;
+}
+
+.cs-textarea{
+  width:100%;
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid rgba(15,23,42,0.06);
+  background:#fbfdff;
+  font-size:14px;
+  color:var(--text);
+  resize:vertical;
+  min-height:72px;
+  outline:none;
+  box-shadow:inset 0 1px 2px rgba(16,24,40,0.02);
+}
+
+.cs-form-row{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:8px;
+}
+
+.cs-post{
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  font-weight:600;
+  font-size:14px;
+  cursor:pointer;
+  transition:opacity .15s ease, transform .06s ease;
+}
+
+.cs-post:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+  transform:none;
+}

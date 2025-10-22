@@ -42,7 +42,7 @@ function ListPlayerSubmissions({
                         {/* Use the *<teamInfo> context to get the player's profile picture */}
                         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "4px" }}>
                             <img
-                                src={teamInfo.players_info.find(player => player.user_id === submission.user_id)?.profile_picture_link || "/default_pp.png"}
+                                src={teamInfo.players_info.find(player => player.user_id === submission.user_id)?.profile_picture_link || "/default_pp.svg"}
                                 className="profile-icon"
                                 alt={`${submission.first_name} ${submission.last_name}'s profile picture`}
                             />

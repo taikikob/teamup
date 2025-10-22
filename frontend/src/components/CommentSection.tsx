@@ -3,6 +3,7 @@ import { useComments } from "../contexts/CommentsContext";
 import { useUser } from "../contexts/UserContext";
 import { useTeam } from "../contexts/TeamContext";
 import { toast } from "react-toastify";
+import "./../css/CommentSection.css";
 
 type CommentSectionProps = {
     loadingComments: boolean;
@@ -11,19 +12,17 @@ type CommentSectionProps = {
 };
 
 function CommentSection({loadingComments, player_id, task_id }: CommentSectionProps) {
-    const { comments, addComment, deleteComment, filterComments } = useComments();
-    const { user } = useUser(); // user.user_id is the sender_id for the comment
+    const { addComment, deleteComment, filterComments } = useComments();
+    const { user } = useUser();
     const { teamInfo } = useTeam();
     const [content, setContent] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [deletingId, setDeletingId] = useState<number | null>(null);
 
     if (!teamInfo) {
-        return <p>Loading team information...</p>;
+        return <p className="cs-empty">Loading team information...</p>;
     }
-    console.log("All comments:", comments);
-    console.log("Player ID:", player_id);
-    console.log("Coach Ids:", teamInfo.coaches_info.map(coach => coach.user_id));
+
     const filteredComments = filterComments(player_id, teamInfo.coaches_info.map(coach => coach.user_id) || []);
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,7 +33,7 @@ function CommentSection({loadingComments, player_id, task_id }: CommentSectionPr
             sender_id: user.user_id,
             task_id,
             content: content.trim(),
-            sender_name: user.first_name + " " + user.last_name // Assuming user has first_name and last_name
+            sender_name: user.first_name + " " + user.last_name
         });
         toast.success("Comment added successfully!", { position: "top-center" });
         setContent("");
@@ -48,56 +47,70 @@ function CommentSection({loadingComments, player_id, task_id }: CommentSectionPr
     };
 
     return (
-        <div className="comment-section">
-            <h4>Comments</h4>
+        <div className="cs-container">
+            <div className="cs-header">
+                <h4 className="cs-title">Comments</h4>
+                <span className="cs-count">{filteredComments.length}</span>
+            </div>
+
             {loadingComments ? (
-                <p>Loading comments...</p>
+                <p className="cs-empty">Loading comments...</p>
             ) : filteredComments.length === 0 ? (
-                <p>No comments found.</p>
+                <p className="cs-empty">No comments yet.</p>
             ) : (
-                <div>
-                    {filteredComments.map(comment => (
-                        <div className="comment" key={comment.comment_id}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "4px" }}>
-                                <img
-                                    src={
-                                        (teamInfo.players_info.concat(teamInfo.coaches_info)
-                                            .find(person => person.user_id === comment.sender_id)?.profile_picture_link)
-                                        || "/default_pp.png"
-                                    }
-                                    className="profile-icon"
-                                    alt={`${comment.sender_name}'s profile picture`}
-                                />
-                                 <strong>{comment.sender_name}</strong> <em>{new Date(comment.created_at).toLocaleString()}</em>
-                            </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                <p>{comment.content}</p>
-                                {/* Only show delete button if the user is the sender */}
-                                {(user?.user_id === comment.sender_id) && (
-                                    deletingId === comment.comment_id ? (
-                                        <span>Deleting...</span>
-                                    ) : (
-                                        <button onClick={() => handleDelete(comment.comment_id)}>Delete</button>
-                                    )
+                <div className="cs-list">
+                    {filteredComments.map(comment => {
+                        const sender = teamInfo.players_info.concat(teamInfo.coaches_info)
+                            .find(person => person.user_id === comment.sender_id);
+                        const avatar = sender?.profile_picture_link || "/default_pp.svg";
+                        return (
+                            <div className="cs-comment" key={comment.comment_id}>
+                                <img src={avatar} alt="" className="cs-avatar" />
+                                <div className="cs-body">
+                                    <div className="cs-meta">
+                                        <strong className="cs-sender">{comment.sender_name}</strong>
+                                        <time className="cs-time">{new Date(comment.created_at).toLocaleString()}</time>
+                                    </div>
+                                    <p className="cs-text">{comment.content}</p>
+                                </div>
+                                {user?.user_id === comment.sender_id && (
+                                    <div className="cs-actions">
+                                        {deletingId === comment.comment_id ? (
+                                            <span className="cs-deleting">Deleting…</span>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleDelete(comment.comment_id)}
+                                                className="cs-delete"
+                                            >
+                                                Delete
+                                            </button>
+                                        )}
+                                    </div>
                                 )}
                             </div>
-                            
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
-            <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
+
+            <form onSubmit={handleSubmit} className="cs-form">
                 <textarea
                     value={content}
                     onChange={e => setContent(e.target.value)}
                     placeholder="Add a comment..."
                     rows={3}
-                    style={{ width: "100%" }}
+                    className="cs-textarea"
                     disabled={submitting}
                 />
-                <button type="submit" disabled={submitting || !content.trim()}>
-                    {submitting ? "Posting..." : "Post Comment"}
-                </button>
+                <div className="cs-form-row">
+                    <button
+                        type="submit"
+                        disabled={submitting || !content.trim()}
+                        className="cs-post"
+                    >
+                        {submitting ? "Posting..." : "Post"}
+                    </button>
+                </div>
             </form>
         </div>
     )

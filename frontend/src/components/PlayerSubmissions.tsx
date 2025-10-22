@@ -49,7 +49,7 @@ function PlayerSubmissions({ taskId, loadingComments, initialPlayerId }: { taskI
                         <div>
                             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "4px" }}>
                                 <img
-                                    src={teamInfo.players_info.find(player => player.user_id === selectedSubmission.user_id)?.profile_picture_link || "/default_pp.png"}
+                                    src={teamInfo.players_info.find(player => player.user_id === selectedSubmission.user_id)?.profile_picture_link || "/default_pp.svg"}
                                     className="profile-icon"
                                     alt={`${selectedSubmission.first_name} ${selectedSubmission.last_name}'s profile picture`}
                                 />

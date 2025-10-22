@@ -105,6 +105,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
       }
       const data = await res.json();
       setHasSubmitted(data.hasSubmitted);
+      setSubmittedAt(data.submittedAt);
       setCompleted(data.hasCompleted);
     } catch (error) {
       console.error("Error fetching submission status:", error);
@@ -389,17 +390,17 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
               {/* Only show the submit button if user has something to submit, and hasn't submitted yet */}
               {user && myMedia && myMedia.submissions && myMedia.submissions.length > 0 && !hasSubmitted && (
                 <div>
-                  <p>Submit your media to be reviewed</p> 
-                  <button onClick={playerSubmit} disabled={submitting}>
+                  <p><strong>Important:</strong> Submit your media to be reviewed</p>
+                  <button className='submit-task-button' onClick={playerSubmit} disabled={submitting}>
                     {submitting ? "Submitting..." : "Submit Task"}
                   </button>
                 </div>
               )}
               {user && hasSubmitted && (
                 <>
-                  <p>Task submitted at {submittedAt ? new Date(submittedAt).toLocaleString() : ""}</p>
+                  <p className="submitted_message">Task submitted at {submittedAt ? new Date(submittedAt).toLocaleString() : ""}</p>
                   <p>Waiting for coach to review your submission</p>
-                  <button onClick={unsubmitTask} style={{ color: "red", marginTop: "8px" }}>
+                  <button className='unsubmit-task-button' onClick={unsubmitTask}>
                     Unsubmit
                   </button>
                 </>

@@ -79,3 +79,33 @@
     width: 150px;
     align-self: center;
 }
+
+.submit-task-button {
+    padding: 8px 20px;
+    background: #6cbf6c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 150px;
+    margin-top: 12px;
+}
+
+.submitted_message {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #198754;
+}
+
+.unsubmit-task-button {
+    padding: 8px 20px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 150px;
+    margin-top: 12px;
+}

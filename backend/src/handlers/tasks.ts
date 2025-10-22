@@ -20,10 +20,15 @@ export const getTaskStatus = async (req: Request, res: Response) => {
             `SELECT 1 FROM task_completions WHERE task_id = $1 AND player_id = $2`,
             [taskId, user.user_id]
         );
+        const submittedAt = await pool.query(
+            `SELECT submitted_at FROM task_submissions WHERE task_id = $1 AND player_id = $2`,
+            [taskId, user.user_id]
+        );
 
         res.status(200).json({ 
             hasSubmitted: Boolean(submissionCheck?.rowCount && submissionCheck.rowCount > 0),
-            hasCompleted: Boolean(completionCheck?.rowCount && completionCheck.rowCount > 0)
+            hasCompleted: Boolean(completionCheck?.rowCount && completionCheck.rowCount > 0),
+            submittedAt: submittedAt.rows[0]?.submitted_at || null
         });
     } catch (error) {
         console.error("Error fetching task status:", error);
