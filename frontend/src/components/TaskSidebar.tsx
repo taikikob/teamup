@@ -28,6 +28,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
   const [loadingMyMedia, setLoadingMyMedia] = useState(false);
   const [addingMedia, setAddingMedia] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [unsubmitting, setUnsubmitting] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [submittedAt, setSubmittedAt] = useState<string | null>(null);
@@ -227,8 +228,10 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
   };
 
   const unsubmitTask = async () => {
+    setUnsubmitting(true);
     if (!teamInfo || !task.task_id) {
       toast.error("Team information or task ID is not available.", { position: "top-center" });
+      setUnsubmitting(false);
       return;
     }
     try {
@@ -240,6 +243,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
         const errorData = await response.json();
         console.error("Failed to unsubmit task:", errorData.error);
         toast.error("Failed to unsubmit task", { position: "top-center" });
+        setUnsubmitting(false);
         return;
       }
       if (response.status === 204) {
@@ -250,6 +254,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
       console.error("Error occurred while un-submitting task:", error);
     } finally {
       setSubmittedAt(null); // Reset submittedAt state
+      setUnsubmitting(false);
     }
   };
 
@@ -408,8 +413,13 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
                 <>
                   <p className="submitted_message">Task submitted at {submittedAt ? new Date(submittedAt).toLocaleString() : ""}</p>
                   <p>Waiting for coach to review your submission</p>
-                  <button className='unsubmit-task-button' onClick={unsubmitTask}>
-                    Unsubmit
+                  <button
+                    className='unsubmit-task-button'
+                    onClick={unsubmitTask}
+                    disabled={unsubmitting}
+                    style={{ cursor: unsubmitting ? "not-allowed" : "pointer", opacity: unsubmitting ? 0.6 : 1 }}
+                  >
+                    {unsubmitting ? "Unsubmitting..." : "Unsubmit"}
                   </button>
                 </>
               )}

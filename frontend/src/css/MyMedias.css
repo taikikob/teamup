@@ -1,0 +1,58 @@
+.my-medias {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 8px 0;
+}
+
+/* each media item */
+.my-medias .media-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 8px;
+  background: transparent;
+}
+
+/* constrain media size so it's never gigantic */
+.my-medias img,
+.my-medias video {
+  width: 100%;
+  max-width: 680px;  /* adjust as needed */
+  max-height: 480px;
+  height: auto;
+  border-radius: 6px;
+  object-fit: contain;
+  box-shadow: 0 4px 12px rgba(16,24,40,0.04);
+}
+
+/* small meta line (upload time, actions) */
+.my-medias .media-meta {
+  font-size: 13px;
+  color: #6b7280;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+/* delete button minimal style */
+.my-medias .delete-media-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* responsive adjustments */
+@media (max-width: 760px) {
+  .my-medias img,
+  .my-medias video {
+    max-width: 100%;
+    max-height: 360px;
+  }
+}
