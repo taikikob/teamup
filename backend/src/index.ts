@@ -16,6 +16,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1); // tells Express to trust the reverse proxy (like Vercel) so that features like secure: true cookies will work correctly.
 const PORT = 3000;
 const PgSession = connectPgSimple(session);
 
@@ -43,7 +44,7 @@ app.use(
     saveUninitialized: false,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day expiration
-      secure: true,
+      secure: true, // since we're using https
       sameSite: 'none' // Adjust based on your deployment (e.g., 'lax' or 'strict' for same-site requests)
     }
   })
