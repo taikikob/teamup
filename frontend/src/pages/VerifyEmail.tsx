@@ -25,7 +25,7 @@ function VerifyEmail() {
         setLoading(true);
         try {
             const trimmedCode = code.trim();
-            const response = await fetch("http://localhost:3000/api/auth/verify-email", {
+            const response = await fetch("https://teamup-server-beryl.vercel.app/api/auth/verify-email", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code: trimmedCode }),
@@ -46,7 +46,7 @@ function VerifyEmail() {
 
     const resendCode = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/auth/resend-verification-email", {
+            const response = await fetch("https://teamup-server-beryl.vercel.app/api/auth/resend-verification-email", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, username }),

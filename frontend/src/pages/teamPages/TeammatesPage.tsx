@@ -11,7 +11,7 @@ function TeammatesPage() {
             return;
         }
         try {
-            const response = await fetch(`http://localhost:3000/api/teams/${teamInfo.team_id}/player/${playerId}`, {
+            const response = await fetch(`https://teamup-server-beryl.vercel.app/api/teams/${teamInfo.team_id}/player/${playerId}`, {
                 method: "DELETE",
                 credentials: "include",
             });

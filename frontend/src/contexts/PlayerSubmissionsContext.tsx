@@ -19,7 +19,7 @@ export const PlayerSubmissionsProvider: React.FC<{ children: React.ReactNode }> 
     setLoadingPlayerSubmissions(true);
     setPlayerSubmissions([]); // <-- Clear previous submissions immediately
     try {
-      const res = await fetch(`http://localhost:3000/api/posts/playerSubmissions/${teamId}/${taskId}`, {
+      const res = await fetch(`https://teamup-server-beryl.vercel.app/api/posts/playerSubmissions/${teamId}/${taskId}`, {
         credentials: 'include'
       });
       if (!res.ok) {

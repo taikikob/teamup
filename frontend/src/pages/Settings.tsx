@@ -26,7 +26,7 @@ function Settings() {
         setLoading(true);
         console.log("Saving notification setting:", notificationsEnabled);
         try {
-            await fetch("http://localhost:3000/api/notif", {
+            await fetch("https://teamup-server-beryl.vercel.app/api/notif", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -43,7 +43,7 @@ function Settings() {
         if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
         setDeleteLoading(true);
         try {
-            await fetch("http://localhost:3000/api/auth/delete", {
+            await fetch("https://teamup-server-beryl.vercel.app/api/auth/delete", {
                 method: "DELETE",
                 credentials: "include",
             });

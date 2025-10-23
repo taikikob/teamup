@@ -27,7 +27,7 @@ export const UserProvider: React.FC<{ children: ReactNode}> = ({ children }) => 
   const fetchCurrentUser = async () => {
     setIsLoadingUser(true); // Set loading to true before fetching
     try {
-      const res = await fetch('http://localhost:3000/api/auth/me', {
+      const res = await fetch('https://teamup-server-beryl.vercel.app/api/auth/me', {
           credentials: 'include', // IMPORTANT: ensures cookies/session are sent
       });
 
@@ -61,7 +61,7 @@ export const UserProvider: React.FC<{ children: ReactNode}> = ({ children }) => 
     const formData = new FormData();
     formData.append("profile_picture", file, "profile.jpg");
     try {
-      const res = await fetch("http://localhost:3000/api/posts/pp", {
+      const res = await fetch("https://teamup-server-beryl.vercel.app/api/posts/pp", {
         method: "POST",
         credentials: "include",
         body: formData,

@@ -24,7 +24,7 @@ function DeleteMedia({ postId, refetch }: { postId: number; refetch: () => void 
         }
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3000/api/posts/${teamInfo.team_id}`, {
+            const res = await fetch(`https://teamup-server-beryl.vercel.app/api/posts/${teamInfo.team_id}`, {
                 method: 'DELETE',
                 credentials: 'include',
                 headers: {

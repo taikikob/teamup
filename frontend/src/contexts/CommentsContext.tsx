@@ -28,7 +28,7 @@ export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setComments([]);
     
     try {
-      const res = await fetch(`http://localhost:3000/api/comments/${teamInfo.team_id}/${taskId}`, {
+      const res = await fetch(`https://teamup-server-beryl.vercel.app/api/comments/${teamInfo.team_id}/${taskId}`, {
         credentials: "include",
       });
       if (!res.ok) {
@@ -52,7 +52,7 @@ export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return;
       }
       try {
-        const res = await fetch(`http://localhost:3000/api/comments/${teamInfo.team_id}`, {
+        const res = await fetch(`https://teamup-server-beryl.vercel.app/api/comments/${teamInfo.team_id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -80,7 +80,7 @@ export const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return;
     }
     try {
-      const res = await fetch(`http://localhost:3000/api/comments/${teamInfo.team_id}/${comment_id}`, {
+      const res = await fetch(`https://teamup-server-beryl.vercel.app/api/comments/${teamInfo.team_id}/${comment_id}`, {
         method: "DELETE",
         credentials: "include",
       });

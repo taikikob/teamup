@@ -26,7 +26,7 @@ function Login() {
             username: username,
             password: password
           }
-          const response = await fetch("http://localhost:3000/api/auth/login",{
+          const response = await fetch("https://teamup-server-beryl.vercel.app/api/auth/login",{
             method: "POST",
             credentials: "include",
             headers: {"Content-Type": "application/json"},

@@ -21,7 +21,10 @@ const PgSession = connectPgSimple(session);
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // TODO: Replace with your frontend URL in production
+  origin: [
+    'http://localhost:5173', // local dev frontend
+    'https://casatrain.com'   // production frontend
+  ],
   credentials: true 
 }));
 

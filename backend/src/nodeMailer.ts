@@ -33,9 +33,6 @@ export async function sendVerificationEmail(username: string, email: string, ver
 }
 
 export async function sendPasswordResetEmail(username: string, email: string, resetToken: string): Promise<void> {
-    // send a password reset link to the user's email
-    // const resetUrl = `http://localhost:3000/api/auth/reset-password?token=${resetToken}`;
-
     const mailOptions = {
         from: `noreply@casatrain.com`,
         to: email, // Can only send to emails that are verified on SES for now
