@@ -1,16 +1,8 @@
 {
-  "name": "teamup",
+  "name": "casatrain-monorepo",
   "private": true,
-  "scripts": {
-    "build": "npm run build:backend && npm run build:frontend",
-    "build:backend": "cd backend && npm install && npm run build",
-    "build:frontend": "cd frontend && npm install && npm run build",
-    "start": "node backend/dist/index.js",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd backend && npm run start:dev",
-    "dev:frontend": "cd frontend && npm run dev"
-  },
-  "devDependencies": {
-    "concurrently": "^9.0.0"
-  }
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
 }
