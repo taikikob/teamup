@@ -18,7 +18,7 @@ function Landingpage() {
                             <div className="exampleRoadmap">
                                 <img src="exampleRoadmap.png" alt="Example Roadmap" />
                             </div>
-                            <Link to="/signup" className="cta-button hero-cta">Join TeamUp Today</Link>
+                            <Link to="/signup" className="cta-button hero-cta">Join Casatrain Today</Link>
                         </div>
                     </div>
                     <div className="roadmap-info">

@@ -66,16 +66,18 @@ app.use((req, res, next) => {
 }) ;
 
 // first argument is the path prefix for the routes in auth.ts
-app.use('/api/auth', authRouter);
-app.use('/api/profile', profileRouter);
-app.use('/api/teams', teamsRouter);
-app.use('/api/posts', postsRouter);
-app.use('/api/tasks', tasksRouter);
-app.use('/api/comments', commentsRouter);
-app.use('/api/notif', notificationRouter);
+app.use('/auth', authRouter);
+app.use('/profile', profileRouter);
+app.use('/teams', teamsRouter);
+app.use('/posts', postsRouter);
+app.use('/tasks', tasksRouter);
+app.use('/comments', commentsRouter);
+app.use('/notif', notificationRouter);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on Port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Server is running on Port ${PORT}`);
+// });
+
+export default app;
 
 // ERROR HANDLER SHOULD GO HERE FOR PRODUCTION
