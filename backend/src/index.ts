@@ -45,7 +45,7 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day expiration
       secure: true, // since we're using https
-      sameSite: 'none' // Adjust based on your deployment (e.g., 'lax' or 'strict' for same-site requests)
+      sameSite: 'lax' // Adjust based on your deployment (e.g., 'lax' or 'strict' for same-site requests)
     }
   })
 );
