@@ -14,7 +14,7 @@ function Signup() {
   const [lastName, setLastName] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
-  const usernameTimeout = useRef<number | null>(null);
+  const usernameTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value);
