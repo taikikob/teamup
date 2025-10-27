@@ -4,9 +4,7 @@
   "installCommand": "npm install",
   "framework": "vite",
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/backend/dist/index.js"
-    }
+  { "source": "/api/(.*)", 
+    "destination": "/api" }
   ]
 }
