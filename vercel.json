@@ -2,6 +2,10 @@
   "version": 2,
   "builds": [
     {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build"
+    },
+    {
       "src": "api/index.ts",
       "use": "@vercel/node"
     }
