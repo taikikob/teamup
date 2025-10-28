@@ -27,3 +27,5 @@ Thumbs.db
 **/public_key.pem
 # Optional: Database files (uncomment if you don’t want to track SQL files)
 # **/*.sql
+
+**/dist

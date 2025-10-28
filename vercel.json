@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "builds": [
     {
       "src": "frontend/package.json",
@@ -10,6 +12,7 @@
       "use": "@vercel/node"
     }
   ],
+  "outputDirectory": "frontend/dist",
   "rewrites": [
     {
       "source": "/api/(.*)",
