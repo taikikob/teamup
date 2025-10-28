@@ -20,12 +20,16 @@ app.set('trust proxy', 1); // tells Express to trust the reverse proxy (like Ver
 const PORT = 3000;
 const PgSession = connectPgSimple(session);
 
+
+const allowedOrigins = [
+  'http://localhost:5173', // local dev
+  'https://www.casatrain.com',  // production
+  'https://casatrain.com'
+];
+
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:5173', // local dev frontend
-    'https://www.casatrain.com'   // production frontend
-  ],
+  origin: allowedOrigins,
   credentials: true 
 }));
 
