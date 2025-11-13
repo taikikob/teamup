@@ -67,7 +67,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static('dist_frontend'));
+app.use(express.static(path.join(__dirname, '../dist_frontend')));
 
 // first argument is the path prefix for the routes in auth.ts
 app.use('/api/auth', authRouter);
@@ -79,7 +79,7 @@ app.use('/api/comments', commentsRouter);
 app.use('/api/notif', notificationRouter);
 
 app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist_frontend', 'index.html'));
+  res.sendFile(path.join(__dirname, '../dist_frontend', 'index.html'));
 });
 
 app.listen(PORT, () => {
