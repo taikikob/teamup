@@ -12,6 +12,7 @@ import connectPgSimple from 'connect-pg-simple';
 import pool from './db';
 import passport from 'passport';
 import dotenv from 'dotenv';
+import path from 'path';
 
 dotenv.config();
 
@@ -29,7 +30,8 @@ const PgSession = connectPgSimple(session);
 //   credentials: true 
 // }));
 
-app.use(express.json());
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, 'dist_frontend')));
 // express-session middleware configuration
 
 // using postgreSQL database to store session
@@ -77,7 +79,7 @@ app.use('/api/comments', commentsRouter);
 app.use('/api/notif', notificationRouter);
 
 app.get(/.*/, (req, res) => {
-  res.sendFile('index.html', { root: 'dist_frontend' });
+  res.sendFile(path.join(__dirname, 'dist_frontend', 'index.html'));
 });
 
 app.listen(PORT, () => {
