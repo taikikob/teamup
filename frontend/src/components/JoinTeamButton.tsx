@@ -13,7 +13,7 @@ function JoinTeamButton() {
     try {
       // send post request to my backend
       setLoading(true);
-      const res = await fetch('https://teamup-server-beryl.vercel.app/api/teams/join', {
+      const res = await fetch('https://teamup-five.vercel.app/api/teams/join', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

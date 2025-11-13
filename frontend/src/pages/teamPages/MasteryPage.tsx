@@ -49,7 +49,7 @@ function MasteryPage() {
     const saveFlowToBackend = useCallback(async (currentNodes: Node[], currentEdges: Edge[]) => {
         setSaveError(null); // Reset error before saving
         try {
-            const response = await fetch(`https://teamup-server-beryl.vercel.app/api/teams/${teamInfo?.team_id}/flow`, {
+            const response = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo?.team_id}/flow`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -186,7 +186,7 @@ function MasteryPage() {
 
         // Send update to backend
         try {
-            const res = await fetch(`https://teamup-server-beryl.vercel.app/api/teams/${teamInfo.team_id}/node-label`, {
+            const res = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/node-label`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -210,7 +210,7 @@ function MasteryPage() {
                 setLoading(true);
                 // Make a request to backend to fetch flow data
                 if (teamInfo.is_user_coach) {
-                    const res = await fetch(`https://teamup-server-beryl.vercel.app/api/teams/${teamInfo.team_id}/flow?role=coach`, {
+                    const res = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/flow?role=coach`, {
                         method: 'GET',
                         credentials: 'include'
                     });
@@ -222,7 +222,7 @@ function MasteryPage() {
                     }
                 } else {
                     // need to fetch the ratio for progress bar as well
-                    const res = await fetch(`https://teamup-server-beryl.vercel.app/api/teams/${teamInfo.team_id}/flow?role=player`, {
+                    const res = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/flow?role=player`, {
                         method: 'GET',
                         credentials: 'include'
                     });

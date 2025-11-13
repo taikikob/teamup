@@ -46,7 +46,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
     }
     setLoadingCoachResources(true);
     try {
-      const res = await fetch(`https://teamup-server-beryl.vercel.app/api/posts/coachResources/${teamInfo.team_id}/${task.task_id}`, {
+      const res = await fetch(`https://teamup-five.vercel.app/api/posts/coachResources/${teamInfo.team_id}/${task.task_id}`, {
         credentials: 'include'
       });
       if (!res.ok) {
@@ -72,7 +72,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
     }
     setLoadingMyMedia(true);
     try {
-      const res = await fetch(`https://teamup-server-beryl.vercel.app/api/posts/myMedia/${teamInfo.team_id}/${task.task_id}`, {
+      const res = await fetch(`https://teamup-five.vercel.app/api/posts/myMedia/${teamInfo.team_id}/${task.task_id}`, {
         credentials: 'include'
       });
       if (!res.ok) {
@@ -96,7 +96,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
       return;
     }
     try {
-      const res = await fetch(`https://teamup-server-beryl.vercel.app/api/tasks/${teamInfo.team_id}/status/${task.task_id}`, {
+      const res = await fetch(`https://teamup-five.vercel.app/api/tasks/${teamInfo.team_id}/status/${task.task_id}`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -139,7 +139,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
     }
     formData.append("caption", caption);
     formData.append("taskId", String(task.task_id));
-    const res = await fetch(`https://teamup-server-beryl.vercel.app/api/posts/${teamInfo.team_id}/coach`, {
+    const res = await fetch(`https://teamup-five.vercel.app/api/posts/${teamInfo.team_id}/coach`, {
       method: 'POST',
       body: formData,
       credentials: 'include'
@@ -176,7 +176,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
       formData.append("media", playerFile);
     }
     formData.append("taskId", String(task.task_id));
-    const res = await fetch(`https://teamup-server-beryl.vercel.app/api/posts/${teamInfo.team_id}/player`, {
+    const res = await fetch(`https://teamup-five.vercel.app/api/posts/${teamInfo.team_id}/player`, {
       method: 'POST',
       body: formData,
       credentials: 'include'
@@ -206,7 +206,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
     }
     setSubmitting(true);
     try {
-      const response = await fetch(`https://teamup-server-beryl.vercel.app/api/tasks/${teamInfo.team_id}/submit/${task.task_id}`, {
+      const response = await fetch(`https://teamup-five.vercel.app/api/tasks/${teamInfo.team_id}/submit/${task.task_id}`, {
         method: "POST",
         credentials: 'include'
       });
@@ -235,7 +235,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
       return;
     }
     try {
-      const response = await fetch(`https://teamup-server-beryl.vercel.app/api/tasks/${teamInfo.team_id}/unsubmit/${task.task_id}`, {
+      const response = await fetch(`https://teamup-five.vercel.app/api/tasks/${teamInfo.team_id}/unsubmit/${task.task_id}`, {
         method: "DELETE",
         credentials: 'include'
       });
@@ -267,7 +267,7 @@ function TaskSidebar({ task, onClose, initialPlayerId }: { task: Task; onClose: 
       return;
     }
     try {
-      const response = await fetch(`https://teamup-server-beryl.vercel.app/api/tasks/${teamInfo.team_id}/description/${task.task_id}`, {
+      const response = await fetch(`https://teamup-five.vercel.app/api/tasks/${teamInfo.team_id}/description/${task.task_id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json"

@@ -27,7 +27,7 @@ function MarkCompleteButton({
         try {
             setLoading(true);
             console.log("Marking task as complete for player:", player_id, "task:", task_id, "team:", teamInfo.team_id);
-            const response = await fetch(`https://teamup-server-beryl.vercel.app/api/tasks/${teamInfo.team_id}/${task_id}/complete`, {
+            const response = await fetch(`https://teamup-five.vercel.app/api/tasks/${teamInfo.team_id}/${task_id}/complete`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -42,7 +42,7 @@ function MarkCompleteButton({
             console.log("Task marked as complete:", data);
             toast.success(data.message, { position: "top-center" });
             // Fetch the updated submission from my backend
-            const updatedRes = await fetch(`https://teamup-server-beryl.vercel.app/api/posts/playerSubmission/${teamInfo.team_id}/${task_id}/${player_id}`, {
+            const updatedRes = await fetch(`https://teamup-five.vercel.app/api/posts/playerSubmission/${teamInfo.team_id}/${task_id}/${player_id}`, {
                 credentials: 'include'
             });
             if (updatedRes.ok) {
