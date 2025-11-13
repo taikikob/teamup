@@ -28,7 +28,7 @@ function Navbar() {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch("https://teamup-five.vercel.app/api/auth/logout", {
+            const response = await fetch("/api/auth/logout", {
                 credentials: 'include'
             });
             if (response.ok) {

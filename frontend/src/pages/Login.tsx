@@ -26,7 +26,7 @@ function Login() {
             username: username,
             password: password
           }
-          const response = await fetch("https://teamup-five.vercel.app/api/auth/login",{
+          const response = await fetch("/api/auth/login",{
             method: "POST",
             credentials: "include",
             headers: {"Content-Type": "application/json"},

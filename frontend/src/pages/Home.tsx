@@ -20,7 +20,7 @@ function Home() {
     useEffect(() => {
         const fetchTeams = async () => {
             setFetchingTeams(true);
-            const res = await fetch('https://teamup-five.vercel.app/api/teams', {
+            const res = await fetch('/api/teams', {
                 credentials: 'include',
             });
             const data: Team[] = await res.json();

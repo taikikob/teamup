@@ -35,7 +35,7 @@ function Signup() {
   };
 
   const checkUsername = async (value: string) => {
-    const response = await fetch(`https://teamup-five.vercel.app/api/auth/check-username?username=${value}`);
+    const response = await fetch(`/api/auth/check-username?username=${value}`);
     const data = await response.json();
     setUsernameError(!data.isUnique ? "Username is already taken" : "");
     setVerifyingUsername(false); // Done verifying
@@ -68,7 +68,7 @@ function Signup() {
         firstName: firstName,
         lastName: lastName
       }
-      const response = await fetch("https://teamup-five.vercel.app/api/auth/signup",{
+      const response = await fetch("/api/auth/signup",{
         method: "POST",
         credentials: "include", // Include cookies for session management
         headers: {"Content-Type": "application/json"},

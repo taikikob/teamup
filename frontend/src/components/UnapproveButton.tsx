@@ -27,7 +27,7 @@ function UnapproveButton({
         try {
             setLoading(true);
             console.log("Unapproving task for player:", player_id, "task:", task_id, "team:", teamInfo.team_id);
-            const response = await fetch(`https://teamup-five.vercel.app/api/tasks/${teamInfo.team_id}/${task_id}/unapprove`, {
+            const response = await fetch(`/api/tasks/${teamInfo.team_id}/${task_id}/unapprove`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -42,7 +42,7 @@ function UnapproveButton({
             console.log("Returned submission for player to submit retry:", data);
             toast.success(data.message, { position: "top-center" });
             // Fetch the updated submission from my backend
-            const updatedRes = await fetch(`https://teamup-five.vercel.app/api/posts/playerSubmission/${teamInfo.team_id}/${task_id}/${player_id}`, {
+            const updatedRes = await fetch(`/api/posts/playerSubmission/${teamInfo.team_id}/${task_id}/${player_id}`, {
                 credentials: 'include'
             });
             if (updatedRes.ok) {

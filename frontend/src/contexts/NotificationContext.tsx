@@ -32,7 +32,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
     const fetchNotifications = async () => {
         setLoadingNotifications(true);
-        const response = await fetch("https://teamup-five.vercel.app/api/notif", {
+        const response = await fetch("/api/notif", {
             credentials: "include"
         });
         if (response.ok) {
@@ -50,7 +50,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         );
         setUnreadCount(prev => Math.max(0, prev - 1));
         try {
-            const res = await fetch(`https://teamup-five.vercel.app/api/notif/${id}/read`, {
+            const res = await fetch(`/api/notif/${id}/read`, {
                 method: "PATCH",
                 credentials: "include"
             });
@@ -78,7 +78,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         );
         setUnreadCount(prev => prev + 1);
         try {
-            const res = await fetch(`https://teamup-five.vercel.app/api/notif/${id}/unread`, {
+            const res = await fetch(`/api/notif/${id}/unread`, {
                 method: "PATCH",
                 credentials: "include"
             });

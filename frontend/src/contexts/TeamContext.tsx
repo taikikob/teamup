@@ -72,7 +72,7 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
             setIsLoadingTeam(true);
             setTeamError(null);
 
-            const res = await fetch(`https://teamup-five.vercel.app/api/teams/${team_id}`, {
+            const res = await fetch(`/api/teams/${team_id}`, {
                 credentials: 'include',
             });
 
@@ -119,7 +119,7 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
             throw new Error("Team information is not available.");
         }
         try {
-            const res = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/name`, {
+            const res = await fetch(`/api/teams/${teamInfo.team_id}/name`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -171,7 +171,7 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
         }
         
         try {
-            const res = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/leave`, {
+            const res = await fetch(`/api/teams/${teamInfo.team_id}/leave`, {
                 method: "DELETE",
                 credentials: "include",
             });

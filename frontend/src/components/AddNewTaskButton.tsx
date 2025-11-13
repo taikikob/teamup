@@ -21,7 +21,7 @@ function AddNewTaskButton({ node, taskCount, onTaskAdded }: { node: Node, taskCo
       // send post request to my backend
       setLoading(true);
       console.log("Adding new task with title:", inputTitle, "to node:", node.id, "in team:", teamInfo.team_id);
-      const res = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/${node.id}/tasks`, {
+      const res = await fetch(`/api/teams/${teamInfo.team_id}/${node.id}/tasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

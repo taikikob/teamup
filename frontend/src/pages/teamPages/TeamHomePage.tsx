@@ -30,7 +30,7 @@ function TeamHomePage() {
     const generateNewAccessCodes = async () => {
         setLoadingButton(true);
         try {
-            const res = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/newAccessCode`, {
+            const res = await fetch(`/api/teams/${teamInfo.team_id}/newAccessCode`, {
                 method: 'POST',
                 credentials: 'include'
             });
@@ -51,7 +51,7 @@ function TeamHomePage() {
     const disableAccessCodes = async () => {
         setLoadingButton(true);
         try {
-            const res = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/delAccessCode`, {
+            const res = await fetch(`/api/teams/${teamInfo.team_id}/delAccessCode`, {
                 method: 'DELETE',
                 credentials: 'include'
             });

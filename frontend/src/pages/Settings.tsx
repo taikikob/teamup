@@ -26,7 +26,7 @@ function Settings() {
         setLoading(true);
         console.log("Saving notification setting:", notificationsEnabled);
         try {
-            await fetch("https://teamup-five.vercel.app/api/notif", {
+            await fetch("/api/notif", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -43,7 +43,7 @@ function Settings() {
         if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
         setDeleteLoading(true);
         try {
-            await fetch("https://teamup-five.vercel.app/api/auth/delete", {
+            await fetch("/api/auth/delete", {
                 method: "DELETE",
                 credentials: "include",
             });

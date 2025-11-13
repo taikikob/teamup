@@ -59,7 +59,7 @@ function TaskModal({node, onClose, initialTaskId, initialPlayerId}: {node: Node;
         setLoadingTasks(true);
         try {
             // For players, make sure that the completed boolean is fetched as well
-            const res = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/${node.id}/tasks`, {
+            const res = await fetch(`/api/teams/${teamInfo.team_id}/${node.id}/tasks`, {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -81,7 +81,7 @@ function TaskModal({node, onClose, initialTaskId, initialPlayerId}: {node: Node;
             return;
         }
         try {
-            const res = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/${node.id}/tasks/order`, {
+            const res = await fetch(`/api/teams/${teamInfo.team_id}/${node.id}/tasks/order`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -138,13 +138,13 @@ function TaskModal({node, onClose, initialTaskId, initialPlayerId}: {node: Node;
             return;
         }
         try {
-            const res = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/${node.id}/tasks/${task_id}`, {
+            const res = await fetch(`/api/teams/${teamInfo.team_id}/${node.id}/tasks/${task_id}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
             if (res.ok) {
                 // Refetch tasks
-                const refreshed = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/${node.id}/tasks`, {
+                const refreshed = await fetch(`/api/teams/${teamInfo.team_id}/${node.id}/tasks`, {
                     method: 'GET',
                     credentials: 'include'
                 });

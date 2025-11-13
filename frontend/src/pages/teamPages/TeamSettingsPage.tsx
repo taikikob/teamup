@@ -62,7 +62,7 @@ function TeamSettingsPage() {
         if (teamImg) {
             formData.append("media", teamImg);
         }
-        const res = await fetch(`https://teamup-five.vercel.app/api/posts/${teamInfo.team_id}`, {
+        const res = await fetch(`/api/posts/${teamInfo.team_id}`, {
             method: 'POST',
             body: formData,
             credentials: 'include'

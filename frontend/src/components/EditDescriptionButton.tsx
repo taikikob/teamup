@@ -28,7 +28,7 @@ function EditDescriptionButton() {
     try {
       // send post request to my backend
       setLoading(true);
-      const res = await fetch(`https://teamup-five.vercel.app/api/teams/${teamInfo.team_id}/editDescription`, {
+      const res = await fetch(`/api/teams/${teamInfo.team_id}/editDescription`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
