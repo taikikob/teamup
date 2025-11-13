@@ -20,14 +20,14 @@ app.set('trust proxy', 1); // tells Express to trust the reverse proxy (like Ver
 const PORT = 3000;
 const PgSession = connectPgSimple(session);
 
-// Middleware
-app.use(cors({
-  origin: [
-    'http://localhost:5173', // local dev frontend
-    'https://www.casatrain.com'   // production frontend
-  ],
-  credentials: true 
-}));
+// // Middleware
+// app.use(cors({
+//   origin: [
+//     'http://localhost:5173', // local dev frontend
+//     'https://www.casatrain.com'   // production frontend
+//   ],
+//   credentials: true 
+// }));
 
 app.use(express.json());
 // express-session middleware configuration
@@ -44,8 +44,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day expiration
-      secure: true, // since we're using https
-      sameSite: 'none' // Adjust based on your deployment (e.g., 'lax' or 'strict' for same-site requests)
+      // secure: true, // since we're using https
+      sameSite: 'lax' // Adjust based on your deployment (e.g., 'lax' or 'strict' for same-site requests)
     }
   })
 );
@@ -63,7 +63,9 @@ app.use((req, res, next) => {
   console.log(req.session);
   console.log(req.user);
   next();
-}) ;
+});
+
+app.use(express.static('dist_frontend'));
 
 // first argument is the path prefix for the routes in auth.ts
 app.use('/api/auth', authRouter);
@@ -73,6 +75,10 @@ app.use('/api/posts', postsRouter);
 app.use('/api/tasks', tasksRouter);
 app.use('/api/comments', commentsRouter);
 app.use('/api/notif', notificationRouter);
+
+app.get(/.*/, (req, res) => {
+  res.sendFile('index.html', { root: 'dist_frontend' });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on Port ${PORT}`);
