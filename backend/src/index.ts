@@ -21,6 +21,10 @@ app.set('trust proxy', 1); // tells Express to trust the reverse proxy (like Ver
 const PORT = 3000;
 const PgSession = connectPgSimple(session);
 
+//Parse body before routes
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // // Middleware
 // app.use(cors({
 //   origin: [
@@ -30,8 +34,8 @@ const PgSession = connectPgSimple(session);
 //   credentials: true 
 // }));
 
-const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, 'dist_frontend')));
+app.use(express.static(path.join(__dirname, '../dist_frontend')));
+
 // express-session middleware configuration
 
 // using postgreSQL database to store session
@@ -46,7 +50,7 @@ app.use(
     saveUninitialized: false,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day expiration
-      secure: true, // since we're using https
+      secure: process.env.NODE_ENV === 'production', // since we're using https
       sameSite: 'lax' // Adjust based on your deployment (e.g., 'lax' or 'strict' for same-site requests)
     }
   })
@@ -66,8 +70,6 @@ app.use((req, res, next) => {
   console.log(req.user);
   next();
 });
-
-app.use(express.static(path.join(__dirname, '../dist_frontend')));
 
 // first argument is the path prefix for the routes in auth.ts
 app.use('/api/auth', authRouter);
