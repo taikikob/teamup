@@ -8,6 +8,9 @@ https://www.casatrain.com/
 Username: **demo111**<br>
 Password: **demo**
 
+**Why I built this web application:**
+Athletes don't always have support at home. Some athletes may not have older siblings or parents that have played the same sport as them. Coaches usually don't have the platform that enables them to develop their players outside of practice. Casatrain aims to bridge the gap in support that athelets get at home, by enabling coaches to build interactive, custom roadmaps for their players to follow at home. This way, every athlete knows what they can do at home to develop. 
+
 If the website isn't loading, I might have recently pushed changes to the server, so please hard refresh the page.<br>
 
 ___________________________________________________________________________________________________________________<br>
